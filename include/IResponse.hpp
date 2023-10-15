@@ -13,9 +13,10 @@
 
 class IResponse
 {
-	public:
-		//virtual ;
-		virtual	~IResponse(){};
+public:
+    virtual ~IResponse(){};
+    virtual send() = 0;
+    virtual setStatusCode() = 0;
 
 };
 #endif
