@@ -16,10 +16,11 @@
 
 class IServer
 {
-	public:
-		//virtual ;
-		virtual IResponse	handle( const IRequest& req ) = 0;
-		virtual	~IServer(){};
-
+    public:
+        virtual	~IServer(){};
+        virtual void        listen() = 0;
+        virtual IResponse   handle( const IRequest& req ) = 0;
+        virtual IClient     accept() = 0;
 };
+
 #endif

@@ -4,15 +4,21 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: IClient.hpp 
+ *			File: ICGIHandler.hpp 
  */
 
 #pragma once
+#ifndef ICGIHANDLER_HPP
+#define ICGIHANDLER_HPP
 
-class IClient
+#include "IResponse.hpp"
+
+class ICGIHandler
 {
 	public:
-		//virtual ;
-		virtual	~IClient(){};
+		virtual	~ICGIHandler(){};
+        virtual IResponse   handle() = 0;
 
 };
+
+#endif

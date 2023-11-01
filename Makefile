@@ -8,12 +8,13 @@
 #|
 
 
-NAME := #1
+NAME := webserv
 
 CC := c++
-CFLAGS := -Wall -Wextra -Werror -std=c++98
+CFLAGS := -Wall -Wextra -Werror -std=c++98 -I./include -I./include/interfaces
 
-SRC := main.cpp 
+SRC := main.cpp \
+	Logger.cpp
 
 OBJ := $(addprefix obj/,$(SRC:.cpp=.o))
 
@@ -22,7 +23,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
-obj/%.o: %.cpp
+obj/%.o: src/%.cpp
 	@mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS) -o $@ -c $<
 

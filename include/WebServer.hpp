@@ -15,16 +15,17 @@
 #include <map>
 
 #include "IServer.hpp"
+#include "ISocketsMonitor.hpp"
 #include "ServersCluster.hpp"
 #include "ConnectionsPool.hpp"
 
 class WebServer
 {
-    /*  Private members here    */
-    WebServer*              mSingleton;
+    static WebServer*       mSingleton;
+
+    ISocketsMonitor         mSocketsMonitor;
     ServersCluster          mServers;
-    ConnectionsPool         mPool;
-    
+
 
     WebServer();
     WebServer( WebServer& w);
