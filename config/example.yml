@@ -25,7 +25,7 @@ http:
 		index: index.html
 		route:
 			uri: /
-			accepts:
+			allowed_methods:
 				- GET
 				- POST
 				- DELETE

@@ -20,7 +20,7 @@ ConfigParser::ConfigParser( ConfigParser& c )
 //TODO: Throw ParserException instead of std::invalid_argument.
 //
 
-ConfigParser::ConfigParser( const string& aConfigfilePath ) : mIsParsed(false)
+ConfigParser::ConfigParser( const string& aConfigfilePath )
 {
 	mFileStream.open(aConfigfilePath.c_str());
 	mFileStream.peek();
@@ -47,16 +47,12 @@ ConfigParser&	ConfigParser::operator=( ConfigParser& c )
 	return (*this);
 }
 
-void	ConfigParser::parse()
+const Config&	ConfigParser::parse()
 {
-	// parse
-
-	mIsParsed = true;
+	
 }
 
 const Config&	ConfigParser::getConfig()
 {
-	if ( ! mIsParsed )
-		parse();
 	return (mConfig);
 }

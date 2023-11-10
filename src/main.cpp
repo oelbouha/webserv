@@ -7,22 +7,19 @@
 // #include "ConfigParserFactory.hpp"
 // #include "Config.hpp"
 
+using	std::string;
+using	std::cout;
+using	std::endl;
+
 int main(int __unused c, char **v)
 {
-	IConfigParser*	parser = ConfigParserFactory::make("config/example.yml");
-	// IConfigParser*	parser = ConfigParser("config/example.yml");
+	// IConfigParser*	parser = ConfigParserFactory::make("config/example.yml");
+	const string	blockConfigs[] = {
+		"http",
+		"server"
+	};
 
-	// std::ifstream	infile;
+	cout << blockConfigs[0] << endl << blockConfigs[1] << endl;
 
-	// infile.exceptions( std::ifstream::failbit | std::ifstream::badbit );
-	// try{
-	// 	infile.open(v[1]);
-	// 	infile.peek();
-	// 	if (infile.fail() || infile.eof())
-	// 		std::cerr << "infile error" << std::endl;
-	// } catch(std::exception& e)
-	// {
-	// 	std::cerr << e.what() << std::endl;
-	// }
     return (0);
 }

@@ -24,19 +24,19 @@ class ConfigParser : public IConfigParser
 {
 	Config		mConfig;
 	ifstream	mFileStream;
-	bool		mIsParsed;
+
 
 	ConfigParser();
 	ConfigParser( ConfigParser& c );
 	ConfigParser&	operator=( ConfigParser& c );
 
-	void	parse();
 
 	public:
 		ConfigParser( const string& aConfigFilePath );
 		~ConfigParser();
 
 
+		const Config&	parse();
 		const Config&	getConfig();
 
 };
