@@ -1,0 +1,31 @@
+error_log_file: /Users/ysalmi/webserv.error.log
+error_log_level: warn
+
+http:
+	mime_types:
+		html: text/html
+		jpg: image/jpeg
+	keep_alive:	65
+	server_props: no
+
+  error_pages: 500 501 502 503 /50x.html
+
+	error_pages:
+		file: /var/lib/errors/5xx.html
+		codes:
+			- 500
+			- 501
+			- 502
+			- 503
+
+	server:
+		port: 8080
+		name: ysalmi.ma
+		root: /var/www/html
+		index: index.html
+		route:
+			uri: /
+			accepts:
+				- GET
+				- POST
+				- DELETE

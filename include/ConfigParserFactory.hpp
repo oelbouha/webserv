@@ -4,25 +4,21 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ConnectionsPool.hpp 
+ *			File: ConfigParserFactory.hpp 
  */
 
 #pragma once
+#ifndef CONFIGPARSERFACTORY_HPP
+#define CONFIGPARSERFACTORY_HPP
 
 #include <iostream>
 
-class ConnectionsPool
+#include "IConfigParser.hpp"
+#include "ConfigParser.hpp"
+
+class ConfigParserFactory
 {
-	/*	Private members here	*/
-
-
-	protected:
-
 	public:
-		ConnectionsPool( void );
-		ConnectionsPool( ConnectionsPool& c );
-		~ConnectionsPool();
-
-		ConnectionsPool&	operator=( ConnectionsPool& c );
-
+		static IConfigParser*	make( const string& aConfigFilePath );
 };
+#endif
