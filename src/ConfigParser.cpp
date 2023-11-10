@@ -47,9 +47,72 @@ ConfigParser&	ConfigParser::operator=( ConfigParser& c )
 	return (*this);
 }
 
+Config*			ConfigParser::parseBlock_(const string& key)
+{
+	Config*	config = new Config();
+	string	line;
+	int		block_tabs_count;
+	int		leading_tabs_count;
+
+	string	property;
+
+
+	while (true)
+	{
+		std::getline(mFileStream, line);
+
+		if (line.empty() || isComment_(line))
+			continue ;
+
+		leading_tabs_count = countLeadingTabs_(line);
+		if (leading_tabs_count < block_tabs_count)
+			break ;
+
+		property = extractProperty_(line);
+
+		if (!ConfigHelper::isPropertyOfBlock(key, property))
+		{
+			//throw ParserException(key + "does not have a `" + property + "` property");
+		}
+
+		else if (ConfigHelper::isInlineConfig(property))
+		{
+			string	value = parseInline_();
+			config->addInline(
+				property,
+				value
+			);
+		}
+		
+		else if (ConfigHelper::isListConfig(property))
+		{
+			vector<string>	list = parseList_();
+			config->addList(
+				property,
+				list
+			);
+		}
+		
+		else if (ConfigHelper::isBlockConfig(property))
+		{
+			config->addBlock(
+				property,
+				parseBlock_(property)
+			);
+		}
+	}
+	return (config);
+}
+
 const Config&	ConfigParser::parse()
 {
-	
+	string	line;
+	while (mFileStream){
+		std::getline(mFileStream, line);
+		if (line.empty())
+			continue ;
+		
+	}
 }
 
 const Config&	ConfigParser::getConfig()

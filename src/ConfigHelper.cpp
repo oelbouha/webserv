@@ -20,13 +20,7 @@ const string	ConfigHelper::sInlineConfigs[] = {
 	LIST_END
 };
 
-ConfigHelper::ConfigHelper()
-{}
-
-map< string, vector<string> >	ConfigHelper::initBlockConfigs()
-{
-	map< string, vector<string> >	blockConfigs;
-
+BlockConfigsType	ConfigHelper::initBlockConfigs(){
 	const string				blockConfigsRaw[] = {
 		"global:",
 			"http",
@@ -52,8 +46,9 @@ map< string, vector<string> >	ConfigHelper::initBlockConfigs()
 
 		LIST_END
 	};
-
+	map< const string, vector<string> >	blockConfigs;
 	string	key;
+
 	for (int i = 0; ! blockConfigsRaw[i].empty(); ++i)
 	{
 		string	entry = blockConfigsRaw[i];
@@ -66,4 +61,41 @@ map< string, vector<string> >	ConfigHelper::initBlockConfigs()
 			blockConfigs[key].push_back(entry);
 	}
 	return (blockConfigs);
+}
+
+const BlockConfigsType ConfigHelper::sBlockConfigs = ConfigHelper::initBlockConfigs();
+
+ConfigHelper::ConfigHelper()
+{}
+
+bool	ConfigHelper::isBlockConfig(const string& aConfig)
+{
+	if (aConfig != "global" && ConfigHelper::sBlockConfigs.find(aConfig) != ConfigHelper::sBlockConfigs.end())
+		return true;
+	return false;
+}
+
+bool	ConfigHelper::isPropertyOfBlock(const string& aConfig, const string& aProperty)
+{
+	vector<string>	properties = ConfigHelper::sBlockConfigs.at(aConfig);
+
+	if (std::find(properties.begin(), properties.end(), aProperty) != properties.end())
+		return true;
+	return false;
+}
+
+bool	ConfigHelper::isListConfig(const string& aConfig)
+{
+	for (int i = 0; ! ConfigHelper::sListConfigs[i].empty() ; ++i)
+		if (ConfigHelper::sListConfigs[i] == aConfig)
+			return true;
+	return false;
+}
+
+bool	ConfigHelper::isInlineConfig(const string& aConfig)
+{
+	for (int i = 0; ! ConfigHelper::sInlineConfigs[i].empty() ; ++i)
+		if (ConfigHelper::sInlineConfigs[i] == aConfig)
+			return true;
+	return false;
 }

@@ -14,6 +14,7 @@ CC := c++
 CFLAGS := -Wall -Wextra -Werror -std=c++98 -I./include -I./include/interfaces
 
 SRC := main.cpp \
+	ConfigHelper.cpp \
 	Logger.cpp
 
 OBJ := $(addprefix obj/,$(SRC:.cpp=.o))

@@ -15,10 +15,13 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <sstream>
 
 #include "IConfigParser.hpp"
+#include "ConfigHelper.hpp"
 
 using	std::ifstream;
+using	std::stringstream;
 
 class ConfigParser : public IConfigParser
 {
@@ -30,6 +33,15 @@ class ConfigParser : public IConfigParser
 	ConfigParser( ConfigParser& c );
 	ConfigParser&	operator=( ConfigParser& c );
 
+	// Class Utilities
+	unsigned int	countLeadingTabs_(const string& line);
+	bool			isComment_(const string& line);
+	string			extractProperty_(const string& line);
+
+	// Class Parsing Units
+	Config*			parseBlock_(const string& key);
+	vector<string>	parseList_();
+	string			parseInline_();
 
 	public:
 		ConfigParser( const string& aConfigFilePath );
@@ -40,4 +52,6 @@ class ConfigParser : public IConfigParser
 		const Config&	getConfig();
 
 };
+
+
 #endif

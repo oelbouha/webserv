@@ -39,5 +39,9 @@ class Config
 		vector<Config*>		getBlockConfigs(const string& key);
 		vector<string>		getListConfigs(const string& key);
 		const string&		getInlineConfig(const string& key);
+
+		void				addBlock(const string& property, Config* value);
+		void				addList(const string& property, vector<string>& value);
+		void				addInline(const string& property, string& value);
 };
 #endif

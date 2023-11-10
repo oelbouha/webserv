@@ -7,19 +7,19 @@
 // #include "ConfigParserFactory.hpp"
 // #include "Config.hpp"
 
+#include "ConfigHelper.hpp"
+
 using	std::string;
 using	std::cout;
 using	std::endl;
 
-int main(int __unused c, char **v)
+int main(int __unused c, char __unused **v)
 {
 	// IConfigParser*	parser = ConfigParserFactory::make("config/example.yml");
-	const string	blockConfigs[] = {
-		"http",
-		"server"
-	};
 
-	cout << blockConfigs[0] << endl << blockConfigs[1] << endl;
+	bool check = ConfigHelper::isInlineConfig("http");
+	if (check)
+		std::cout << "true" << std::endl;
 
     return (0);
 }
