@@ -8,8 +8,10 @@
  */
 
 #include "ConfigParserFactory.hpp"
-
-IConfigParser*	ConfigParserFactory::make( const string& aConfigFilePath )
+namespace factory
 {
-	return (new ConfigParser(aConfigFilePath));
+	IConfigParser*	makeConfigParser( const string& aConfigFilePath )
+	{
+		return (new ConfigParser(aConfigFilePath));
+	}
 }

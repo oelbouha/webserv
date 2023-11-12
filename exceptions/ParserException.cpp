@@ -9,10 +9,10 @@
 
 #include "ParserException.hpp"
 
-ParserException::ParserException( void ) : m_msg("")
+ParserException::ParserException( void ) : mMessage("Parser Error")
 {}
 
-ParserException::ParserException( std::string& msg ) : m_msg(msg)
+ParserException::ParserException( std::string& aMessage ) : mMessage(aMessage)
 {}
 
 ParserException::~ParserException( void ) throw ()
@@ -20,6 +20,6 @@ ParserException::~ParserException( void ) throw ()
 
 const char*	ParserException::what( void ) const throw()
 {
-	return (msg.c_str());
+	return (mMessage.c_str());
 }
 

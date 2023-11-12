@@ -14,12 +14,9 @@ ConfigParser::ConfigParser()
 {}
 
 ConfigParser::ConfigParser( ConfigParser& c )
-{}
+{(void)c;}
 
-//
 //TODO: Throw ParserException instead of std::invalid_argument.
-//
-
 ConfigParser::ConfigParser( const string& aConfigfilePath )
 {
 	mFileStream.open(aConfigfilePath.c_str());
@@ -42,17 +39,36 @@ ConfigParser::~ConfigParser()
 	mFileStream.close();
 }
 
+
 ConfigParser&	ConfigParser::operator=( ConfigParser& c )
 {
+	(void)c;
 	return (*this);
 }
 
+
+const Config&	ConfigParser::parse()
+{
+	mConfig = parseBlock_("global");
+	return (*mConfig);
+}
+
+const Config&	ConfigParser::getConfig()
+{
+	return (*mConfig);
+}
+
+
+//	PRIVATE METHODS
 Config*			ConfigParser::parseBlock_(const string& key)
 {
 	Config*	config = new Config();
 	string	line;
-	int		block_tabs_count;
-	int		leading_tabs_count;
+
+	std::getline(mFileStream, line);
+
+	int		block_tabs_count = countLeadingTabs_(line);
+	int		leading_tabs_count = 0;
 
 	string	property;
 
@@ -104,18 +120,37 @@ Config*			ConfigParser::parseBlock_(const string& key)
 	return (config);
 }
 
-const Config&	ConfigParser::parse()
+
+vector<string>	ConfigParser::parseList_()
 {
-	string	line;
-	while (mFileStream){
-		std::getline(mFileStream, line);
-		if (line.empty())
-			continue ;
-		
-	}
+	vector<string>	v;
+
+	return v;
 }
 
-const Config&	ConfigParser::getConfig()
+string			ConfigParser::parseInline_()
 {
-	return (mConfig);
+	string	value;
+
+	return value;
+}
+
+unsigned int	ConfigParser::countLeadingTabs_(const string& line) const
+{
+	string	tmp = line;
+
+	
+	return (0);
+}
+
+bool			ConfigParser::isComment_(const string& line) const
+{
+	(void)line;
+	return false;
+}
+
+string			ConfigParser::extractProperty_(const string& line) const
+{
+	(void)line;
+	return ("property");
 }

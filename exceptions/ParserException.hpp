@@ -17,13 +17,13 @@
 
 class ParserException : public std::exception
 {
-	std::string	mMsg;
+	std::string	mMessage;
 
 	protected:
 
 	public:
 		ParserException();
-		ParserException( std::string& aMsg );
+		ParserException( std::string& aMessage );
 		~ParserException() throw ();
 		const char*	what( void ) const throw();
 

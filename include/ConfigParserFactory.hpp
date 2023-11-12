@@ -16,9 +16,8 @@
 #include "IConfigParser.hpp"
 #include "ConfigParser.hpp"
 
-class ConfigParserFactory
+namespace factory
 {
-	public:
-		static IConfigParser*	make( const string& aConfigFilePath );
-};
+	IConfigParser*	makeConfigParser( const string& aConfigFilePath );
+}
 #endif

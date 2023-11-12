@@ -19,13 +19,14 @@
 
 #include "IConfigParser.hpp"
 #include "ConfigHelper.hpp"
+#include "ParserException.hpp"
 
 using	std::ifstream;
 using	std::stringstream;
 
 class ConfigParser : public IConfigParser
 {
-	Config		mConfig;
+	Config*		mConfig;
 	ifstream	mFileStream;
 
 
@@ -34,9 +35,9 @@ class ConfigParser : public IConfigParser
 	ConfigParser&	operator=( ConfigParser& c );
 
 	// Class Utilities
-	unsigned int	countLeadingTabs_(const string& line);
-	bool			isComment_(const string& line);
-	string			extractProperty_(const string& line);
+	unsigned int	countLeadingTabs_(const string& line) const;
+	bool			isComment_(const string& line) const;
+	string			extractProperty_(const string& line) const;
 
 	// Class Parsing Units
 	Config*			parseBlock_(const string& key);
