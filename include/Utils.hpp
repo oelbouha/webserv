@@ -11,18 +11,13 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <string>
+
 namespace utils
 {
-	std::string&	replace_all(std::string& str, const std::string& old_word, const std::string& new_word)
-	{
-		std::string::size_type n = 0;
-		while ( ( n = str.find( old_word, n ) ) != std::string::npos )
-		{
-			str.replace( n, old_word.length(), new_word );
-			n += old_word.length();
-		}
-		return (str);
-	}
+	std::string&	replace_all(std::string& str, const std::string& old_word, const std::string& new_word);
+
+	std::size_t		find_last_not_of(const std::string& s, const std::string& set, std::size_t start = 0);
 }
 
 #endif

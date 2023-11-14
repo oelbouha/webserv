@@ -36,12 +36,14 @@ class Config
 		Config( const fstream& aFileStream );
 		~Config();
 
-		vector<Config*>		getBlockConfigs(const string& key);
-		vector<string>		getListConfigs(const string& key);
-		const string&		getInlineConfig(const string& key);
+		vector<Config*>		getBlockConfig(const string& key) const;
+		vector<string>		getListConfig(const string& key) const;
+		const string&		getInlineConfig(const string& key) const;
 
 		void				addBlock(const string& property, Config* value);
-		void				addList(const string& property, vector<string>& value);
-		void				addInline(const string& property, string& value);
+		void				addList(const string& property, const vector<string>& value);
+		void				addInline(const string& property, const string& value);
+
+		void	dump(int indent = 0) const;
 };
 #endif

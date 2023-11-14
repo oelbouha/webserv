@@ -17,13 +17,13 @@ ConfigParser::ConfigParser( ConfigParser& c )
 {(void)c;}
 
 //TODO: Throw ParserException instead of std::invalid_argument.
-ConfigParser::ConfigParser( const string& aConfigfilePath )
+ConfigParser::ConfigParser( const string& aConfigFile ) : mFileName(aConfigFile)
 {
-	mFileStream.open(aConfigfilePath.c_str());
+	mFileStream.open(aConfigFile.c_str());
 	mFileStream.peek();
 	if (mFileStream.fail())
 	{
-		//throw ParserException("File could NOT be opened");
+		// throw ParserException("File could NOT be opened");
 		throw std::invalid_argument("File could NOT be opened");
 
 	}
@@ -60,40 +60,44 @@ const Config&	ConfigParser::getConfig()
 
 
 //	PRIVATE METHODS
-Config*			ConfigParser::parseBlock_(const string& key)
+Config*			ConfigParser::parseBlock_(const string& aKey, int aTabCount)
 {
 	Config*	config = new Config();
 	string	line;
 
-	std::getline(mFileStream, line);
-
-	int		block_tabs_count = countLeadingTabs_(line);
+	int		block_tabs_count = 0;
 	int		leading_tabs_count = 0;
 
 	string	property;
 
-
-	while (true)
+	while (mFileStream)
 	{
 		std::getline(mFileStream, line);
+		++mLineNumber;
 
-		if (line.empty() || isComment_(line))
+		if (isComment_(line))
 			continue ;
 
 		leading_tabs_count = countLeadingTabs_(line);
-		if (leading_tabs_count < block_tabs_count)
+
+		if (aTabCount != -1 && !block_tabs_count)
+			block_tabs_count = leading_tabs_count;
+
+		if (aTabCount != -1 && leading_tabs_count <= aTabCount)
 			break ;
+		else if (leading_tabs_count != block_tabs_count)
+			throw ParserException(mFileName, "Misaligned Indentations", mLineNumber);
 
 		property = extractProperty_(line);
 
-		if (!ConfigHelper::isPropertyOfBlock(key, property))
-		{
-			//throw ParserException(key + "does not have a `" + property + "` property");
-		}
+		if (!ConfigHelper::isPropertyOfBlock(aKey, property))
+			throw ParserException(mFileName,
+				aKey + " does not have a `" + property + "` property",
+				mLineNumber);
 
 		else if (ConfigHelper::isInlineConfig(property))
 		{
-			string	value = parseInline_();
+			string	value = parseInline_(line);
 			config->addInline(
 				property,
 				value
@@ -102,7 +106,7 @@ Config*			ConfigParser::parseBlock_(const string& key)
 		
 		else if (ConfigHelper::isListConfig(property))
 		{
-			vector<string>	list = parseList_();
+			vector<string>	list = parseList_(block_tabs_count);
 			config->addList(
 				property,
 				list
@@ -113,44 +117,131 @@ Config*			ConfigParser::parseBlock_(const string& key)
 		{
 			config->addBlock(
 				property,
-				parseBlock_(property)
+				parseBlock_(property, block_tabs_count)
 			);
 		}
+
+		else
+			throw ParserException(mFileName, "Unkown property : " + property, mLineNumber);
 	}
 	return (config);
 }
 
 
-vector<string>	ConfigParser::parseList_()
+vector<string>	ConfigParser::parseList_(int aTabCount)
 {
-	vector<string>	v;
+	vector<string>	list;
+	string			value;
+	string			line;
+	int				tabCount;
 
-	return v;
+	while (true)
+	{
+		std::getline(mFileStream, line);
+		++mLineNumber;
+
+		tabCount = countLeadingTabs_(line);
+
+		if (tabCount > aTabCount + 1)
+			throw ParserException(mFileName, "Misaligned Indentations", mLineNumber);
+		else if (tabCount <= aTabCount)
+			break ;
+
+		line = line.substr(line.find_first_not_of(" \t"));
+
+		if (line.empty() || isComment_(line))
+			continue;
+
+		if( line[0] != '-')
+			throw ParserException(mFileName, "Misaligned Indentations", mLineNumber);
+		if (line[1] != ' ' && line[1] != '\t')
+			throw ParserException(mFileName, "Expected list item (example: - value)", mLineNumber);
+
+		line = line.substr(2);
+
+		int first_non_space_char = line.find_first_not_of(" \t");
+		int	last_non_space_char = line.length() - 1;
+		while (line[last_non_space_char] == ' ' || line[last_non_space_char] == '\t')
+			--last_non_space_char;
+		++last_non_space_char;
+
+		value = line.substr(first_non_space_char, last_non_space_char - first_non_space_char);
+
+		list.push_back(value);
+	}
+	return list;
 }
 
-string			ConfigParser::parseInline_()
+string			ConfigParser::parseInline_(const string& line)
 {
-	string	value;
+	std::size_t	first_non_space_char = line.find_first_not_of(" \t", line.find(':') + 1);
+	std::size_t last_non_space_char = utils::find_last_not_of(line, " \t");
+	
+	if (first_non_space_char == std::string::npos)
+		throw ParserException(mFileName, "Empty field", mLineNumber);
 
-	return value;
+	else if (!std::isspace(line[first_non_space_char - 1]))
+		throw ParserException(mFileName, "Invalid Syntax - Missing space after collon", mLineNumber);
+
+	string	value = line.substr(first_non_space_char, last_non_space_char - first_non_space_char);
+
+
+	return (value);
 }
 
 unsigned int	ConfigParser::countLeadingTabs_(const string& line) const
 {
-	string	tmp = line;
+	int		count = 0;
 
-	
-	return (0);
+	if (line[0] == ' ')// using spaces - 2spaces = 1tab 15000
+	{
+		for(;;count += 2)
+		{
+			if (!std::isspace(line[count]))
+				return (count / 2);
+		
+			else if (line[count] == ' ' && line[count + 1] == ' ')
+				continue ;
+
+			else if (line[count] == '\t' || line[count + 1] == '\t')
+				throw ParserException(mFileName, "Mixing spaces/tabs", mLineNumber);
+			throw ParserException(mFileName, "Uneven Indentation", mLineNumber);
+		}
+	}
+	else if (line[0] == '\t')// using tabs
+	{
+		for(;;++count)
+		{
+			if (line[count] != ' ' && line[count] != '\t')
+				return (count);
+
+			else if (line[count] == '\t')
+				continue ;
+
+			throw ParserException(mFileName, "Mixing spaces/tabs", mLineNumber);
+		}
+	}
+	return (count);
 }
 
 bool			ConfigParser::isComment_(const string& line) const
 {
-	(void)line;
-	return false;
+	std::size_t	pos = line.find_first_not_of(" \t");
+	
+	if (pos == std::string::npos)
+		return (true);
+	return (line[pos] == '#');
 }
 
 string			ConfigParser::extractProperty_(const string& line) const
 {
-	(void)line;
-	return ("property");
+	std::size_t	collon_pos = line.find(':');
+	if (collon_pos == std::string::npos)
+		throw ParserException(mFileName, "Invalid Syntax", mLineNumber);
+	
+	std::size_t	first_non_space_letter_pos = line.find_first_not_of(" \t", 0);
+	std::string property = line.substr(first_non_space_letter_pos, collon_pos - first_non_space_letter_pos);
+
+	std::size_t	last_non_space_char_pos = utils::find_last_not_of(property, " \t");
+	return (property.substr(0, last_non_space_char_pos));
 }

@@ -4,36 +4,56 @@
 #include <iostream>
 #include <string>
 
+std::string	test_name(std::string s);
+
+#define	SUITE(name) \
+std::cout << __FILE__ << " : " << name << std::endl
+
 #define TEST_NAME(name) test_name(#name)
 
 #define TEST(name, code) 									\
 void	name(){ 											\
-	std::cout << TEST_NAME(name) << " ::: ";				\
+	bool	fail = false;									\
 	try {													\
 		code												\
 	}catch(...){											\
-		std::cout << " Unhandeled Exception." << std::endl; \
+		std::cout<<"\t\e[31m✗ unhandled exception\e[0m - "; \
+		std::cout << TEST_NAME(name) << std::endl;			\
+		return ;											\
 	} 														\
+	if (fail)												\
+		std::cout << "\t\e[31m✗ fail\e[0m - "; 				\
+	else													\
+		std::cout << "\t\e[32m✓ pass\e[0m - ";				\
+	std::cout << TEST_NAME(name) << std::endl;				\
 }
 
 #define TEST_RUN(name)	name()
 
 
 #define	ASSERT_EXCEPTION(code, exception)	\
-try{ \
-	code \
-} catch(exception&) { \
-	std::cout << "\tpass" << std::endl; \
-} catch(...){ \
-	std::cout << "\tfail" << std::endl; \
+try{										\
+	code 									\
+} catch(exception&) { 						\
+} catch(...){ 								\
+	fail = true;							\
+}
+
+#define	ASSERT_NO_EXCEPTION(code)		\
+try{ 									\
+	code				 				\
+} catch(...){ 							\
+	fail = true; 						\
 }
 
 
 #define	ASSERT_EQUAL(one, two) 				\
+	if (one != two)							\
+		fail = true;
+
+#define	ASSERT_NOT_EQUAL(one, two) 			\
 	if (one == two)							\
-		std::cout << "passed" << std::endl;	\
-	else									\
-		std::cout << "failed" << std::endl
+		fail = true;
 
 
 

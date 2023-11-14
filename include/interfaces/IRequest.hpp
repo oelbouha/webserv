@@ -18,7 +18,7 @@ class IRequest
 public:
     virtual ~IRequest(){};
     virtual const std::string& getMethod() = 0;
-    virtual const std::string& getPath() = 0;
+    virtual const std::string& getUri() = 0;
     virtual const std::string& getHttpVersion() = 0;
     virtual const std::string& getHost() = 0;
     virtual const std::string& getHeader( const std::string& key ) = 0;

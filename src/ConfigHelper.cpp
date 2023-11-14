@@ -9,14 +9,28 @@
 
 #include "ConfigHelper.hpp"
 
-const string	ConfigHelper::sListConfigs[] = {
-	"allowed_methods",
+const string	ConfigHelper::sInlineConfigs[] = {
+	"port",
+	"name",
+	"root",
+	"index",
+	"keep_alive",
+	"uri",
+	"error_log_file",
+	"error_log_level",
+	"server_props",
+
+	"inline_property",
+	"prop1",
 	LIST_END
 };
 
-const string	ConfigHelper::sInlineConfigs[] = {
-	"port",
-	"keep_alive",
+const string	ConfigHelper::sListConfigs[] = {
+	"allowed_methods",
+
+	"list_property",
+	"prop2",
+
 	LIST_END
 };
 
@@ -26,6 +40,15 @@ BlockConfigsType	ConfigHelper::initBlockConfigs(){
 			"http",
 			"error_log_file",
 			"error_log_level",
+
+			"inline_property",
+			"list_property",
+			"block_property",
+			"test_property",
+		
+		"block_property:",
+			"prop1",
+			"prop2",
 
 		"http:",
 			"mime_types",
@@ -43,6 +66,10 @@ BlockConfigsType	ConfigHelper::initBlockConfigs(){
 			"root",
 			"index",
 			"route",
+
+		"route:",
+			"uri",
+			"allowed_methods",
 
 		LIST_END
 	};

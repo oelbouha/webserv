@@ -21,13 +21,17 @@
 #include "ConfigHelper.hpp"
 #include "ParserException.hpp"
 
+#include "Utils.hpp"
+
 using	std::ifstream;
 using	std::stringstream;
 
 class ConfigParser : public IConfigParser
 {
 	Config*		mConfig;
+	string		mFileName;
 	ifstream	mFileStream;
+	size_t		mLineNumber;
 
 
 	ConfigParser();
@@ -40,9 +44,9 @@ class ConfigParser : public IConfigParser
 	string			extractProperty_(const string& line) const;
 
 	// Class Parsing Units
-	Config*			parseBlock_(const string& key);
-	vector<string>	parseList_();
-	string			parseInline_();
+	Config*			parseBlock_(const string& aKey, int aTabCount = -1);
+	vector<string>	parseList_(int aTabCount);
+	string			parseInline_(const string& aLine);
 
 	public:
 		ConfigParser( const string& aConfigFilePath );

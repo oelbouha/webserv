@@ -11,18 +11,31 @@ NAME := webserv
 
 CC := c++
 
-I := -I. \
+INC := -I. \
 	-I./include \
 	-I./include/interfaces \
-	-I./exceptions
+	-I./include/exceptions
 
-CPPFLAGS := -Wall -Wextra -Werror -std=c++98 $(I)
+TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
+
+LINKER := -L/goinfre/ysalmi/brew/opt/llvm/lib/c++ \
+		-Wl,-rpath,/goinfre/ysalmi/brew/opt/llvm/lib/c++
+
+TEST_INC := -I/goinfre/ysalmi/brew/Cellar/googletest/1.14.0/include
+
+TEST_LIB := -lgtest -L/goinfre/ysalmi/brew/Cellar/googletest/1.14.0/lib
+
+# TEST_FLAGS := $(TEST_INC) $(TEST_LIB)
+
+CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP)
 
 
 BASE := Config.cpp \
 	ConfigHelper.cpp \
 	ConfigParser.cpp \
-	ConfigParserFactory.cpp
+	ConfigParserFactory.cpp \
+	Utils.cpp \
+	exceptions/ParserException.cpp
 
 SRC := main.cpp \
 	$(BASE)
@@ -44,21 +57,17 @@ endif
 all: $(NAME)
 
 test: $(BASE_OBJ) tests/test$(TEST_ARGS).cpp tests/test.h
-	@$(CC) $(CPPFLAGS) -o test $(BASE_OBJ) tests/test$(TEST_ARGS).cpp
+	@$(CC) $(CPPFLAGS) $(TEST_INC) $(TEST_LIB) -o test $(BASE_OBJ) tests/test$(TEST_ARGS).cpp
 	@./test
+	@rm test
 
 $(NAME): $(OBJ) #obj/main.o obj/Config.o obj/ConfigHelper.o obj/ConfigParser.o obj/ConfigParserFactory.o
 	$(CC) $(CPPFLAGS) -o $@ $^
 
-.PHONY: echo
-echo:
-	@echo $(OBJ)
 
 obj/%.o: src/%.cpp
 	@mkdir -p $(shell dirname $@)
 	$(CC) $(CPPFLAGS) -o $@ -c $<
-
-
 
 clean:
 	rm -rf obj/
@@ -69,4 +78,3 @@ fclean:
 re: fclean all
 
 .PHONY: all clean fclean re
-
