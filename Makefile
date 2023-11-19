@@ -9,7 +9,7 @@
 
 NAME := webserv
 
-CC := c++
+CC := clang++
 
 INC := -I. \
 	-I./include \
@@ -34,8 +34,10 @@ BASE := Config.cpp \
 	ConfigHelper.cpp \
 	ConfigParser.cpp \
 	ConfigParserFactory.cpp \
+	Socket.cpp \
 	Utils.cpp \
-	exceptions/ParserException.cpp
+	exceptions/ParserException.cpp \
+	exceptions/SocketException.cpp
 
 SRC := main.cpp \
 	$(BASE)

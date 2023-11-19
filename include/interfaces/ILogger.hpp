@@ -25,6 +25,14 @@ namespace logger
     const endl_t    endl;
     const flush_t   flush;
 
+    extern std::ostream&   inform;
+
+    template <typename T>
+    void    info_(const T& aMsg)
+    {
+        std::cout << aMsg;
+    }
+
     enum LogLevel
     {
         debug,

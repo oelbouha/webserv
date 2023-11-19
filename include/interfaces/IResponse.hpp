@@ -11,12 +11,16 @@
 #ifndef IRESPONSE_HPP
 #define IRESPONSE_HPP
 
+#include <string>
+
 class IResponse
 {
 public:
     virtual ~IResponse(){};
-    virtual send() = 0;
-    virtual setStatusCode() = 0;
-
+    virtual void        activate() = 0;
+    virtual void        send() = 0;
+    virtual IResponse&  setStatusCode(int aStatusCode) = 0;
+    virtual IResponse&  setHeader(const std::string& aKey, const std::string& aValue ) = 0;
+    virtual bool        isComplete() = 0;
 };
 #endif

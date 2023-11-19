@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 
+#include "WebServer.hpp"
 #include "IConfigParser.hpp"
 #include "ConfigParserFactory.hpp"
 #include "Config.hpp"
@@ -10,25 +11,29 @@
 #include "ConfigHelper.hpp"
 #include "Utils.hpp"
 
+#include "Socket.hpp"
+
 using	std::string;
 using	std::cout;
 using	std::endl;
 
 int main(int __unused c, char __unused **v)
 {
-	try {
-		IConfigParser*	parser = factory::makeConfigParser("config/example.yml");
-		const Config&	conf = parser->parse();
+	std::string	configFilePath("defaultPath");
 
-		conf.dump();
-	} catch (const ParserException& e)
+	if (c > 1)
+		configFilePath = v[1];
+	
+	try
 	{
-		cout << e.what() << endl;
-	}
-	catch (const std::exception& e)
-	{
-		cout << "not a ParserException : " << e.what() << endl;
-	}
+		const Config&	config = factory::makeConfigParser(configFilePath)->parse();
+		WebServer		server(&config);
 
-    return (0);
+		server.start();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	return (0);
 }

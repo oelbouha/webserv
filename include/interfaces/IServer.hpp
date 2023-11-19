@@ -14,13 +14,15 @@
 #include "IRequest.hpp"
 #include "IResponse.hpp"
 
+#include "IClient.hpp"
+
 class IServer
 {
     public:
         virtual	~IServer(){};
         virtual void        listen() = 0;
         virtual IResponse   handle( const IRequest& req ) = 0;
-        virtual IClient     accept() = 0;
+        virtual IClient*    accept() = 0;
 };
 
 #endif

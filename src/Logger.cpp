@@ -1,5 +1,10 @@
 #include "Logger.hpp"
 
+namespace logger
+{
+    std::ostream&   inform = std::cout;
+}
+
 Logger* Logger::mInstance = NULL;
 
 Logger::Logger():

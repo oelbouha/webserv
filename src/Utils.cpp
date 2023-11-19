@@ -33,4 +33,24 @@ namespace utils
             return (pos);
         return (std::string::npos);
     }
+
+	unsigned int	ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d)
+	{
+		return (a << 24 | b << 16 | c << 8 | d);
+	}
+
+	std::string		ip(unsigned int aIP)
+	{
+		std::string		ret;
+		unsigned char	byte = aIP >> 24;
+
+		ret += std::to_string(byte) + ".";
+		byte = aIP >> 16 & 255;
+		ret += std::to_string(byte) + ".";
+		byte = aIP >> 8 & 255;
+		ret += std::to_string(byte) + ".";
+		byte = aIP & 255;
+		ret += std::to_string(byte);
+		return (ret);
+	}
 }

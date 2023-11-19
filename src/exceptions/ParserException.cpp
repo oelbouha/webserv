@@ -9,29 +9,28 @@
 
 #include "ParserException.hpp"
 
-ParserException::ParserException( void )
+ParserException::ParserException() : mMessage("Parser Error")
 {}
 
 ParserException::ParserException( const std::string& aFileName, const std::string& aError, int aLine ) :
 mFileName(aFileName),
 mError(aError),
 mLine(aLine)
-{}
+{
+	if (mFileName.empty())
+		mMessage = std::string("\e[1m\e[31mconfig error\e[0m : ConfigParser error");
+	else
+		mMessage = "\e[1m\e[31mconfig error\e[0m: "
+					+ mFileName
+					+ ":" + std::to_string(mLine) + "\n\t"
+					+ mError;
+}
 
 ParserException::~ParserException( void ) throw ()
 {}
 
 const char*	ParserException::what( void ) const throw()
 {
-	std::string	message;
-	if (mFileName.empty())
-		message = "\e[1m\e[31mconfig error\e[0m : ConfigParser error";
-	else
-		message = "\e[1m\e[31mconfig error\e[0m: "
-					+ mFileName
-					+ ":" + std::to_string(mLine) + "\n\t"
-					+ mError;
-
-	return (message.c_str());
+	return (mMessage.c_str());
 }
 

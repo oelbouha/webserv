@@ -4,20 +4,21 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ICGIHandler.hpp 
+ *			File: WebServer.cpp 
  */
 
-#pragma once
-#ifndef ICGIHANDLER_HPP
-#define ICGIHANDLER_HPP
+#include "WebServer.hpp"
 
-#include "IResponse.hpp"
+WebServer::WebServer()
+{}
 
-class ICGIHandler
+WebServer::WebServer( const WebServer& w )
+{}
+
+WebServer::~WebServer()
+{}
+
+WebServer&	WebServer::operator=( const WebServer& w )
 {
-	public:
-		virtual	~ICGIHandler(){};
-        virtual IResponse   handle() = 0;
-};
-
-#endif
+	return (*this);
+}

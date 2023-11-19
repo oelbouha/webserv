@@ -8,11 +8,19 @@
  */
 
 #pragma once
+#ifndef ICLIENT_HPP
+#define ICLIENT_HPP
+
+#include "IRequest.hpp"
 
 class IClient
 {
     public:
         virtual ~IClient(){};
-        virtual IRequest    newRequest() = 0;
+        virtual void        activate() = 0;
+        virtual void        fillRequest() = 0;
+        virtual bool        hasRequest() = 0;
+        virtual IRequest*   getRequest() = 0;
 
 };
+#endif

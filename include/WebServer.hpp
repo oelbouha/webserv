@@ -14,30 +14,38 @@
 #include <iostream>
 #include <map>
 
+#include "Config.hpp"
 #include "IServer.hpp"
-#include "ISocketsMonitor.hpp"
+#include "IMultiplexer.hpp"
+
 #include "ServersCluster.hpp"
-#include "ConnectionsPool.hpp"
 
 class WebServer
 {
     static WebServer*       mSingleton;
 
-    ISocketsMonitor         mSocketsMonitor;
-    ServersCluster          mServers;
+public:
+    static WebServer&       getInstace();
 
+
+private:
+    Config*                 mConfig;
+    map<string, IServer*>   mServers;//key should be ip:port
+    IMultiplexer*           mMx;
+    // ServersCluster*         mServers;
 
     WebServer();
     WebServer( WebServer& w);
-    ~WebServer();
 
     WebServer&  operator=( WebServer& w );
-    
+
     void    loop();
 
-    public:
-        static WebServer*   init();
-        void                run();
+public:
+    WebServer(const Config* aConfig);
+    ~WebServer();
+
+    void    start();
 
 };
 #endif

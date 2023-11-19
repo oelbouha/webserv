@@ -21,7 +21,24 @@ Config::Config( const fstream& aFileStream )
 }
 
 Config::~Config()
-{}
+{
+	map<string, vector<Config*> >::iterator	mapIt = mBlockConfigs.begin();
+
+	while (mapIt != mBlockConfigs.end())
+	{
+		// mapIt->second is a vector of Config*
+		vector<Config*>&	vec = mapIt->second;
+		vector<Config*>::iterator vectorIt = vec.begin();
+
+		while (vectorIt != vec.end())
+		{
+			// *vectorIt is a Config*
+			delete *vectorIt;
+			++vectorIt;
+		}
+		++mapIt;
+	}
+}
 
 Config&	Config::operator=( Config& c )
 {

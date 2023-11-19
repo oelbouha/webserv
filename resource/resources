@@ -1,0 +1,18 @@
+
+concept
+Sockets:
+  socket -> returns a socket(fildes)
+  setsockopt -> manipulates sockets
+  bind -> binds a socket to a addr:port pair
+  listen 
+  accept -> returns a socket(fildes)
+  ---
+  connect
+
+Non-Blocking io:
+
+io multiplexing:
+  watch(sockets, timeout)
+  select, poll/epoll, kqueue/kevent
+
+CGI:

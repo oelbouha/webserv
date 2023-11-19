@@ -4,30 +4,25 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ParserException.hpp 
+ *			File: SocketException.hpp 
  */
 
 #pragma once
-#ifndef PARSEREXCEPTION_HPP
-#define PARSEREXCEPTION_HPP
+#ifndef SOCKETEXCEPTION_HPP
+#define SOCKETEXCEPTION_HPP
 
 #include <iostream>
 #include <string>
 #include <cstring>
 
-class ParserException : public std::exception
+class SocketException : public std::exception
 {
-	std::string mMessage;
-
-	std::string	mFileName;
-	std::string	mError;
-	int			mLine;
+	std::string	mMessage;
 
 	public:
-		ParserException();
-		ParserException( const std::string& aFileName, const std::string& aError, int aLine );
-		~ParserException() throw ();
+		SocketException();
+		SocketException( const std::string& aMessage );
+		~SocketException() throw ();
 		const char*	what( void ) const throw();
-
 };
 #endif

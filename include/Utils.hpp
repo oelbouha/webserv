@@ -18,6 +18,10 @@ namespace utils
 	std::string&	replace_all(std::string& str, const std::string& old_word, const std::string& new_word);
 
 	std::size_t		find_last_not_of(const std::string& s, const std::string& set, std::size_t start = 0);
+
+	unsigned int	ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d);
+
+	std::string		ip(unsigned int aIP);
 }
 
 #endif
