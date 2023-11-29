@@ -23,6 +23,12 @@
 
 #include "IServerSocket.hpp"
 
+#include "src/Socket/ServerSocket.hpp"
+#include "src/Socket/ClientSocket.hpp"
+#include "src/Request/Request.hpp"
+#include "src/Response/Response.hpp"
+
+
 class WebServer
 {
     static WebServer*       mSingleton;
@@ -38,18 +44,20 @@ private:
     vector<IServerSocket*>  mSockets;
     IMultiplexer*           mMx;
 
+    ServerSocket            mSocket;
+
     WebServer();
     WebServer( const WebServer& w);
 
     WebServer&  operator=( const WebServer& w );
 
-    void    loop();
 
 public:
     WebServer(const Config* aConfig);
     ~WebServer();
 
     void    start();
+    void    loop();
 
 };
 #endif

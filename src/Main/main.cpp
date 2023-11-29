@@ -13,9 +13,9 @@
 
 #include "Utils.hpp"
 
-int main(int __unused c, char __unused **v)
+int main(int c, char *v[])
 {
-	std::string	configFilePath("defaultPath");
+	std::string	configFilePath("config/example.yml");
 
 	if (c > 1)
 		configFilePath = v[1];
@@ -26,6 +26,7 @@ int main(int __unused c, char __unused **v)
 		WebServer		server(&config);
 
 		server.start();
+		server.loop();
 	}
 	catch(const std::exception& e)
 	{

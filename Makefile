@@ -45,8 +45,10 @@ TEST_FLAGS := $(TEST_INC) $(TEST_LIB)
 # 	exceptions/ParserException.cpp \
 # 	exceptions/SocketException.cpp
 
-BASE := WebServer.cpp \
-	Utils.cpp
+MAIN_COMPONENT := Main/main.cpp \
+	Main/WebServer.cpp
+
+UTILS_COMPONENT := Utils.cpp
 
 DATATYPES_COMPONENT := DataTypes/Config.cpp
 
@@ -65,13 +67,13 @@ REQUEST_COMPONENT := Request/Request.cpp \
 RESPONSE_COMPONENT := Response/Response.cpp \
 	Response/ResponseException.cpp 
 
-SRC := main.cpp \
-	$(BASE) \
+SRC := $(MAIN_COMPONENT) \
 	$(DATATYPES_COMPONENT) \
 	$(CONFIG_PARSER_COMPONENT) \
 	$(SOCKET_COMPONENT) \
 	$(REQUEST_COMPONENT) \
-	$(RESPONSE_COMPONENT)
+	$(RESPONSE_COMPONENT) \
+	$(UTILS_COMPONENT)
 
 BASE_OBJ := $(addprefix obj/,$(BASE:.cpp=.o))
 OBJ := $(addprefix obj/,$(SRC:.cpp=.o))

@@ -1,25 +1,30 @@
 
+[LINKS]
+https://beej.us/guide/bgnet/html/split/
+https://www.garshol.priv.no/download/text/http-tut.html#app
+https://www.oreilly.com/library/view/cgi-programming-on/9781565921689/06_chapter-03.html
+https://copyconstruct.medium.com/nonblocking-i-o-99948ad7c957
 
-MA019127942R
 
-
-concept
+[CONCEPTS]
 Sockets:
-  socket -> returns a socket(fildes)
-  setsockopt -> manipulates sockets
-  bind -> binds a socket to a addr:port pair
-  listen 
-  accept -> returns a socket(fildes)
-  ---
-  connect
+  Server:
+    socket -> returns a socket(fildes)
+    setsockopt -> manipulates sockets
+    bind -> binds a socket to a addr:port pair
+    listen 
+    accept -> returns a socket(fildes)
+  Client:
+    connect
 
-Non-Blocking io:
+Non-Blocking IO:
 
-io multiplexing:
-  watch(sockets, timeout)
+IO Multiplexing:
   select, poll/epoll, kqueue/kevent
 
 CGI:
+  env variables to set:
+    - QUERY_STRING
 
 
 
@@ -33,4 +38,7 @@ Multiplexing
 CGI
 Routing - Server Routing 
         - Location Routing
+
+
+
 

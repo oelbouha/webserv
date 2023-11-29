@@ -51,8 +51,6 @@ void        	ServerSocket::bind()
 	int	opt = 1;
 	if (::setsockopt(mID, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		throw SocketException(std::string("Can't reuse addr/port ") + strerror(errno));
-	opt = 0;
-	// make port reusable
 	if (::setsockopt(mID, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0)
 		throw SocketException(std::string("Can't reuse addr/port ") + strerror(errno));
 
