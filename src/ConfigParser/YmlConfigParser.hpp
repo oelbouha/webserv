@@ -4,12 +4,12 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ConfigParser.hpp 
+ *			File: YmlConfigParser.hpp 
  */
 
 #pragma once
-#ifndef CONFIGPARSER_HPP
-#define CONFIGPARSER_HPP
+#ifndef YMLCONFIGPARSER_HPP
+#define YMLCONFIGPARSER_HPP
 
 #include <iostream>
 #include <fstream>
@@ -26,7 +26,7 @@
 using	std::ifstream;
 using	std::stringstream;
 
-class ConfigParser : public IConfigParser
+class YmlConfigParser : public IConfigParser
 {
 	Config*		mConfig;
 	string		mFileName;
@@ -34,9 +34,9 @@ class ConfigParser : public IConfigParser
 	size_t		mLineNumber;
 
 
-	ConfigParser();
-	ConfigParser( ConfigParser& c );
-	ConfigParser&	operator=( ConfigParser& c );
+	YmlConfigParser();
+	YmlConfigParser( const YmlConfigParser& c );
+	YmlConfigParser&	operator=( const YmlConfigParser& c );
 
 	// Class Utilities
 	unsigned int	countLeadingTabs_(const string& line) const;
@@ -49,8 +49,8 @@ class ConfigParser : public IConfigParser
 	string			parseInline_(const string& aLine);
 
 	public:
-		ConfigParser( const string& aConfigFilePath );
-		~ConfigParser();
+		YmlConfigParser( const string& aConfigFilePath );
+		~YmlConfigParser();
 
 
 		const Config&	parse();

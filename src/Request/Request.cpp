@@ -113,7 +113,7 @@ void	Request::dump(bool colors) const
 		cout << "\e[32m";
 	cout << httpVersion.substr(httpVersion.find('/') + 1) << "\e[0m\n";
 
-	string2string::const_iterator	it = headers.begin();
+	std::map<std::string, std::string>::const_iterator	it = headers.begin();
 	for (;it != headers.end();++it)
 		std::cout << std::left << std::setw(20) << it->first << ": " << it->second << std::endl;
 

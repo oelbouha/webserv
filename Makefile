@@ -53,7 +53,7 @@ UTILS_COMPONENT := Utils.cpp
 DATATYPES_COMPONENT := DataTypes/Config.cpp
 
 CONFIG_PARSER_COMPONENT := ConfigParser/ConfigHelper.cpp \
-	ConfigParser/ConfigParser.cpp \
+	ConfigParser/YmlConfigParser.cpp \
 	ConfigParser/ConfigParserFactory.cpp \
 	ConfigParser/ParserException.cpp
 

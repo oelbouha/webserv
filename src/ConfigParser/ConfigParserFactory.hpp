@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include "IConfigParser.hpp"
-#include "ConfigParser.hpp"
+#include "YmlConfigParser.hpp"
 
 namespace factory
 {

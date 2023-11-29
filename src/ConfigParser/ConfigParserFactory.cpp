@@ -12,6 +12,6 @@ namespace factory
 {
 	IConfigParser*	makeConfigParser( const string& aConfigFilePath )
 	{
-		return (new ConfigParser(aConfigFilePath));
+		return (new YmlConfigParser(aConfigFilePath));
 	}
 }

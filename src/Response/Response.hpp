@@ -17,13 +17,11 @@
 #include "IResponse.hpp"
 #include "IClientSocket.hpp"
 
-using string2string = std::map<std::string, std::string>;
-
 class Response : public IResponse
 {
 	IClientSocket&	mSocket;
 	unsigned int	mStatusCode;
-	string2string	mHeaders;
+	std::map<std::string, std::string>	mHeaders;
 
 	std::string		mBody;
 

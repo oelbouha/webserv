@@ -38,7 +38,7 @@ public:
 
 
 private:
-    const Config*           mConfig = NULL;
+    const Config*           mConfig;
     // map<string, IServer*>   mServers;//key should be ip:port
     ServersCluster*         mServers;
     vector<IServerSocket*>  mSockets;

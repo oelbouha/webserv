@@ -51,7 +51,7 @@ Response&	Response::setBody( const std::string& aBody )
 Response&	Response::build()
 {
 	mRawResponse = "HTTP/1.1 " + Response::sStatusCodes.at(mStatusCode) + "\r\n";
-	for (string2string::iterator it = mHeaders.begin(); it != mHeaders.end(); ++it)
+	for (std::map<std::string, std::string>::iterator it = mHeaders.begin(); it != mHeaders.end(); ++it)
 		mRawResponse += it->first + ": " + it->second + "\r\n";
 	mRawResponse += "\r\n" + mBody;
 	return (*this);

@@ -4,20 +4,20 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ConfigParser.cpp 
+ *			File: YmlConfigParser.cpp 
  */
 
-#include "ConfigParser.hpp"
+#include "YmlConfigParser.hpp"
 
 
-ConfigParser::ConfigParser()
+YmlConfigParser::YmlConfigParser()
 {}
 
-ConfigParser::ConfigParser( ConfigParser& c )
+YmlConfigParser::YmlConfigParser( const YmlConfigParser& c )
 {(void)c;}
 
 //TODO: Throw ParserException instead of std::invalid_argument.
-ConfigParser::ConfigParser( const string& aConfigFile ) : mFileName(aConfigFile)
+YmlConfigParser::YmlConfigParser( const string& aConfigFile ) : mFileName(aConfigFile)
 {
 	mFileStream.open(aConfigFile.c_str());
 	mFileStream.peek();
@@ -34,33 +34,33 @@ ConfigParser::ConfigParser( const string& aConfigFile ) : mFileName(aConfigFile)
 	}
 }
 
-ConfigParser::~ConfigParser()
+YmlConfigParser::~YmlConfigParser()
 {
 	mFileStream.close();
 }
 
 
-ConfigParser&	ConfigParser::operator=( ConfigParser& c )
+YmlConfigParser&	YmlConfigParser::operator=( const YmlConfigParser& c )
 {
 	(void)c;
 	return (*this);
 }
 
 
-const Config&	ConfigParser::parse()
+const Config&	YmlConfigParser::parse()
 {
 	mConfig = parseBlock_("global");
 	return (*mConfig);
 }
 
-const Config&	ConfigParser::getConfig()
+const Config&	YmlConfigParser::getConfig()
 {
 	return (*mConfig);
 }
 
 
 //	PRIVATE METHODS
-Config*			ConfigParser::parseBlock_(const string& aKey, int aTabCount)
+Config*			YmlConfigParser::parseBlock_(const string& aKey, int aTabCount)
 {
 	Config*	config = new Config();
 	string	line;
@@ -128,7 +128,7 @@ Config*			ConfigParser::parseBlock_(const string& aKey, int aTabCount)
 }
 
 
-vector<string>	ConfigParser::parseList_(int aTabCount)
+vector<string>	YmlConfigParser::parseList_(int aTabCount)
 {
 	vector<string>	list;
 	string			value;
@@ -172,7 +172,7 @@ vector<string>	ConfigParser::parseList_(int aTabCount)
 	return list;
 }
 
-string			ConfigParser::parseInline_(const string& line)
+string			YmlConfigParser::parseInline_(const string& line)
 {
 	std::size_t	first_non_space_char = line.find_first_not_of(" \t", line.find(':') + 1);
 	std::size_t last_non_space_char = utils::find_last_not_of(line, " \t");
@@ -189,7 +189,7 @@ string			ConfigParser::parseInline_(const string& line)
 	return (value);
 }
 
-unsigned int	ConfigParser::countLeadingTabs_(const string& line) const
+unsigned int	YmlConfigParser::countLeadingTabs_(const string& line) const
 {
 	int		count = 0;
 
@@ -224,7 +224,7 @@ unsigned int	ConfigParser::countLeadingTabs_(const string& line) const
 	return (count);
 }
 
-bool			ConfigParser::isComment_(const string& line) const
+bool			YmlConfigParser::isComment_(const string& line) const
 {
 	std::size_t	pos = line.find_first_not_of(" \t");
 	
@@ -233,7 +233,7 @@ bool			ConfigParser::isComment_(const string& line) const
 	return (line[pos] == '#');
 }
 
-string			ConfigParser::extractProperty_(const string& line) const
+string			YmlConfigParser::extractProperty_(const string& line) const
 {
 	std::size_t	collon_pos = line.find(':');
 	if (collon_pos == std::string::npos)

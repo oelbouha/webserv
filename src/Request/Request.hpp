@@ -22,15 +22,13 @@
 #include "RequestException.hpp"
 #include "Utils.hpp"
 
-using string2string = std::map<std::string, std::string>;
-
 struct Request
 {
 	method_t		method;
 	std::string		uri;
 	std::string		query;
 	std::string		httpVersion;
-	string2string	headers;
+	std::map<std::string, std::string>	headers;
 
 	Request( IClientSocket& mSocket );
 	Request( const Request& aRequest );
