@@ -18,13 +18,15 @@ class IClientSocket
 public:
 	virtual		~IClientSocket(){};
 	// write buffer to socket and return how many bytes were written
-    virtual int         write(const char* buffer, int size) = 0;
+    virtual int         write( const char* aBuffer, int aSize ) = 0;
 
     // one read call - returns empty string if no data is found
     virtual std::string read(unsigned int aMaxSize) = 0;
-
-    // read all availabe data on socket
+    virtual std::string readHeaderOnly() = 0;
     virtual std::string readAll() = 0;
+
+    virtual void        close() = 0;
+    virtual void        setNonBlocking() = 0;
 
     virtual void        dump() = 0;
 };

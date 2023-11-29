@@ -22,6 +22,8 @@ namespace utils
 	unsigned int	ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d);
 
 	std::string		ip(unsigned int aIP);
+
+	std::string&	trimSpaces(std::string& aString);
 }
 
 #endif

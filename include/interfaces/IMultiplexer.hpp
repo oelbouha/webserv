@@ -26,7 +26,7 @@ class IMultiplexer
 		virtual void	add(IServer& aServer) = 0;
 
 		// client sockets used only to listen for new Requests
-		virtual void	add(IClient& aClient, read/write/both) = 0;
+		virtual void	add(IClient& aClient) = 0;
 
 		// response socket used only to listen if the client is ready to receive data
 		virtual void	add(IResponse& aResponse) = 0;

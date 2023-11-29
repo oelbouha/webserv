@@ -12,24 +12,28 @@
 #define SERVERSCLUSTER_HPP
 
 #include <iostream>
+#include <string>
 #include <map>
 
 #include "IServer.hpp"
 
+#include "Socket.hpp"
+
+#include "Types.hpp"
+
 class ServersCluster
 {
-	/*	Private members here	*/
-	std::map<int, IServer>	mServers;
-	int						mMinFd;
-	int						mMaxFd;
+	std::map<std::string, IServer>	mServers;
 
 	public:
-		ServersCluster( void );
+		ServersCluster();
 		ServersCluster( ServersCluster& s );
 		~ServersCluster();
 
 		ServersCluster&	operator=( ServersCluster& s );
 		IServer&		operator[]( int idx );
+
+		IServer&		findMatch(int aPort, ip_t aIP = 0, const std::string& aName = "");
 
 };
 #endif

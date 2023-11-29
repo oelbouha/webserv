@@ -53,4 +53,18 @@ namespace utils
 		ret += std::to_string(byte);
 		return (ret);
 	}
+
+	bool	isNotSpace(char c)
+	{
+		return (std::isspace(c) == false);
+	}
+
+	std::string&	trimSpaces(std::string& s)
+	{
+		s.erase(s.begin(), 
+			std::find_if( s.begin(), s.end(), isNotSpace ));
+		s.erase( std::find_if( s.rbegin(), s.rend(), isNotSpace ).base(), 
+			s.end());
+		return (s);
+	}
 }

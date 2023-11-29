@@ -1,4 +1,8 @@
 
+
+MA019127942R
+
+
 concept
 Sockets:
   socket -> returns a socket(fildes)
@@ -16,3 +20,17 @@ io multiplexing:
   select, poll/epoll, kqueue/kevent
 
 CGI:
+
+
+
+
+
+
+
+Config Parsing
+Request Parsing
+Multiplexing
+CGI
+Routing - Server Routing 
+        - Location Routing
+

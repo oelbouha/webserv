@@ -3,7 +3,8 @@
 list_property:
 	- value1
 	- value2
-	- value3
+	-	value3
+
 
 error_log_file   : /Users/ysalmi/webserv.error.log
 error_log_level : warn
@@ -49,12 +50,3 @@ http:
 				- GET
 				- POST
 				- DELETE
-
-html
-{
-	server
-	{
-		port	9090;
-		name	ysalmi.ma;
-	}
-}

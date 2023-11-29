@@ -50,10 +50,11 @@ void	Socket::bind(unsigned int aIP, unsigned int aPORT)
 	struct sockaddr_in	addr;
 	std::size_t			addr_len = sizeof(addr);
 
-	int	opt = 1;
+	int	opt = 0;
 	// make address reusable
 	if (::setsockopt(mID, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		throw SocketException(std::string("Can't reuse addr/port ") + strerror(errno));
+	opt = 1;
 	// make port reusable
 	if (::setsockopt(mID, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0)
 		throw SocketException(std::string("Can't reuse addr/port ") + strerror(errno));
@@ -64,7 +65,11 @@ void	Socket::bind(unsigned int aIP, unsigned int aPORT)
 	addr.sin_port = htons(aPORT);
 
 	if (::bind(mID, (struct sockaddr *)&addr, addr_len) < 0)
-		throw SocketException("Can't bind socket to " + std::to_string(aIP) + ":" + std::to_string(aPORT));
+	{
+		if (errno == EADDRNOTAVAIL)
+			std::cerr << "The specified address is not available from the local machine." << std::endl << std::flush;
+		throw SocketException("Can't bind socket to " + std::to_string(aIP) + ":" + std::to_string(aPORT) + " " + strerror(errno));
+	}
 }
 
 void	Socket::listen()
@@ -80,13 +85,12 @@ ISocket*	Socket::accept()
 
 	int	id = ::accept(mID, (struct sockaddr *)&addr, (socklen_t*)&addr_len);
 
-	// std::cout << utils::ip(htonl(addr.sin_addr.s_addr)) << " " << addr.sin_port << std::endl << std::flush;
-	// logger::inform << utils::ip(htonl(addr.sin_addr.s_addr)) << " " << addr.sin_port << std::endl << std::flush;
-	logger::info_(
-		utils::ip(htonl(addr.sin_addr.s_addr))
-		+ " " + std::to_string(addr.sin_port) + "\n"
-	);
-
+	// std::cout << utils::ip(htonl(addr.sin_addr.s_addr)) << ":" << addr.sin_port << std::endl << std::flush;
+	// logger::inform << utils::ip(htonl(addr.sin_addr.s_addr)) << ":" << addr.sin_port << std::endl << std::flush;
+	// logger::info_(
+	// 	utils::ip(htonl(addr.sin_addr.s_addr))
+	// 	+ ":" + std::to_string(addr.sin_port) + "\n"
+	// );
 	return (new Socket(id));
 }
 
@@ -113,10 +117,10 @@ std::string		Socket::read(unsigned int aMaxSize)
 	int	r = ::read(mID, buffer, aMaxSize);
 
 	if (r < 0)
-		return (std::string(""));
+		throw SocketException("Empty socket buffer");
 	
-	buffer[r] = 0;
-	return (std::string(buffer));
+	// buffer[r] = 0; 
+	return (std::string(buffer, r));
 }
 
 std::string		Socket::readAll()
@@ -133,16 +137,29 @@ std::string		Socket::readAll()
 	return (ret);
 }
 
+#include <unistd.h>
 void	Socket::dump()
 {
-	std::string	s = readAll();
-
-	for (std::string::iterator it = s.begin(); it != s.end(); ++it)
+	std::string	s;
+	
+	while (true)
 	{
-		if ( *it != 10 && (*it < 32 || *it > 126))
-			std::cout << "▒";
-		else
-			std::cout << *it;
+		try{
+			s = read(1024);
+			for (std::string::iterator it = s.begin(); it != s.end(); ++it)
+			{
+				if ( *it != 10 && (*it < 32 || *it > 126))
+					std::cout << '[' << (int)*it << ']';
+					// std::cout << "▒";
+				else
+					std::cout << *it;
+			}
+			std::cout << std::flush;
+		}
+		catch(...)
+		{
+			break ;
+		}
 	}
-	std::cout << std::endl << std::flush;
+	std::cout << "=========================" << std::endl << std::flush;
 }

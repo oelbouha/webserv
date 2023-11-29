@@ -13,12 +13,15 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 
 #include "Config.hpp"
 #include "IServer.hpp"
 #include "IMultiplexer.hpp"
 
 #include "ServersCluster.hpp"
+
+#include "IServerSocket.hpp"
 
 class WebServer
 {
@@ -29,15 +32,16 @@ public:
 
 
 private:
-    Config*                 mConfig;
-    map<string, IServer*>   mServers;//key should be ip:port
+    const Config*           mConfig = NULL;
+    // map<string, IServer*>   mServers;//key should be ip:port
+    ServersCluster*         mServers;
+    vector<IServerSocket*>  mSockets;
     IMultiplexer*           mMx;
-    // ServersCluster*         mServers;
 
     WebServer();
-    WebServer( WebServer& w);
+    WebServer( const WebServer& w);
 
-    WebServer&  operator=( WebServer& w );
+    WebServer&  operator=( const WebServer& w );
 
     void    loop();
 
