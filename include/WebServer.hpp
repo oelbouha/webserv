@@ -15,7 +15,7 @@
 #include <map>
 #include <vector>
 
-#include "Config.hpp"
+#include "src/DataTypes/Config.hpp"
 #include "IServer.hpp"
 #include "IMultiplexer.hpp"
 

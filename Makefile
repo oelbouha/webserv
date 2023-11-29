@@ -15,9 +15,8 @@ NAME := webserv
 CXX := clang++
 
 INC := -I. \
-	-I./include \
-	-I./include/interfaces \
-	-I./include/exceptions
+		-I./include \
+		-I./src/interfaces
 
 TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
 
@@ -47,11 +46,11 @@ TEST_FLAGS := $(TEST_INC) $(TEST_LIB)
 # 	exceptions/SocketException.cpp
 
 BASE := WebServer.cpp \
-	Socket.cpp \
 	Utils.cpp
 
-CONFIG_PARSER_COMPONENT := ConfigParser/Config.cpp \
-	ConfigParser/ConfigHelper.cpp \
+DATATYPES_COMPONENT := DataTypes/Config.cpp
+
+CONFIG_PARSER_COMPONENT := ConfigParser/ConfigHelper.cpp \
 	ConfigParser/ConfigParser.cpp \
 	ConfigParser/ConfigParserFactory.cpp \
 	ConfigParser/ParserException.cpp
@@ -62,13 +61,13 @@ SOCKET_COMPONENT := Socket/ClientSocket.cpp \
 
 REQUEST_COMPONENT := Request/Request.cpp \
 	Request/RequestException.cpp
-#	Request/RequestParser.cpp
 
 RESPONSE_COMPONENT := Response/Response.cpp \
 	Response/ResponseException.cpp 
 
 SRC := main.cpp \
 	$(BASE) \
+	$(DATATYPES_COMPONENT) \
 	$(CONFIG_PARSER_COMPONENT) \
 	$(SOCKET_COMPONENT) \
 	$(REQUEST_COMPONENT) \

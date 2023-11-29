@@ -4,18 +4,14 @@
 #include <string>
 
 #include "WebServer.hpp"
-#include "IConfigParser.hpp"
-#include "ConfigParserFactory.hpp"
-#include "Config.hpp"
 
-#include "ConfigHelper.hpp"
+#include "src/Interfaces/IConfigParser.hpp"
+
+#include "src/DataTypes/Config.hpp"
+
+#include "src/ConfigParser/ConfigParserFactory.hpp"
+
 #include "Utils.hpp"
-
-#include "Socket.hpp"
-
-using	std::string;
-using	std::cout;
-using	std::endl;
 
 int main(int __unused c, char __unused **v)
 {

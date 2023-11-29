@@ -17,8 +17,6 @@
 
 #include "IServer.hpp"
 
-#include "Socket.hpp"
-
 #include "Types.hpp"
 
 class ServersCluster

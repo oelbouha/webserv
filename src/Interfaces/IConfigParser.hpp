@@ -11,7 +11,7 @@
 #ifndef IPARSER_HPP
 #define IPARSER_HPP
 
-#include "Config.hpp"
+#include "src/DataTypes/Config.hpp"
 
 class IConfigParser
 {
