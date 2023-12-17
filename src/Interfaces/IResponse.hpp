@@ -25,6 +25,11 @@ public:
     virtual IResponse&  setBody( const std::string& aBody ) = 0;
 
     virtual IResponse&  build() = 0;
+    virtual bool		isSendingComplete() = 0;
     // virtual bool        isComplete() = 0;
+
+
+
+    virtual int         getID() const = 0;
 };
 #endif

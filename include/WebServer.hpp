@@ -1,10 +1,10 @@
 /*                       __          _
  *     __  ___________ _/ /___ ___  (_)
  *    / / / / ___/ __ `/ / __ `__ \/ /
- *   / /_/ (__  ) /_/ / / / / / / / / 
- *   \__, /____/\__,_/_/_/ /_/ /_/_/ 
+ *   / /_/ (__  ) /_/ / / / / / / / /
+ *   \__, /____/\__,_/_/_/ /_/ /_/_/
  *  /____/  User: Youssef Salmi
- *          File: WebServer.hpp 
+ *          File: WebServer.hpp
  */
 
 #pragma once
@@ -15,49 +15,40 @@
 #include <map>
 #include <vector>
 
-#include "src/DataTypes/Config.hpp"
-#include "IServer.hpp"
 #include "IMultiplexer.hpp"
+#include "IServer.hpp"
+#include "src/DataTypes/Config.hpp"
 
 #include "ServersCluster.hpp"
 
 #include "IServerSocket.hpp"
 
-#include "src/Socket/ServerSocket.hpp"
-#include "src/Socket/ClientSocket.hpp"
+#include "src/Client/Client.hpp"
 #include "src/Request/Request.hpp"
 #include "src/Response/Response.hpp"
+#include "src/Socket/ClientSocket.hpp"
+#include "src/Socket/ServerSocket.hpp"
 
+#include "src/Multiplexer/SelectMultiplexer.hpp"
 
-class WebServer
-{
-    static WebServer*       mSingleton;
+class WebServer {
+  const Config*                 mConfig;
+  std::vector<IServerSocket *>  mSockets;
+  IMultiplexer*                 mMux;
+  ServersCluster*               mServers;
+  std::vector<Client>           mClients;
+  std::queue<IRequest *>        mRequests;
+  std::vector<IResponse *>      mResponses;
 
-public:
-    static WebServer&       getInstace();
+  ServerSocket mSocket;
 
-
-private:
-    const Config*           mConfig;
-    // map<string, IServer*>   mServers;//key should be ip:port
-    ServersCluster*         mServers;
-    vector<IServerSocket*>  mSockets;
-    IMultiplexer*           mMx;
-
-    ServerSocket            mSocket;
-
-    WebServer();
-    WebServer( const WebServer& w);
-
-    WebServer&  operator=( const WebServer& w );
-
+  WebServer();
 
 public:
-    WebServer(const Config* aConfig);
-    ~WebServer();
+  WebServer(const Config *aConfig);
+  ~WebServer();
 
-    void    start();
-    void    loop();
-
+  void start();
+  void loop();
 };
 #endif

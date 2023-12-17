@@ -36,6 +36,8 @@ public:
 
 	Response&	operator=( const Response& aResponse );
 
+    virtual int getID() const;
+
 
 	Response&	setStatusCode( unsigned int aStatusCode );
 	Response&	setHeader( const std::string& aHeader, const std::string& aValue );
@@ -54,8 +56,3 @@ public:
 	static	std::map<unsigned int, std::string> initStatusCodes();
 };
 #endif
-
-/*
-Aform*	form = intern.make("pardon");		form->execute();	delete form
-Aform&	form = *(intern.make("pardon"));	form.execute(); 	delete &form
-*/

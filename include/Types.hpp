@@ -11,8 +11,6 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-#include <iostream>
-
 typedef unsigned int ip_t;
 
 typedef enum e_method

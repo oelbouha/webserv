@@ -17,6 +17,8 @@ class IClientSocket
 {
 public:
 	virtual		~IClientSocket(){};
+
+    virtual int         getID() const = 0;
 	// write buffer to socket and return how many bytes were written
     virtual int         write( const char* aBuffer, int aSize ) = 0;
 

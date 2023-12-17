@@ -1,198 +1,171 @@
 /*	                     __          _
  *	   __  ___________ _/ /___ ___  (_)
  *	  / / / / ___/ __ `/ / __ `__ \/ /
- *	 / /_/ (__  ) /_/ / / / / / / / / 
- *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
+ *	 / /_/ (__  ) /_/ / / / / / / / /
+ *	 \__, /____/\__,_/_/_/ /_/ /_/_/
  *	/____/	User: Youssef Salmi
- *			File: Request.cpp 
+ *			File: Request.cpp
  */
 
 #include "Request.hpp"
 
-Request::Request( IClientSocket& aSocket ) :
-mSocket(aSocket)
+Request::Request(IClientSocket &aSocket, int aIncomingIP, int aIncomingPort)
+    : mSocket(aSocket), mIncommingIP(aIncomingIP), mIncommingPort(aIncomingPort)
 {}
 
-Request::Request( const Request& r ):
-method(r.method),
-uri(r.uri),
-query(r.query),
-httpVersion(r.httpVersion),
-headers(r.headers),
-mSocket(r.mSocket)
+Request::Request(const Request &r)
+    : mSocket(r.mSocket), mMethod(r.mMethod), mUri(r.mUri), mQuery(r.mQuery),
+      mHttpVersion(r.mHttpVersion), mHeaders(r.mHeaders),
+      mIncommingIP(r.mIncommingIP), mIncommingPort(r.mIncommingPort)
 {}
 
-Request::~Request()
-{}
+Request::~Request() {}
 
-Request&	Request::operator=( const Request& r )
-{
-	if (this != &r)
-	{
-		method = r.method;
-		uri = r.uri;
-		query = r.query;
-		httpVersion = r.httpVersion;
-		headers = r.headers;
-	}
-	return (*this);
+Request &Request::operator=(const Request &r) {
+  if (this != &r) {
+    mMethod = r.mMethod;
+    mUri = r.mUri;
+    mQuery = r.mQuery;
+    mHttpVersion = r.mHttpVersion;
+    mHeaders = r.mHeaders;
+  }
+  return (*this);
 }
 
-/*
-// method_t	Request::getMethod() const
-// {
-// 	return (mMethod);
-// }
+int Request::getIncomingIP() const { return mIncommingIP; }
 
-// const std::string&	Request::getURI() const
-// {
-// 	return (mURI);
-// }
+int Request::getIncomingPort() const { return mIncommingPort; }
 
-// const std::string&	Request::getHttpVersion() const
-// {
-// 	return (mHttpVersion);
-// }
+method_t Request::getMethod() const { return (mMethod); }
 
-// const std::string&	Request::getQuery() const
-// {
-// 	return (mQuery);
-// }
-*/
+const std::string &Request::getURI() const { return (mUri); }
 
-const std::string&	Request::getHeader( const std::string& aKey) const
-{
-	try{
-		return (headers.at(aKey));
-	} catch (...)
-	{
-		throw RequestException("No such header");
-	}
+const std::string &Request::getHttpVersion() const { return (mHttpVersion); }
+
+const std::string &Request::getQuery() const { return (mQuery); }
+
+const std::string &Request::getHeader(const std::string &aKey) const {
+  try {
+    return (mHeaders.at(aKey));
+  } catch (...) {
+    throw RequestException("No such header");
+  }
 }
 
-void	Request::build()
-{
-	parse();
+void Request::build() { parse(); }
+
+void Request::parse() {
+  std::istringstream ss(mSocket.readHeaderOnly());
+  std::string line;
+
+  std::getline(ss, line);
+  parseRequestLine(line);
+
+  while (std::getline(ss, line))
+    parseHeaderProperty(line);
 }
 
-void	Request::dump(bool colors) const
-{
-	using std::cout;
-	using std::endl;
-	using std::flush;
+void Request::parseRequestLine(const std::string &aRequestLine) {
+  std::istringstream ss(aRequestLine);
+  std::string word;
 
-	cout << "Method: ";
-	if (colors)
-		cout << "\e[32m";
-	switch (method)
-	{
-		case GET:
-			cout << "GET";
-			break;
-		case POST:
-			cout << "POST";
-			break;
-		default:
-			break;
-	}
+  ss >> word;
+  setMethod(word);
 
-	cout << "\e[0m" << endl;
+  ss >> word;
+  size_t uriEnd = word.find("?");
+  size_t queryStart = uriEnd + 1;
 
-	cout << "URI: ";
-	if (colors)
-		cout << "\e[32m";
-	cout << uri << "\e[0m\n";
-	
-	cout << "Params: ";
-	if (colors)
-		cout << "\e[32m";
-	cout << query << "\e[0m\n";
+  if (uriEnd == std::string::npos) {
+    uriEnd = word.length();
+    queryStart = uriEnd;
+  }
 
-	cout << "Http Version: ";
-	if (colors)
-		cout << "\e[32m";
-	cout << httpVersion.substr(httpVersion.find('/') + 1) << "\e[0m\n";
+  mUri = word.substr(0, uriEnd);
+  mQuery = word.substr(queryStart);
 
-	std::map<std::string, std::string>::const_iterator	it = headers.begin();
-	for (;it != headers.end();++it)
-		std::cout << std::left << std::setw(20) << it->first << ": " << it->second << std::endl;
-
-	cout << flush;
+  ss >> word;
+  mHttpVersion = word.substr(word.find("/") + 1);
 }
 
+void Request::parseHeaderProperty(const std::string &aHeaderLine) {
+  std::string key, value;
 
+  size_t collonPos = aHeaderLine.find(":");
 
-void	Request::parse()
-{
-	// std::string			rawHeader = mSocket.readHeaderOnly();
-	std::istringstream	ss(mSocket.readHeaderOnly());
+  if (collonPos == std::string::npos)
+    throw RequestException(aHeaderLine + "Unkown header format");
 
-	std::string		line;
+  key = aHeaderLine.substr(0, collonPos);
+  value = aHeaderLine.substr(collonPos + 1);
 
-	std::getline(ss, line);
+  utils::trimSpaces(key);
+  utils::trimSpaces(value);
 
-	parseRequestLine(line);
+  if (key.empty() || value.empty())
+    throw RequestException(aHeaderLine + "Unkown header format");
 
-	while (std::getline(ss, line))
-		parseHeaderProperty(line);
+  mHeaders[key] = value;
 }
 
-void	Request::parseRequestLine( const std::string& aRequestLine )
-{
-	std::istringstream	ss(aRequestLine);
-	std::string			word;
-
-	ss >> word;
-	setMethod(word);
-
-	ss >> word;
-	size_t	uriEnd = word.find("?");
-	size_t	queryStart = uriEnd + 1;
-
-	if (uriEnd == std::string::npos)
-	{
-		uriEnd = word.length();
-		queryStart = uriEnd;
-	}
-
-	uri = word.substr(0, uriEnd);
-	query = word.substr(queryStart);
-
-	ss >> word;
-	httpVersion = word.substr(word.find("/") + 1);
+void Request::setMethod(const std::string &aMethod) {
+  if (aMethod == "GET")
+    mMethod = GET;
+  else if (aMethod == "POST")
+    mMethod = POST;
+  else if (aMethod == "HEAD")
+    mMethod = HEAD;
+  else if (aMethod == "DELETE")
+    mMethod = DELETE;
+  else
+    throw RequestException("Unkown http mMethod");
 }
 
-void	Request::parseHeaderProperty( const std::string& aHeaderLine )
-{
-	std::string	key, value;
+void Request::dump(bool colors) const {
+    using std::cout;
+    using std::endl;
+    using std::flush;
 
-	size_t	collonPos = aHeaderLine.find(":");
+    cout << "Method: ";
+    if (colors)
+        cout << "\e[32m";
+    switch (mMethod) {
+        case GET:
+            cout << "GET";
+            break;
+        case POST:
+            cout << "POST";
+            break;
+        default:
+            break;
+    }
 
-	if (collonPos == std::string::npos )
-		throw RequestException(aHeaderLine + "Unkown header format");
+    cout << "\e[0m" << endl;
 
-	key = aHeaderLine.substr(0, collonPos);
-	value = aHeaderLine.substr(collonPos + 1);
+    cout << "URI: ";
+    if (colors)
+        cout << "\e[32m";
+    cout << mUri << "\e[0m\n";
 
-	utils::trimSpaces(key);
-	utils::trimSpaces(value);
+    cout << "Query: ";
+    if (colors)
+        cout << "\e[32m";
+    cout << mQuery << "\e[0m\n";
 
-	if (key.empty() || value.empty())
-		throw RequestException(aHeaderLine + "Unkown header format");
+    cout << "Http Version: ";
+    if (colors)
+        cout << "\e[32m";
+    cout << mHttpVersion.substr(mHttpVersion.find('/') + 1) << "\e[0m\n";
 
-	headers[key] = value;
+    std::map<std::string, std::string>::const_iterator it = mHeaders.begin();
+    for (; it != mHeaders.end(); ++it)
+        std::cout << std::left << std::setw(20) << it->first << ": " << it->second
+            << std::endl;
+
+    std::string body = mSocket.readAll();
+
+    cout << body << endl;
+
+    cout << flush;
 }
 
-void	Request::setMethod( const std::string& aMethod )
-{
-	if (aMethod == "GET")
-		method = GET;
-	else if (aMethod == "POST")
-		method = POST;
-	else if (aMethod == "HEAD")
-		method = HEAD;
-	else if (aMethod == "DELETE")
-		method = DELETE;
-	else
-		throw RequestException("Unkown http method");
-}

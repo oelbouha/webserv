@@ -102,6 +102,7 @@ bool	ConfigHelper::isBlockConfig(const string& aConfig)
 	return false;
 }
 
+//bool    ConfigHelper::(const std::string& aConfig, const std::string& aProperty);
 bool	ConfigHelper::isPropertyOfBlock(const string& aConfig, const string& aProperty)
 {
 	vector<string>	properties = ConfigHelper::sBlockConfigs.at(aConfig);

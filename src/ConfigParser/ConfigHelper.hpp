@@ -13,11 +13,11 @@
 
 #define LIST_END ""
 
-#include <iostream>
 #include <fstream>
 #include <map>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 using std::map;
 using std::vector;

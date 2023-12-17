@@ -13,12 +13,14 @@ NAME := webserv
 #	Compiler Variables
 
 CXX := clang++
+#CXX := c++
 
 INC := -I. \
 		-I./include \
 		-I./src/interfaces
 
-TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
+#TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
+TMP :=
 
 CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP)
 
@@ -34,16 +36,6 @@ TEST_FLAGS := $(TEST_INC) $(TEST_LIB)
 
 ##########################################################################
 #	Source and Object files
-
-# BASE := WebServer.cpp \
-# 	Config.cpp \
-# 	ConfigHelper.cpp \
-# 	ConfigParser.cpp \
-# 	ConfigParserFactory.cpp \
-# 	Socket.cpp \
-# 	Utils.cpp \
-# 	exceptions/ParserException.cpp \
-# 	exceptions/SocketException.cpp
 
 MAIN_COMPONENT := Main/main.cpp \
 	Main/WebServer.cpp
@@ -67,12 +59,15 @@ REQUEST_COMPONENT := Request/Request.cpp \
 RESPONSE_COMPONENT := Response/Response.cpp \
 	Response/ResponseException.cpp 
 
+MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
+
 SRC := $(MAIN_COMPONENT) \
 	$(DATATYPES_COMPONENT) \
 	$(CONFIG_PARSER_COMPONENT) \
 	$(SOCKET_COMPONENT) \
 	$(REQUEST_COMPONENT) \
 	$(RESPONSE_COMPONENT) \
+	$(MULTIPLEXER_COMPONENT) \
 	$(UTILS_COMPONENT)
 
 BASE_OBJ := $(addprefix obj/,$(BASE:.cpp=.o))
@@ -98,6 +93,8 @@ endif
 
 all: $(NAME)
 
+echo:
+	@echo $(SRC)
 
 test: $(BASE_OBJ) tests/test$(TEST_ARGS).cpp tests/test.h
 	@$(CXX) $(CPPFLAGS) $(TEST_FLAGS) -o test $(BASE_OBJ) tests/test$(TEST_ARGS).cpp
@@ -110,11 +107,9 @@ $(NAME): $(OBJ)
 	$(CXX) $(CPPFLAGS) -o $@ $^
 
 
-
 obj/%.o: src/%.cpp
 	@mkdir -p $(shell dirname $@)
 	$(CXX) $(CPPFLAGS) -o $@ -c $<
-
 
 
 clean:

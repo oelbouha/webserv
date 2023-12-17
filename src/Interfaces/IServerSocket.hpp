@@ -21,12 +21,14 @@ public:
 	virtual		~IServerSocket(){};
 	virtual void        	bind() = 0;
     virtual void        	listen() = 0;
-    virtual IClientSocket*	accept() = 0;
+    virtual IClientSocket*	accept() const = 0;
     virtual void            close() = 0;
     virtual void            setNonBlocking() = 0;
 
     virtual int             getPort() const = 0;
     virtual ip_t            getIP() const = 0;
+
+    virtual int             getID() const = 0;
 
 };
 #endif

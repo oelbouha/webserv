@@ -23,16 +23,16 @@ namespace utils
 	}
 
 	std::size_t	find_last_not_of(const std::string& s, const std::string& set, std::size_t start)
-    {
-        std::size_t pos = s.length() - 1;
+	{
+		std::size_t pos = s.length() - 1;
 
-        while (pos >= 0 && set.find(s[pos]) != std::string::npos)
-            --pos;
-        ++pos;
-        if (pos >= start)
-            return (pos);
-        return (std::string::npos);
-    }
+		while (pos != std::string::npos && set.find(s[pos]) != std::string::npos)
+			--pos;
+		++pos;
+		if (pos >= start)
+			return (pos);
+		return (std::string::npos);
+	}
 
 	unsigned int	ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d)
 	{

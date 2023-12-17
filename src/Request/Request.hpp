@@ -1,57 +1,69 @@
 /*	                     __          _
  *	   __  ___________ _/ /___ ___  (_)
  *	  / / / / ___/ __ `/ / __ `__ \/ /
- *	 / /_/ (__  ) /_/ / / / / / / / / 
- *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
+ *	 / /_/ (__  ) /_/ / / / / / / / /
+ *	 \__, /____/\__,_/_/_/ /_/ /_/_/
  *	/____/	User: Youssef Salmi
- *			File: Request.hpp 
+ *			File: Request.hpp
  */
 
 #pragma once
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include <iostream>
 #include <iomanip>
-#include <string>
-#include <sstream>
+#include <iostream>
 #include <map>
+#include <sstream>
+#include <string>
 
-#include "IRequest.hpp"
 #include "IClientSocket.hpp"
+#include "IRequest.hpp"
 #include "RequestException.hpp"
 #include "Utils.hpp"
 
-struct Request
-{
-	method_t		method;
-	std::string		uri;
-	std::string		query;
-	std::string		httpVersion;
-	std::map<std::string, std::string>	headers;
+typedef std::map<std::string, std::string> RHeaders;
 
-	Request( IClientSocket& mSocket );
-	Request( const Request& aRequest );
-	~Request();
+class Request : public IRequest {
 
-	Request&	operator=( const Request& aRequest );
+  IClientSocket &mSocket;
 
-    const std::string&  getHeader( const std::string& aKey ) const;
+  method_t mMethod;
+  std::string mUri;
+  std::string mQuery;
+  std::string mHttpVersion;
+  RHeaders mHeaders;
 
-	void	build();
+  int mIncommingIP;
+  int mIncommingPort;
 
-	void	dump(bool colors = true) const;
+public:
+  Request(IClientSocket &mSocket, int aIncomingIP, int aIncomingPort);
+  Request(const Request &aRequest);
+  ~Request();
 
-	// method_t            getMethod();
-    // const std::string&  getURI();
-    // const std::string&  getHttpVersion();
-    // const std::string&  getQuery();
+public:
+  Request &operator=(const Request &aRequest);
+
+public:
+  int               getIncomingIP() const;
+  int               getIncomingPort() const;
+  method_t          getMethod() const;
+  const std::string &getURI() const;
+  const std::string &getHttpVersion() const;
+  const std::string &getQuery() const;
+  const std::string &getHeader(const std::string &aKey) const;
+
+public:
+  void build();
+
+public:
+  void dump(bool colors = true) const;
+
 private:
-	IClientSocket&	mSocket;
-
-	void	parse();
-	void	parseRequestLine( const std::string& aRequestLine );
-	void	parseHeaderProperty( const std::string& aHeaderLine);
-	void	setMethod( const std::string& aMethod );
+  void parse();
+  void parseRequestLine(const std::string &aRequestLine);
+  void parseHeaderProperty(const std::string &aHeaderLine);
+  void setMethod(const std::string &aMethod);
 };
 #endif

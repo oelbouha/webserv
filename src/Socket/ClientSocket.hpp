@@ -37,6 +37,8 @@ public:
 	ClientSocket( const ClientSocket& aClientSocket);
 	~ClientSocket();
 
+    virtual int         getID() const;
+
 
     virtual int         write( const char* aBuffer, int aSize );
 
