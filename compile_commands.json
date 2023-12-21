@@ -8,7 +8,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Request/Request.o",
             "src/Request/Request.cpp"
@@ -25,7 +25,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/DataTypes/Config.o",
             "src/DataTypes/Config.cpp"
@@ -42,7 +42,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Request/RequestException.o",
             "src/Request/RequestException.cpp"
@@ -59,7 +59,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/ConfigParser/ConfigHelper.o",
             "src/ConfigParser/ConfigHelper.cpp"
@@ -76,7 +76,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Socket/SocketException.o",
             "src/Socket/SocketException.cpp"
@@ -93,7 +93,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/ConfigParser/ParserException.o",
             "src/ConfigParser/ParserException.cpp"
@@ -110,7 +110,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/ConfigParser/YmlConfigParser.o",
             "src/ConfigParser/YmlConfigParser.cpp"
@@ -127,7 +127,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Socket/ServerSocket.o",
             "src/Socket/ServerSocket.cpp"
@@ -144,7 +144,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Socket/ClientSocket.o",
             "src/Socket/ClientSocket.cpp"
@@ -161,7 +161,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/ConfigParser/ConfigParserFactory.o",
             "src/ConfigParser/ConfigParserFactory.cpp"
@@ -178,7 +178,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Response/Response.o",
             "src/Response/Response.cpp"
@@ -195,7 +195,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Response/ResponseException.o",
             "src/Response/ResponseException.cpp"
@@ -212,7 +212,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Main/main.o",
             "src/Main/main.cpp"
@@ -229,7 +229,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Main/WebServer.o",
             "src/Main/WebServer.cpp"
@@ -246,7 +246,7 @@
             "-Werror",
             "-I.",
             "-I./include",
-            "-I./src/interfaces",
+            "-I./src/Interfaces",
             "-o",
             "obj/Utils.o",
             "src/Utils.cpp"

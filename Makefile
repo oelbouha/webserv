@@ -61,6 +61,10 @@ RESPONSE_COMPONENT := Response/Response.cpp \
 
 MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
 
+SERVER_COMPONENT := Server/ServerCluster.cpp
+
+CLIENT_COMPONENT := Client/Client.cpp
+
 SRC := $(MAIN_COMPONENT) \
 	$(DATATYPES_COMPONENT) \
 	$(CONFIG_PARSER_COMPONENT) \
@@ -68,6 +72,8 @@ SRC := $(MAIN_COMPONENT) \
 	$(REQUEST_COMPONENT) \
 	$(RESPONSE_COMPONENT) \
 	$(MULTIPLEXER_COMPONENT) \
+	$(SERVER_COMPONENT) \
+	$(CLIENT_COMPONENT) \
 	$(UTILS_COMPONENT)
 
 BASE_OBJ := $(addprefix obj/,$(BASE:.cpp=.o))

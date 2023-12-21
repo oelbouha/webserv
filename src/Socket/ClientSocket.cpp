@@ -8,6 +8,7 @@
  */
 
 #include "ClientSocket.hpp"
+#include <string>
 
 ClientSocket::ClientSocket(int aFileDes) : mID(aFileDes) {}
 
@@ -27,7 +28,6 @@ int ClientSocket::getID() const { return mID; }
 int ClientSocket::write(const char *aBuffer, int aSize) {
   int r = ::write(mID, aBuffer, aSize);
 
-  std::cout << "r = " << r << std::endl << std::flush;
   if (r < 0)
     throw SocketException(std::string("Couldn't write to socket: ") +
                           strerror(errno));
@@ -42,6 +42,8 @@ std::string ClientSocket::read(unsigned int aMaxSize) {
   if (r < 0)
     throw SocketException("Empty socket buffer");
 
+  buffer[r] = 0;
+
   return (std::string(buffer, r));
 }
 
@@ -53,13 +55,18 @@ std::string ClientSocket::readHeaderOnly() {
 
   try {
     while (pos == std::string::npos) {
-      mBuffer += read(1024);
+      std::string r = read(1024);
+      if (r.empty()) {
+        ret = mBuffer;
+        mBuffer.clear();
+        return (ret);
+      }
+      mBuffer += r;
       pos = mBuffer.find("\r\n\r\n");
     }
   } catch (const SocketException &e) {
     throw SocketException("Incomplete request header");
   }
-
   ret = mBuffer.substr(0, pos);
   mBuffer = mBuffer.substr(pos + 4);
   return (ret);

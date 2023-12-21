@@ -46,6 +46,7 @@ public:
   Request &operator=(const Request &aRequest);
 
 public:
+  IClientSocket&    getSocket() const;
   int               getIncomingIP() const;
   int               getIncomingPort() const;
   method_t          getMethod() const;

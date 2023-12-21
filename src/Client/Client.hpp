@@ -25,6 +25,7 @@ class Client : public IClient {
   int               mIncomingIP;
   int               mIncomingPort;
   IClientSocket*    mSocket;
+  bool              mHasClosedTheConnection;
   bool              mHasRequest;
   IRequest*         mRequest;
 
@@ -32,10 +33,13 @@ public:
   Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort);
   ~Client();
 
+  bool  operator==(const IClient& client) const;
+
   virtual int       getID() const;
   virtual int       getIncomingIP() const;
   virtual int       getIncomingPort() const;
 
+  virtual bool      hasClosedTheConnection() const;
   virtual bool      hasRequest() const;
   virtual void      makeRequest();
   virtual IRequest* getRequest();

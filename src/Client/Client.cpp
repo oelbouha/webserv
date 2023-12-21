@@ -11,10 +11,12 @@
 
 Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort)
     : mIncomingIP(aIncomingIP), mIncomingPort(aIncomingPort), mSocket(aSocket),
-      mHasRequest(false)
-{}
+      mHasRequest(false), mRequest(NULL) {}
 
 Client::~Client() {}
+
+bool    Client::operator==(const IClient& client) const
+{ return (this->getID() == client.getID()); }
 
 int Client::getID() const { return mSocket->getID(); }
 
@@ -24,15 +26,30 @@ int Client::getIncomingPort() const { return mIncomingPort; }
 
 void Client::makeRequest() {
   try {
-    mRequest = new Request(*mSocket, mIncomingIP, mIncomingPort);
+    if (mRequest == NULL)
+      mRequest = new Request(*mSocket, mIncomingIP, mIncomingPort);
+
     mRequest->build();
     mHasRequest = true;
-  } catch (const SocketException &e) {
+
+  } catch(const RequestException& e)
+  {
+      if (e.error == RequestException::CONNECTION_COLOSED)
+        mHasClosedTheConnection = true;
   }
+  catch (const SocketException &e) {
+  }
+}
+
+bool    Client::hasClosedTheConnection() const
+{
+    return (mHasClosedTheConnection);
 }
 
 bool Client::hasRequest() const { return mHasRequest; }
 
 IRequest *Client::getRequest() {
-   return (mRequest); 
+  IRequest *ret = mRequest;
+  mRequest = NULL;
+  return (ret);
 }

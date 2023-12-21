@@ -11,9 +11,9 @@
 #ifndef ISERVERSOCKET_HPP
 #define ISERVERSOCKET_HPP
 
-#include "IClientSocket.hpp"
+#include "src/Interfaces/IClientSocket.hpp"
 
-#include "Types.hpp"
+#include "include/Types.hpp"
 
 class IServerSocket
 {

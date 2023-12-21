@@ -1,10 +1,10 @@
 /*	                     __          _
  *	   __  ___________ _/ /___ ___  (_)
  *	  / / / / ___/ __ `/ / __ `__ \/ /
- *	 / /_/ (__  ) /_/ / / / / / / / / 
- *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
+ *	 / /_/ (__  ) /_/ / / / / / / / /
+ *	 \__, /____/\__,_/_/_/ /_/ /_/_/
  *	/____/	User: Youssef Salmi
- *			File: Response.hpp 
+ *			File: Response.hpp
  */
 
 #pragma once
@@ -13,46 +13,51 @@
 
 #include <iostream>
 #include <map>
+#include <fstream>
 
-#include "IResponse.hpp"
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "IClientSocket.hpp"
+#include "IResponse.hpp"
 
-class Response : public IResponse
-{
-	IClientSocket&	mSocket;
-	unsigned int	mStatusCode;
-	std::map<std::string, std::string>	mHeaders;
+class Response : public IResponse {
+  IClientSocket&                        mSocket;
+  unsigned int                          mStatusCode;
+  std::map<std::string, std::string>    mHeaders;
 
-	std::string		mBody;
+  std::string   mBody;
+  int           mFile;
 
-	std::string		mRawResponse;
+  std::string mRawResponse;
 
-	size_t			mCursor;
+  size_t mCursor;
+  bool      isComplete;
 
 public:
-	Response( IClientSocket& aSocket );
-	Response( const Response& aResponse );
-	~Response();
+  Response(IClientSocket &aSocket);
+  Response(const Response &aResponse);
+  ~Response();
 
-	Response&	operator=( const Response& aResponse );
+  Response &operator=(const Response &aResponse);
 
-    virtual int getID() const;
+  virtual int getID() const;
 
+  Response &setStatusCode(unsigned int aStatusCode);
+  Response &setHeader(const std::string &aHeader, const std::string &aValue);
+  Response &setBody(const std::string &aBody);
+  Response &setBodyFile(const std::string &aFileName);
 
-	Response&	setStatusCode( unsigned int aStatusCode );
-	Response&	setHeader( const std::string& aHeader, const std::string& aValue );
-	Response&	setBody( const std::string& aBody );
+  Response &build();
 
-	Response&	build();
+  Response &startSending();
+  void send();
+  bool isSendingComplete();
 
-	Response&	startSending();
-	void		send();
-	bool		isSendingComplete();
+  void dump();
+  void dumpHeader();
 
-	void		dump();
-	void		dumpHeader();
-
-	static	const std::map<unsigned int, std::string>	sStatusCodes;
-	static	std::map<unsigned int, std::string> initStatusCodes();
+  static const std::map<unsigned int, std::string> sStatusCodes;
+  static std::map<unsigned int, std::string> initStatusCodes();
 };
 #endif

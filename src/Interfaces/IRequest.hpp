@@ -15,10 +15,13 @@
 
 #include "Types.hpp"
 
+#include "src/Interfaces/IClientSocket.hpp"
+
 class IRequest
 {
 public:
     virtual ~IRequest(){};
+    virtual IClientSocket&      getSocket() const = 0;
     virtual method_t            getMethod() const = 0;
     virtual const std::string&  getURI() const = 0;
     virtual const std::string&  getHttpVersion() const = 0;

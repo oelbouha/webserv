@@ -16,7 +16,7 @@ http:
 	# 	html: text/html
 	# 	jpg: image/jpeg
   keep_alive:	65
-  keep_alive_timeout: 10
+  #keep_alive_timeout: 10
   server_props: no
 
 	# error_pages: 500 501 502 503 /50x.html
@@ -34,10 +34,6 @@ http:
 		name: ysalmi.ma
 		root: /var/www/html
 		index: index.html
-        error_pages:
-          - 500
-          - 501
-          - /5xx_custom.html
 		route:
 			uri: /
 			allowed_methods:

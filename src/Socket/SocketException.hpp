@@ -24,5 +24,7 @@ class SocketException : public std::exception
 		SocketException( const std::string& aMessage );
 		~SocketException() throw ();
 		const char*	what( void ) const throw();
+
+
 };
 #endif

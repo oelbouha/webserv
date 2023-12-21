@@ -8,11 +8,14 @@
  */
 
 #include "Response.hpp"
+#include <cstddef>
+#include <fstream>
+#include <string>
 
-Response::Response(IClientSocket &aSocket) : mSocket(aSocket), mCursor(0) {}
+Response::Response(IClientSocket &aSocket) : mSocket(aSocket), mFile(-1), mCursor(0), isComplete(false) {}
 
 Response::Response(const Response &aResponse)
-    : mSocket(aResponse.mSocket), mCursor(0) {}
+    : mSocket(aResponse.mSocket), mFile(aResponse.mFile), mCursor(0), isComplete(aResponse.isComplete) {}
 
 Response::~Response() {}
 
@@ -40,29 +43,69 @@ Response &Response::setBody(const std::string &aBody) {
   return (*this);
 }
 
+Response&   Response::setBodyFile( const std::string& aFileName )
+{
+    mFile = ::open(aFileName.data(), O_RDONLY);
+    if (mFile < 0)
+    {
+        mStatusCode = 404;
+        setBody("<h1 style=\"text-align: center;\">404 Not Found</h1>");
+        setHeader("content-type", "text/html");
+        return *this;
+    }
+    std::ifstream   file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
+    std::string contentLength = std::to_string(file.tellg());
+    setHeader("content-length", contentLength);
+    file.close();
+    return *this;
+}
+
 Response &Response::build() {
   mRawResponse = "HTTP/1.1 " + Response::sStatusCodes.at(mStatusCode) + "\r\n";
   for (std::map<std::string, std::string>::iterator it = mHeaders.begin();
        it != mHeaders.end(); ++it)
     mRawResponse += it->first + ": " + it->second + "\r\n";
-  mRawResponse += "\r\n" + mBody;
+  mRawResponse += "\r\n";
   return (*this);
 }
 
-Response &Response::startSending() { return (*this); }
+Response &Response::startSending() { 
+    if (mFile < 0)
+        mRawResponse += mBody;
+    return (*this); 
+}
 
 void Response::send() {
-  const char *buff = mRawResponse.c_str() + mCursor;
+    if (mFile < 0){
+        const char *buff = mRawResponse.c_str();
+        size_t size = mRawResponse.length();
+        mCursor = mSocket.write(buff, size);
+        mRawResponse.erase(0, mCursor);
+        if (mRawResponse.empty())
+            isComplete = true;
+    }
+    else {
+        size_t  bufferSize = 250000;
+        int r = 0;
+        if (mRawResponse.length() < bufferSize)
+        {
+            char readBuffer[bufferSize];
+            r = ::read(mFile, readBuffer, bufferSize - 1);
+            readBuffer[r] = 0;
+            mRawResponse += std::string(readBuffer, r);
+        }
 
-  // std::cout << "mCursor: " << mCursor << std::endl << std::flush;
-  size_t size = mRawResponse.length() - mCursor;
-  // size = size>65536?65536:size;
-
-  mCursor += mSocket.write(buff, size);
+        const char *buff = mRawResponse.c_str();
+        size_t      size = mRawResponse.length();
+        mCursor = mSocket.write(buff, size);
+        mRawResponse.erase(0, mCursor);
+        if (static_cast<size_t>(r) < bufferSize - 1 && mRawResponse.empty())
+            isComplete = true;
+    }
 }
 
 bool Response::isSendingComplete() {
-  return (mCursor == mRawResponse.length());
+  return (isComplete);
 }
 
 void Response::dump() { std::cout << mRawResponse << std::endl << std::flush; }

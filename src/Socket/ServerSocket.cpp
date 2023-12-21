@@ -54,11 +54,6 @@ void ServerSocket::bind() {
   addr.sin_port = htons(mPort);
 
   if (::bind(mID, (struct sockaddr *)&addr, addr_len) < 0) {
-    if (errno == EADDRNOTAVAIL)
-      std::cerr
-          << "The specified address is not available from the local machine."
-          << std::endl
-          << std::flush;
     throw SocketException("Can't bind socket to " + std::to_string(mIP) + ":" +
                           std::to_string(mPort) + " " + strerror(errno));
   }

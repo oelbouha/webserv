@@ -18,6 +18,7 @@ public:
   virtual ~IClient(){};
   virtual void makeRequest() = 0;
   virtual bool hasRequest() const = 0;
+  virtual bool hasClosedTheConnection() const = 0;
   virtual IRequest *getRequest() = 0;
   virtual int getID() const = 0;
   virtual int getIncomingIP() const = 0;

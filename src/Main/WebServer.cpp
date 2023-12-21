@@ -8,106 +8,110 @@
  */
 
 #include "WebServer.hpp"
+#include <algorithm>
 #include <queue>
+#include <vector>
 
 WebServer::WebServer() : mConfig(NULL) {}
 
-WebServer::WebServer(const Config *aConfig) : mConfig(aConfig) {}
+WebServer::WebServer(const Config *aConfig) : mConfig(aConfig) {
+  mMux = new SelectMultiplexer();
+}
 
 WebServer::~WebServer() {}
 
 void WebServer::start() {
-  mSocket.bind();
-  mSocket.listen();
+  (void)mConfig;
+
+  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8000));
+  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8001));
+  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8002));
+  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8003));
+  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8004));
+
+  for (std::vector<ServerSocket>::iterator it = mSockets.begin();
+       it != mSockets.end(); ++it) {
+    it->bind();
+    it->listen();
+    mMux->add(*it);
+    std::cout << "listening on port: " << it->getPort() << std::endl;
+  }
 }
 
-void WebServer::loop() 
+void WebServer::loop() {
+  std::queue<IServerSocket *> qs;
+  std::queue<IClient *> qc;
+  std::queue<IResponse *> qr;
+
+  while (true) {
+    std::cout << "waiting..." << std::flush;
+    mMux->wait(10 * 1000000); // 10 seconds
+
+    qs = mMux->getReadyServerSockets();
+    qc = mMux->getReadyClients();
+    qr = mMux->getReadyResponses();
+
+    std::cout << "qs: " << qs.size();
+    std::cout << " qc: " << qc.size();
+    std::cout << " qr: " << qr.size() << std::endl << std::flush;
+
+    acceptNewClients(qs);
+    takeAndHandleRequests(qc);
+    sendResponses(qr);
+  }
+}
+
+
+void    WebServer::acceptNewClients(std::queue<IServerSocket*>& qs)
 {
-    std::queue<IServerSocket*>  qs;
-    std::queue<IClient*>        qc;
-    std::queue<IResponse*>      qr;
+    while (qs.size()) {
+        const IServerSocket *sock = qs.front();
+        IClientSocket *clientSock = sock->accept();
+        clientSock->setNonBlocking();
+        Client client(clientSock, sock->getIP(), sock->getPort());
 
-    while (true){
-        mMux->wait(1000);
-
-        qs = mMux->getReadyServerSockets();
-        qc = mMux->getReadyClients();
-        qr = mMux->getReadyResponses();
-
-        while (qs.size())
-        {
-            const IServerSocket*    sock = qs.front();
-            IClientSocket*          clientSock = sock->accept();
-            Client                  client(clientSock, sock->getIP(), sock->getPort());
-
-            mClients.push_back(client);
-            mMux->add(client);
-            qs.pop();
-        }
-        while (qc.size())
-        {
-            IClient*  client = qc.front();
-
-            // if (client in cgi)
-            //  set request active
-            //  else
-            client->makeRequest();
-            if (client->hasRequest())
-                mRequests.push(client->getRequest());
-
-            qc.pop();
-        }
-        /*
-         *
-         * while (cgi pin)
-         *  set pin active
-         *  if (cgi ready)
-         *   send to cgi
-         *
-         * while (cgi pout)
-         *  set pout cgi active
-         */
-
-        while (qr.size())
-        {
-            IResponse*  res = qr.front();
-
-            res->send();
-            if (res->isSendingComplete())
-                // remove from mResponses;
-            qr.pop();
-        }
-        while (mRequests.size())
-        {
-            IRequest*   req = mRequests.front();
-
-            IResponse*  res = mServers.handle(req);
-
-            mResponses.push_back(res);
-        }
+        mClients.push_back(client);
+        mMux->add(mClients.back());
+        qs.pop();
     }
 }
 
-/*
-while (true)
+void    WebServer::takeAndHandleRequests(std::queue<IClient*>& qc)
 {
-        // code
+    while (qc.size()) {
+      IClient *client = qc.front();
 
-        // sending responses section
-        for res in responses that are ready
-        {
-                if (res.isSendingComplete())
-                        remove res from responses
-                        check if connection header is "close"
-                                close client socket
-                        else
-                                update time out
-                res.send();
-        }
+      // if (client in cgi)
+      //  set request active
+      //  else
+      client->makeRequest();
+      if (client->hasClosedTheConnection()) {
+          mMux->remove(*client);
+          std::vector<Client>::iterator it = std::find(mClients.begin(),
+                                                        mClients.end(),
+                                                        *client);
+          mClients.erase(it);
+      }
+      else if (client->hasRequest()) {
+        IRequest *request = client->getRequest();
+        IResponse *response = mServers.handle(request);
+        response->startSending();
+        mMux->add(*response);
+      }
 
-        // keep alive timeout seciton
-        loop:
-                close timed out clients
+      qc.pop();
+    }
 }
 
-*/
+void    WebServer::sendResponses(std::queue<IResponse*>& qr)
+{
+    while (qr.size()) {
+      IResponse *res = qr.front();
+
+      res->send();
+      if (res->isSendingComplete())
+        mMux->remove(*res);
+      qr.pop();
+    }
+ 
+}

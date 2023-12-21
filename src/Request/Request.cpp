@@ -8,16 +8,16 @@
  */
 
 #include "Request.hpp"
+#include <string>
 
 Request::Request(IClientSocket &aSocket, int aIncomingIP, int aIncomingPort)
-    : mSocket(aSocket), mIncommingIP(aIncomingIP), mIncommingPort(aIncomingPort)
-{}
+    : mSocket(aSocket), mIncommingIP(aIncomingIP),
+      mIncommingPort(aIncomingPort) {}
 
 Request::Request(const Request &r)
     : mSocket(r.mSocket), mMethod(r.mMethod), mUri(r.mUri), mQuery(r.mQuery),
       mHttpVersion(r.mHttpVersion), mHeaders(r.mHeaders),
-      mIncommingIP(r.mIncommingIP), mIncommingPort(r.mIncommingPort)
-{}
+      mIncommingIP(r.mIncommingIP), mIncommingPort(r.mIncommingPort) {}
 
 Request::~Request() {}
 
@@ -31,6 +31,8 @@ Request &Request::operator=(const Request &r) {
   }
   return (*this);
 }
+
+IClientSocket &Request::getSocket() const { return mSocket; }
 
 int Request::getIncomingIP() const { return mIncommingIP; }
 
@@ -55,7 +57,11 @@ const std::string &Request::getHeader(const std::string &aKey) const {
 void Request::build() { parse(); }
 
 void Request::parse() {
-  std::istringstream ss(mSocket.readHeaderOnly());
+  std::string header = mSocket.readHeaderOnly();
+  if (header.empty())
+      throw RequestException(RequestException::CONNECTION_COLOSED);
+  
+  std::istringstream ss(header);
   std::string line;
 
   std::getline(ss, line);
@@ -122,50 +128,49 @@ void Request::setMethod(const std::string &aMethod) {
 }
 
 void Request::dump(bool colors) const {
-    using std::cout;
-    using std::endl;
-    using std::flush;
+  using std::cout;
+  using std::endl;
+  using std::flush;
 
-    cout << "Method: ";
-    if (colors)
-        cout << "\e[32m";
-    switch (mMethod) {
-        case GET:
-            cout << "GET";
-            break;
-        case POST:
-            cout << "POST";
-            break;
-        default:
-            break;
-    }
+  cout << "Method: ";
+  if (colors)
+    cout << "\e[32m";
+  switch (mMethod) {
+  case GET:
+    cout << "GET";
+    break;
+  case POST:
+    cout << "POST";
+    break;
+  default:
+    break;
+  }
 
-    cout << "\e[0m" << endl;
+  cout << "\e[0m" << endl;
 
-    cout << "URI: ";
-    if (colors)
-        cout << "\e[32m";
-    cout << mUri << "\e[0m\n";
+  cout << "URI: ";
+  if (colors)
+    cout << "\e[32m";
+  cout << mUri << "\e[0m\n";
 
-    cout << "Query: ";
-    if (colors)
-        cout << "\e[32m";
-    cout << mQuery << "\e[0m\n";
+  cout << "Query: ";
+  if (colors)
+    cout << "\e[32m";
+  cout << mQuery << "\e[0m\n";
 
-    cout << "Http Version: ";
-    if (colors)
-        cout << "\e[32m";
-    cout << mHttpVersion.substr(mHttpVersion.find('/') + 1) << "\e[0m\n";
+  cout << "Http Version: ";
+  if (colors)
+    cout << "\e[32m";
+  cout << mHttpVersion.substr(mHttpVersion.find('/') + 1) << "\e[0m\n";
 
-    std::map<std::string, std::string>::const_iterator it = mHeaders.begin();
-    for (; it != mHeaders.end(); ++it)
-        std::cout << std::left << std::setw(20) << it->first << ": " << it->second
-            << std::endl;
+  std::map<std::string, std::string>::const_iterator it = mHeaders.begin();
+  for (; it != mHeaders.end(); ++it)
+    std::cout << std::left << std::setw(20) << it->first << ": " << it->second
+              << std::endl;
 
-    std::string body = mSocket.readAll();
+  std::string body = mSocket.readAll();
 
-    cout << body << endl;
+  cout << body << endl;
 
-    cout << flush;
+  cout << flush;
 }
-

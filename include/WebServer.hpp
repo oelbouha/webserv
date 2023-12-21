@@ -12,37 +12,37 @@
 #define WEBSERVER_HPP
 
 #include <iostream>
-#include <map>
 #include <vector>
 
-#include "IMultiplexer.hpp"
-#include "IServer.hpp"
 #include "src/DataTypes/Config.hpp"
 
-#include "ServersCluster.hpp"
+#include "src/Interfaces/IServerSocket.hpp"
+#include "src/Interfaces/IMultiplexer.hpp"
 
-#include "IServerSocket.hpp"
-
+#include "src/Server/ServerCluster.hpp"
+#include "src/Multiplexer/SelectMultiplexer.hpp"
 #include "src/Client/Client.hpp"
 #include "src/Request/Request.hpp"
 #include "src/Response/Response.hpp"
 #include "src/Socket/ClientSocket.hpp"
 #include "src/Socket/ServerSocket.hpp"
 
-#include "src/Multiplexer/SelectMultiplexer.hpp"
 
 class WebServer {
   const Config*                 mConfig;
-  std::vector<IServerSocket *>  mSockets;
+  std::vector<ServerSocket>   mSockets;
   IMultiplexer*                 mMux;
-  ServersCluster*               mServers;
+  ServerCluster                 mServers;
   std::vector<Client>           mClients;
-  std::queue<IRequest *>        mRequests;
+  //std::queue<IRequest *>        mRequests;
   std::vector<IResponse *>      mResponses;
 
-  ServerSocket mSocket;
-
   WebServer();
+
+private:
+  void  acceptNewClients(std::queue<IServerSocket*>& qs);
+  void  takeAndHandleRequests(std::queue<IClient*>& qc);
+  void  sendResponses(std::queue<IResponse*>& qr);
 
 public:
   WebServer(const Config *aConfig);
