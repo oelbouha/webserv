@@ -4,20 +4,21 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ICGIHandler.hpp 
+ *			File: IProxyHandler.hpp 
  */
 
 #pragma once
 #ifndef ICGIHANDLER_HPP
 #define ICGIHANDLER_HPP
 
-#include "IResponse.hpp"
+#include "src/Interfaces/IProxiedResponse.hpp"
+#include "src/Interfaces/IRequest.hpp"
 
-class ICGIHandler
+class IProxyHandler
 {
 	public:
-		virtual	~ICGIHandler(){};
-        virtual IResponse   handle() = 0;
+		virtual	~IProxyHandler(){};
+        virtual IProxiedResponse*   handle(IRequest* request) = 0;
 };
 
 #endif

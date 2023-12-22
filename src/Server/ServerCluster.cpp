@@ -60,3 +60,22 @@ IResponse*  ServerCluster::handle(IRequest* request)
 
     return (response);
 }
+
+#include "src/Server/CGIHandler.hpp"
+
+IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
+{
+    CGIHandler    handler;
+
+    return (handler.handle(request));
+    std::string file = "pages/index.py";
+    
+
+    const std::string&  uri = request->getURI();
+    if (uri != "/")
+        file = "pages/" + uri.substr(uri.rfind("/"));
+
+    ProxiedResponse& response = *new ProxiedResponse(request->getSocket());
+
+    response.
+}

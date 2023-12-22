@@ -22,14 +22,13 @@ public:
     virtual IResponse&  setHeader( const std::string& aKey, const std::string& aValue ) = 0;
 
     virtual IResponse&  setBody( const std::string& aBody ) = 0;
-    virtual IResponse&  setBodyFile( const std::string& aFileName) = 0;
+    virtual IResponse&  setBodyFile( const std::string& aFileName ) = 0;
     
     virtual IResponse&  build() = 0;
 
     virtual IResponse&  startSending() = 0;
     virtual void        send() = 0;
     virtual bool		isSendingComplete() = 0;
-
 
     virtual int         getID() const = 0;
 };

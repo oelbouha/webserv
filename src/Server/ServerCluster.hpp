@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "src/Response/Response.hpp"
+#include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
 
 class ServerCluster
@@ -26,6 +27,7 @@ public:
 	ServerCluster&	operator=( const ServerCluster& s );
 
     IResponse*  handle(IRequest* request);
+    IProxiedResponse*   handleCGI(IRequest* request);
 
 };
 #endif
