@@ -1,4 +1,6 @@
 .vscode
-.gitignorepages/index.mp4
+.gitignore
+pages/index.mp4
 pages/video.mp4
+pages/*.mp4
 .gitignore
