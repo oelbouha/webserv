@@ -44,7 +44,8 @@ void WebServer::loop() {
   std::queue<IResponse *> qr;
 
   while (true) {
-    mMux->wait(1 * 1000000); // 10 seconds
+    std::cout << "waiting..." << std::flush;
+    mMux->wait(10 * 1000000); // 10 seconds
 
     qs = mMux->getReadyServerSockets();
     qc = mMux->getReadyClients();

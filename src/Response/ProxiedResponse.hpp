@@ -56,6 +56,5 @@ private:
     void                writeAll(int fd, std::string& buffer);
     void                readAll(int fd, std::string& buffer);
     void                setNonBlocking();
-
 };
 #endif

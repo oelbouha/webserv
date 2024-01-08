@@ -17,6 +17,9 @@ public:
 	virtual		~IProxiedResponse(){};
     
     virtual void        setIsHeaderComplete(bool isHeaderComplete) = 0;
+//    virtual void        setCGIInput( int fildes ) = 0;
+//    virtual void        setCGIOutput( int fildes ) = 0;
+
     virtual bool        isHeaderComplete() = 0;
     virtual void        completeHeader() = 0;
 

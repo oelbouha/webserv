@@ -67,5 +67,4 @@ ProxiedResponse*    CGIHandler::handle(IRequest* request)
         execve(cgi.data(), execv_args.data(), execv_env.data());
         exit(1);
     }
-    
 }
