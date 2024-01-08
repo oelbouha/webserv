@@ -51,5 +51,6 @@ bool Client::hasRequest() const { return mHasRequest; }
 IRequest *Client::getRequest() {
   IRequest *ret = mRequest;
   mRequest = NULL;
+  mHasRequest = false;
   return (ret);
 }

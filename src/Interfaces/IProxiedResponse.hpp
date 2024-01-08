@@ -15,10 +15,8 @@ class IProxiedResponse
 {
 public:
 	virtual		~IProxiedResponse(){};
-    virtual void        setCGIInput( int fildes ) = 0;
-    virtual void        setCGIOutput( int fildes ) = 0;
-
-    virtual void        setIsHeaderComplete() = 0;
+    
+    virtual void        setIsHeaderComplete(bool isHeaderComplete) = 0;
     virtual bool        isHeaderComplete() = 0;
     virtual void        completeHeader() = 0;
 

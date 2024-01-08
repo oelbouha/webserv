@@ -30,11 +30,10 @@
 
 class WebServer {
   const Config*                 mConfig;
-  std::vector<ServerSocket>   mSockets;
+  std::vector<ServerSocket>     mSockets;
   IMultiplexer*                 mMux;
   ServerCluster                 mServers;
   std::vector<Client>           mClients;
-  //std::queue<IRequest *>        mRequests;
   std::vector<IResponse *>      mResponses;
 
   WebServer();

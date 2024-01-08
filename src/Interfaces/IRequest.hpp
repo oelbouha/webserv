@@ -31,5 +31,7 @@ public:
     virtual int                 getIncomingIP() const = 0;
     virtual int                 getIncomingPort() const = 0;
     virtual void                build() = 0;
+
+    virtual void dump(bool colors = true) const = 0;
 };
 #endif

@@ -24,20 +24,21 @@ using std::vector;
 using std::string;
 using std::fstream;
 
-typedef map<const string, vector<string> >	BlockConfigsType;
+typedef map<const string, vector<string> >	AllowedValues;
 
 class ConfigHelper
 {
 	ConfigHelper();
 
-	static const BlockConfigsType	sBlockConfigs;
-	static const string				sListConfigs[];
-	static const string				sInlineConfigs[];
+	static const string         sBlockConfigs[];
+	static const string			sListConfigs[];
+	static const string			sInlineConfigs[];
+    static const AllowedValues  sAllowedValues;
 
 	public:
-		static BlockConfigsType	initBlockConfigs();
+		static AllowedValues	initAllowedValues();
 		static bool	isBlockConfig(const string& aConfig);
-		static bool	isPropertyOfBlock(const string& aConfig, const string& aProperty);
+		static bool	isValueAllowed(const string& aConfig, const string& aValue);
 		static bool	isListConfig(const string& aConfig);
 		static bool	isInlineConfig(const string& aConfig);
 

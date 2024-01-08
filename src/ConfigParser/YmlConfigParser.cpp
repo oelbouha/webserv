@@ -84,21 +84,24 @@ Config*			YmlConfigParser::parseBlock_(const string& aKey, int aTabCount)
 			block_tabs_count = leading_tabs_count;
 
 		if (aTabCount != -1 && leading_tabs_count <= aTabCount)
+        {
+            mFileStream.seekg( (size_t)mFileStream.tellg() - line.length() - 1 );
 			break ;
+        }
 		else if (leading_tabs_count != block_tabs_count)
 			throw ParserException(mFileName, "Misaligned Indentations", mLineNumber);
 
 		property = extractProperty_(line);
 
-		if (!ConfigHelper::isPropertyOfBlock(aKey, property))
+		if (!ConfigHelper::isValueAllowed(aKey, property))
 			throw ParserException(mFileName,
 				aKey + " does not have a `" + property + "` property",
 				mLineNumber);
 
 		else if (ConfigHelper::isInlineConfig(property))
 		{
-			string	value = parseInline_(line);
-			config->addInline(
+			string	value = parseInline_(property, line);
+            config->addInline(
 				property,
 				value
 			);
@@ -106,7 +109,7 @@ Config*			YmlConfigParser::parseBlock_(const string& aKey, int aTabCount)
 		
 		else if (ConfigHelper::isListConfig(property))
 		{
-			vector<string>	list = parseList_(block_tabs_count);
+			vector<string>	list = parseList_(property, block_tabs_count);
 			config->addList(
 				property,
 				list
@@ -128,7 +131,7 @@ Config*			YmlConfigParser::parseBlock_(const string& aKey, int aTabCount)
 }
 
 
-vector<string>	YmlConfigParser::parseList_(int aTabCount)
+vector<string>	YmlConfigParser::parseList_(const string& aKey, int aTabCount)
 {
 	vector<string>	list;
 	string			value;
@@ -145,7 +148,10 @@ vector<string>	YmlConfigParser::parseList_(int aTabCount)
 		if (tabCount > aTabCount + 1)
 			throw ParserException(mFileName, "Misaligned Indentations", mLineNumber);
 		else if (tabCount <= aTabCount)
+        {
+            mFileStream.seekg( (size_t)mFileStream.tellg() - line.length() - 1 );
 			break ;
+        }
 
 		line = line.substr(line.find_first_not_of(" \t"));
 
@@ -167,12 +173,18 @@ vector<string>	YmlConfigParser::parseList_(int aTabCount)
 
 		value = line.substr(first_non_space_char, last_non_space_char - first_non_space_char);
 
+        if (!ConfigHelper::isValueAllowed(aKey, value))
+			    throw ParserException(mFileName,
+				    aKey + " can NOT be set to `" + value + "`",
+				    mLineNumber);
+
+        
 		list.push_back(value);
 	}
 	return list;
 }
 
-string			YmlConfigParser::parseInline_(const string& line)
+string			YmlConfigParser::parseInline_(const string& aKey, const string& line)
 {
 	std::size_t	first_non_space_char = line.find_first_not_of(" \t", line.find(':') + 1);
 	std::size_t last_non_space_char = utils::find_last_not_of(line, " \t");
@@ -184,6 +196,11 @@ string			YmlConfigParser::parseInline_(const string& line)
 		throw ParserException(mFileName, "Invalid Syntax - Missing space after collon", mLineNumber);
 
 	string	value = line.substr(first_non_space_char, last_non_space_char - first_non_space_char);
+
+    if (!ConfigHelper::isValueAllowed(aKey, value))
+			    throw ParserException(mFileName,
+				    aKey + " can NOT be set to `" + value + "`",
+				    mLineNumber);
 
 
 	return (value);

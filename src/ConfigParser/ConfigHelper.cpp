@@ -19,38 +19,31 @@ const string	ConfigHelper::sInlineConfigs[] = {
 	"error_log_file",
 	"error_log_level",
 	"server_props",
-
-	"inline_property",
-	"prop1",
 	LIST_END
 };
 
 const string	ConfigHelper::sListConfigs[] = {
 	"allowed_methods",
-
-	"list_property",
-	"prop2",
-
 	LIST_END
 };
 
-BlockConfigsType	ConfigHelper::initBlockConfigs(){
-	const string				blockConfigsRaw[] = {
+const string    ConfigHelper::sBlockConfigs[] = {
+    "cluster",
+  
+//bool    ConfigHelper::(const std::string& aConfig, const std::string& aProperty);
+"server",
+    "route",
+    LIST_END
+};
+
+AllowedValues	ConfigHelper::initAllowedValues(){
+	const string				allowedValuesRaw[] = {
 		"global:",
-			"http",
+			"cluster",
 			"error_log_file",
 			"error_log_level",
-
-			"inline_property",
-			"list_property",
-			"block_property",
-			"test_property",
 		
-		"block_property:",
-			"prop1",
-			"prop2",
-
-		"http:",
+		"cluster:",
 			"mime_types",
 			"keep_alive",
 			"server_props",
@@ -71,45 +64,59 @@ BlockConfigsType	ConfigHelper::initBlockConfigs(){
 			"uri",
 			"allowed_methods",
 
+        "server_props:",
+            "yes", "no",
+
+
+        "allowed_methods:",
+            "GET", "POST", "DELETE",
+
+
 		LIST_END
 	};
-	map< const string, vector<string> >	blockConfigs;
+	map< const string, vector<string> >	allowedValues;
 	string	key;
 
-	for (int i = 0; ! blockConfigsRaw[i].empty(); ++i)
+	for (int i = 0; ! allowedValuesRaw[i].empty(); ++i)
 	{
-		string	entry = blockConfigsRaw[i];
+		string	entry = allowedValuesRaw[i];
 		if (entry[ entry.length() - 1 ] == ':')
 		{
 			key = entry.substr(0, entry.length() - 1);
-			blockConfigs[key] = vector<string>();
+			allowedValues[key] = vector<string>();
 		}
 		else
-			blockConfigs[key].push_back(entry);
+			allowedValues[key].push_back(entry);
 	}
-	return (blockConfigs);
+	return (allowedValues);
 }
 
-const BlockConfigsType ConfigHelper::sBlockConfigs = ConfigHelper::initBlockConfigs();
+const AllowedValues ConfigHelper::sAllowedValues = ConfigHelper::initAllowedValues();
 
 ConfigHelper::ConfigHelper()
 {}
 
 bool	ConfigHelper::isBlockConfig(const string& aConfig)
 {
-	if (aConfig != "global" && ConfigHelper::sBlockConfigs.find(aConfig) != ConfigHelper::sBlockConfigs.end())
-		return true;
+	for (int i = 0; ! ConfigHelper::sBlockConfigs[i].empty() ; ++i)
+		if (ConfigHelper::sBlockConfigs[i] == aConfig)
+			return true;
 	return false;
 }
 
-//bool    ConfigHelper::(const std::string& aConfig, const std::string& aProperty);
-bool	ConfigHelper::isPropertyOfBlock(const string& aConfig, const string& aProperty)
+bool	ConfigHelper::isValueAllowed(const string& aConfig, const string& aValue)
 {
-	vector<string>	properties = ConfigHelper::sBlockConfigs.at(aConfig);
+    try{
+	    vector<string>	properties = ConfigHelper::sAllowedValues.at(aConfig); // m['server']
 
-	if (std::find(properties.begin(), properties.end(), aProperty) != properties.end())
-		return true;
-	return false;
+	    if (std::find(properties.begin(), properties.end(), aValue) != properties.end())
+		    return true;
+        return false;
+    }
+    catch (...)
+    {
+        return true;
+    }
 }
 
 bool	ConfigHelper::isListConfig(const string& aConfig)

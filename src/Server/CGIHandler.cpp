@@ -65,5 +65,7 @@ ProxiedResponse*    CGIHandler::handle(IRequest* request)
         // excute script;
         const std::vector<const char*>&   execv_args = args, execv_env = env;
         execve(cgi.data(), execv_args.data(), execv_env.data());
+        exit(1);
     }
+    
 }

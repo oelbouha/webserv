@@ -61,6 +61,7 @@ IResponse*  ServerCluster::handle(IRequest* request)
     return (response);
 }
 
+/*
 #include "src/Server/CGIHandler.hpp"
 
 IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
@@ -79,3 +80,4 @@ IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
 
     response.
 }
+*/

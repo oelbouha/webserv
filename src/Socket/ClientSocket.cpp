@@ -51,6 +51,8 @@ std::string ClientSocket::readHeaderOnly() {
   std::string ret;
   size_t pos;
 
+  std::cout << "mBuffer size: " << mBuffer.length() << std::endl << std::flush;
+
   pos = mBuffer.find("\r\n\r\n");
 
   try {

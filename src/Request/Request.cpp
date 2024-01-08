@@ -58,6 +58,7 @@ void Request::build() { parse(); }
 
 void Request::parse() {
   std::string header = mSocket.readHeaderOnly();
+  std::cout << "Header:\n" << header << std::endl << std::flush;
   if (header.empty())
       throw RequestException(RequestException::CONNECTION_COLOSED);
   

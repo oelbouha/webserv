@@ -45,8 +45,8 @@ class YmlConfigParser : public IConfigParser
 
 	// Class Parsing Units
 	Config*			parseBlock_(const string& aKey, int aTabCount = -1);
-	vector<string>	parseList_(int aTabCount);
-	string			parseInline_(const string& aLine);
+	vector<string>	parseList_(const string& aKey, int aTabCount);
+	string			parseInline_(const string& aKey, const string& aLine);
 
 	public:
 		YmlConfigParser( const string& aConfigFilePath );

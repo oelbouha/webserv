@@ -27,7 +27,7 @@ public:
 	ServerCluster&	operator=( const ServerCluster& s );
 
     IResponse*  handle(IRequest* request);
-    IProxiedResponse*   handleCGI(IRequest* request);
+//    IProxiedResponse*   handleCGI(IRequest* request);
 
 };
 #endif

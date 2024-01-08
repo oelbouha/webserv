@@ -1,53 +1,28 @@
 #comment;
-
-list_property:
-	- value1
-	- value2
-	-	value3
-
-
 error_log_file   : /Users/ysalmi/webserv.error.log
 error_log_level : warn
 
-# test_property: /Users/ysalmi/wevserv.access.log
-
-http:
+cluster:
 	# mime_types:
 	# 	html: text/html
 	# 	jpg: image/jpeg
   keep_alive:	65
   #keep_alive_timeout: 10
   server_props: no
-
-	# error_pages: 500 501 502 503 /50x.html
-
-	# error_pages:
-	# 	file: /var/lib/errors/5xx.html
-	# 	codes:
-	# 		- 500
-	# 		- 501
-	# 		- 502
-	# 		- 503
-
-	server:
-		port: 8080
-		name: ysalmi.ma
-		root: /var/www/html
-		index: index.html
-		route:
-			uri: /
-			allowed_methods:
-				- GET
-				- POST
-				- DELETE
-	server:
-		port: 8090
-		name: ysalmi.ma
-		root: /var/www/html
-		index: index.html
-		route:
-			uri: /
-			allowed_methods:
-				- GET
-				- POST
-				- DELETE
+  server:
+    port: 8080
+    name: ysalmi.ma
+    route:
+      uri: /
+      allowed_methods:
+        - GET
+        - POST
+        - DELETE
+  server:
+    port: 8090
+    name: ysalmi.ma
+    route:
+      uri: /
+      allowed_methods:
+        - GET
+        - POST
