@@ -42,14 +42,14 @@ namespace utils
 	std::string		ip(unsigned int aIP)
 	{
 		std::string		ret;
-		unsigned char	byte = aIP >> 24;
+		unsigned char	byte = aIP >> 0;
 
-		ret += std::to_string(byte) + ".";
-		byte = aIP >> 16 & 255;
 		ret += std::to_string(byte) + ".";
 		byte = aIP >> 8 & 255;
 		ret += std::to_string(byte) + ".";
-		byte = aIP & 255;
+		byte = aIP >> 16 & 255;
+		ret += std::to_string(byte) + ".";
+		byte = aIP >> 24 & 255;
 		ret += std::to_string(byte);
 		return (ret);
 	}
@@ -66,5 +66,24 @@ namespace utils
 		s.erase( std::find_if( s.rbegin(), s.rend(), isNotSpace ).base(), 
 			s.end());
 		return (s);
+	}
+	bool	IsDirectory(std::string uri)
+	{
+		DIR *dir = opendir(uri.c_str());
+		if (dir != NULL)
+		{
+			closedir(dir);
+			return true;	
+		}
+		return false;
+	}
+	std::string	getExtension(std::string line)
+	{
+		std::string extension;
+
+		int pos = line.rfind('.');
+		if (pos > 0)
+			extension = line.substr(pos + 1, line.length());
+		return (extension);	
 	}
 }

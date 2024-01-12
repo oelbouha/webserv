@@ -47,13 +47,13 @@ YmlConfigParser&	YmlConfigParser::operator=( const YmlConfigParser& c )
 }
 
 
-const Config&	YmlConfigParser::parse()
+Config*	YmlConfigParser::parse()
 {
 	mConfig = parseBlock_("global");
-	return (*mConfig);
+	return (mConfig);
 }
 
-const Config&	YmlConfigParser::getConfig()
+Config&	YmlConfigParser::getConfig()
 {
 	return (*mConfig);
 }

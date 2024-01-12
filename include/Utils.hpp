@@ -13,6 +13,7 @@
 
 #include <string>
 #include <algorithm>
+#include <dirent.h>
 
 namespace utils
 {
@@ -25,6 +26,9 @@ namespace utils
 	std::string	ip(unsigned int aIP);
 
 	std::string&	trimSpaces(std::string& aString);
+
+	bool	IsDirectory(std::string uri);
+	std::string	getExtension(std::string line);
 }
 
 #endif

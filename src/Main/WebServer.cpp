@@ -14,8 +14,10 @@
 
 WebServer::WebServer() : mConfig(NULL) {}
 
-WebServer::WebServer(const Config *aConfig) : mConfig(aConfig) {
-  mMux = new SelectMultiplexer();
+WebServer::WebServer( Config *aConfig) : mConfig(aConfig) {
+  // mMux = new SelectMultiplexer();
+  mMux = new KqueueMultiplexer();
+  mServers = new ServerCluster(mConfig);
 }
 
 WebServer::~WebServer() {}
@@ -44,24 +46,23 @@ void WebServer::loop() {
   std::queue<IResponse *> qr;
 
   while (true) {
-    std::cout << "waiting..." << std::flush;
+    std::cout << "." << std::flush;
     mMux->wait(10 * 1000000); // 10 seconds
 
     qs = mMux->getReadyServerSockets();
     qc = mMux->getReadyClients();
     qr = mMux->getReadyResponses();
 
-    if (qs.size() == 0 && qc.size() == 0 && qr.size() == 0)
-    {
-        std::cout << "." << std::flush;
-        continue;
-    }
+    // if (qs.size() == 0 && qc.size() == 0 && qr.size() == 0)
+    // {
+    //     std::cout << "." << std::flush;
+    //     continue;
+    // }
 
     std::cout << std::endl;
     std::cout << "qs: " << qs.size();
     std::cout << " qc: " << qc.size();
     std::cout << " qr: " << qr.size() << std::endl << std::flush;
-
     acceptNewClients(qs);
     takeAndHandleRequests(qc);
     sendResponses(qr);
@@ -71,7 +72,7 @@ void WebServer::loop() {
 
 void    WebServer::acceptNewClients(std::queue<IServerSocket*>& qs)
 {
-    std::cout << "Accepting clients...." << std::flush;
+    // std::cout << "Accepting clients...." << std::flush;
     while (qs.size()) {
         const IServerSocket *sock = qs.front();
         IClientSocket *clientSock = sock->accept();
@@ -81,8 +82,9 @@ void    WebServer::acceptNewClients(std::queue<IServerSocket*>& qs)
         mClients.push_back(client);
         mMux->add(mClients.back());
         qs.pop();
+
     }
-    std::cout << "Done.\n" << std::flush;
+    // std::cout << "Done.\n" << std::flush;
 }
 
 void    WebServer::takeAndHandleRequests(std::queue<IClient*>& qc)
@@ -90,13 +92,7 @@ void    WebServer::takeAndHandleRequests(std::queue<IClient*>& qc)
     while (qc.size()) {
       IClient *client = qc.front();
 
-      // if (client in cgi)
-      //  set request active
-      //  else
-      std::cout << "client making requtest..." << std::flush;
       client->makeRequest();
-      std::cout << "done.\n" << std::flush;
-
       if (client->hasClosedTheConnection()) {
           std::cout << "client closed connection.\n" << std::flush;
           mMux->remove(*client);
@@ -109,16 +105,15 @@ void    WebServer::takeAndHandleRequests(std::queue<IClient*>& qc)
         std::cout << "client has request.\n" << std::flush;
         IRequest *request = client->getRequest();
         request->dump(true);
-        std::cout << "handling request.\n" << std::flush;
-        IResponse *response = mServers.handle(request);
+        // std::cout << "handling request.\n" << std::flush;
+        IResponse *response = mServers->handle(request);
         // ResponseWrapper  *res = mServers.handle(request);
         // if (res->getType() == SIMPLE_RESPONSE)
-        std::cout << "start sending.\n" << std::flush;
+        // std::cout << "start sending.\n" << std::flush;
         response->startSending();
         mMux->add(*response);
         std::cout << "client request has been handeled.\n" << std::flush;
       }
-
       qc.pop();
     }
 }
@@ -127,6 +122,7 @@ void    WebServer::sendResponses(std::queue<IResponse*>& qr)
 {
     while (qr.size()) {
       IResponse *res = qr.front();
+        std::cout << "sending response to client .....\n" << std::flush;
 
       /*
       for (std::vector<Client>::iterator it = mClients.begin(); it != mClients.end(); ++it)
@@ -141,10 +137,10 @@ void    WebServer::sendResponses(std::queue<IResponse*>& qr)
       res->send();
       if (res->isSendingComplete())
       {
+        std::cout << "removing response ...\n";
         mMux->remove(*res);
         // delete res;
       }
       qr.pop();
-    }
- 
+    } 
 }

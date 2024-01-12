@@ -53,8 +53,8 @@ class YmlConfigParser : public IConfigParser
 		~YmlConfigParser();
 
 
-		const Config&	parse();
-		const Config&	getConfig();
+		Config*	parse();
+		Config&	getConfig();
 
 };
 

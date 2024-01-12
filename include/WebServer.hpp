@@ -20,6 +20,7 @@
 #include "src/Interfaces/IMultiplexer.hpp"
 
 #include "src/Server/ServerCluster.hpp"
+#include "src/Multiplexer/KqueueMultiplexer.hpp"
 #include "src/Multiplexer/SelectMultiplexer.hpp"
 #include "src/Client/Client.hpp"
 #include "src/Request/Request.hpp"
@@ -29,10 +30,10 @@
 
 
 class WebServer {
-  const Config*                 mConfig;
+  Config*                       mConfig;
   std::vector<ServerSocket>     mSockets;
   IMultiplexer*                 mMux;
-  ServerCluster                 mServers;
+  ServerCluster                 *mServers;
   std::vector<Client>           mClients;
   std::vector<IResponse *>      mResponses;
 
@@ -44,7 +45,7 @@ private:
   void  sendResponses(std::queue<IResponse*>& qr);
 
 public:
-  WebServer(const Config *aConfig);
+  WebServer(Config *aConfig);
   ~WebServer();
 
   void start();

@@ -13,6 +13,7 @@ const string	ConfigHelper::sInlineConfigs[] = {
 	"port",
 	"name",
 	"root",
+	"host",
 	"index",
 	"keep_alive",
 	"uri",

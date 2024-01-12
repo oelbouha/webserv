@@ -9,18 +9,34 @@ cluster:
   keep_alive:	65
   #keep_alive_timeout: 10
   server_props: no
+
+
   server:
-    port: 8080
-    name: ysalmi.ma
+    # host: 10.30.252.176
+    port: 8000
+    name: localhost
+    index: index.html
+    root: /Users/oelbouha/Desktop/web
+    # cgi: python3 .py
     route:
       uri: /
+      # index: myfile.php
+      allowed_methods:
+        - GET
+        - POST
+        - DELETE
+    route:
+      uri: /pages/
+      # index: myfile.php
       allowed_methods:
         - GET
         - POST
         - DELETE
   server:
-    port: 8090
-    name: ysalmi.ma
+    index: index.html
+    root: /Users/oelbouha/Desktop/web
+    port: 8004
+    name: localhost\\\
     route:
       uri: /
       allowed_methods:

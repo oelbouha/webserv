@@ -16,17 +16,37 @@
 #include "src/Response/Response.hpp"
 #include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
+#include "src/DataTypes/Config.hpp"
+#include "src/Server/Server.hpp"
 
 class ServerCluster
 {
-public:
-	ServerCluster();
-	ServerCluster( const ServerCluster& s );
-	~ServerCluster();
+	public:
+		ServerCluster();
+		ServerCluster(Config *config);
+		ServerCluster( const ServerCluster& s );
+		~ServerCluster();
 
-	ServerCluster&	operator=( const ServerCluster& s );
+		ServerCluster&	operator=( const ServerCluster& s );
 
-    IResponse*  handle(IRequest* request);
+		bool		isRequestProperlyStructured(const IRequest &);
+		bool		IsValidURI();
+		void		SetupServers(Config* config);
+
+		void		getMatchedServer(const IRequest &req);
+		void		getMatchedRoute(const IRequest &req);
+		bool		isServerMatched(const Server& , const  IRequest& );
+	
+		IResponse*  handle(IRequest* request);
+
+	private:
+		std::vector<Server *> servers;
+		Server			*server;
+		Route			*route;
+		std::string		URI;
+		unsigned int	statusCode;
+		unsigned int	UriMaxlength;
 
 };
+
 #endif

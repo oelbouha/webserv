@@ -59,9 +59,12 @@ REQUEST_COMPONENT := Request/Request.cpp \
 RESPONSE_COMPONENT := Response/Response.cpp \
 	Response/ResponseException.cpp 
 
-MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
+MULTIPLEXER_COMPONENT := Multiplexer/KqueueMultiplexer.cpp \
+						 Multiplexer/SelectMultiplexer.cpp
 
-SERVER_COMPONENT := Server/ServerCluster.cpp
+SERVER_COMPONENT := Server/ServerCluster.cpp \
+					Server/Server.cpp \
+					Route/Route.cpp
 
 CLIENT_COMPONENT := Client/Client.cpp
 
