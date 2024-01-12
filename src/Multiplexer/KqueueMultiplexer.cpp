@@ -1,7 +1,9 @@
 
 #include "KqueueMultiplexer.hpp"
 
-KqueueMultiplexer::~KqueueMultiplexer(){}
+KqueueMultiplexer::~KqueueMultiplexer(){
+	close (Kq);
+}
 
 KqueueMultiplexer::KqueueMultiplexer(){
 	fdsChanged = true;
@@ -20,24 +22,30 @@ void	KqueueMultiplexer::add(IServerSocket& server){
 }
 
 void	KqueueMultiplexer::remove(IServerSocket& server){
-	std::list<IServerSocket*>::iterator it = std::find(Servers.begin()
-		, Servers.end(), &server);
-	if (it != Servers.end())
-		Servers.erase(it);
+	struct kevent changes;
+
+	std::list<IServerSocket*>::iterator it = std::find(Servers.begin(),
+		Servers.end(), &server);
+	if (it == Servers.end())
+		return ;
+	IServerSocket *Server = *it;
+	EV_SET(&changes, Server->getID(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
+	if (kevent(Kq, &changes, 1, NULL, 0, NULL) == -1)
+		perror("kevent (EV_DELETE)");	
+	Servers.erase(it);
     fdsChanged = true;
 }
 
 std::queue<IServerSocket *> KqueueMultiplexer::getReadyServerSockets() const{
 	std::queue<IServerSocket *> result;
 	
-    if (Eventsnum == 0)
+    if (ReadyEvents == 0)
         return result;
-    
-    std::cout << "servers size --> " << Servers.size() << std::endl;
     std::list<IServerSocket *>::const_iterator it = Servers.begin();
-	while (it != Servers.end()){
+	while (it != Servers.end())
+	{
         IServerSocket *server = *it;
-        for (int i = 0; i < Eventsnum; ++i)
+        for (int i = 0; i < ReadyEvents; ++i)
         {
             short filter = events[i].filter;
             int fd = events[i].ident;
@@ -58,13 +66,12 @@ void	KqueueMultiplexer::add(IClient& client){
 
 void	KqueueMultiplexer::remove(IClient& client){
 	struct kevent changes;
-	IClient *Client;
 
 	std::list<IClient*>::iterator it = std::find(Clients.begin(),
 		Clients.end(), &client);
 	if (it == Clients.end())
 		return ;
-	Client = *it;
+	IClient *Client = *it;
 	EV_SET(&changes, Client->getID(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
 	if (kevent(Kq, &changes, 1, NULL, 0, NULL) == -1)
 		perror("kevent (EV_DELETE)");
@@ -75,12 +82,13 @@ void	KqueueMultiplexer::remove(IClient& client){
 std::queue<IClient *> KqueueMultiplexer::getReadyClients() const{
 	std::queue<IClient *> result;
 
-	if (Eventsnum == 0)
+	if (ReadyEvents == 0)
         return result;
 	std::list<IClient*>::const_iterator it = Clients.begin();
-	while (it != Clients.end()){
+	while (it != Clients.end())
+	{
         IClient *client = *it;
-        for (int i = 0; i < Eventsnum; ++i)
+        for (int i = 0; i < ReadyEvents; ++i)
         {
             short filter = events[i].filter;
             int fd = events[i].ident;
@@ -101,13 +109,12 @@ void	KqueueMultiplexer::add(IResponse& response){
 
 void	KqueueMultiplexer::remove(IResponse& response){
 	struct kevent changes;
-	IResponse* res;
 
 	std::list<IResponse*>::iterator it = std::find(Responses.begin(),
 		Responses.end(), &response);
 	if (it == Responses.end())
 		return ;
-	res = *it;
+	IResponse* res = *it;
 	EV_SET(&changes, res->getID(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 	if (kevent(Kq, &changes, 1, NULL, 0, NULL) == -1)
 		perror("kevent EV_DELETE");
@@ -118,13 +125,14 @@ void	KqueueMultiplexer::remove(IResponse& response){
 std::queue<IResponse *> KqueueMultiplexer::getReadyResponses() const{
 	std::queue<IResponse *> result;
 
-    if (Eventsnum == 0)
+    if (ReadyEvents == 0)
         return result;
 
 	std::list<IResponse* >::const_iterator it = Responses.begin();
-	while (it != Responses.end()){
+	while (it != Responses.end())
+	{
         IResponse *res = *it;
-        for (int i = 0; i < Eventsnum; ++i)
+        for (int i = 0; i < ReadyEvents; ++i)
         {
             short filter = events[i].filter;
             int fd = events[i].ident;
@@ -146,35 +154,18 @@ void	KqueueMultiplexer::wait(unsigned long int time){
   	timeout.tv_sec = static_cast<long>(time / 1000000);
   	timeout.tv_nsec = static_cast<long>(time % 1000000);
 	
-	Eventsnum = kevent(Kq, NULL, 0, events, MAX_EVENTS, &timeout);
-    std::cout << "event number -> " << Eventsnum << std::endl;
-		// if (Eventsnum == -1) {
-		// 	perror("kevent");
-		// 	break;
-		// }
+	ReadyEvents = kevent(Kq, NULL, 0, events, MAX_EVENTS, &timeout);
+    // std::cout << "ReadyEvents -> " << ReadyEvents << std::endl;
+	// if (ReadyEvents == -1) {
+	// 	perror("kevent");
+	// }
 }
 
-void	KqueueMultiplexer::prepare(){
-    struct kevent changes;
-
-    if (fdsChanged == false)
-        return ;
-
-	std::list<IServerSocket* >::iterator it = Servers.begin();
-	while (it != Servers.end()){
-		IServerSocket* server = *it;
-		EV_SET(&changes, server->getID(), EVFILT_READ, EV_ADD, 0, 0, NULL);
-		if (kevent(Kq, &changes, 1, NULL, 0, NULL) == -1)
-        {
-            perror("kevent");
-            close(Kq);
-            exit(EXIT_FAILURE);
-        }
-		++it;
-	}
-
+void	KqueueMultiplexer::prepareClients(){
+	struct kevent changes;
 	std::list<IClient* >::iterator itc = Clients.begin();
-	while (itc != Clients.end()){
+	while (itc != Clients.end())
+	{
 		IClient* client = *itc;
 		EV_SET(&changes, client->getID(), EVFILT_READ, EV_ADD, 0, 0, NULL);
 		if (kevent(Kq, &changes, 1, NULL, 0, NULL) == -1)
@@ -185,7 +176,10 @@ void	KqueueMultiplexer::prepare(){
         }
 		++itc;
 	}
+}
 
+void	KqueueMultiplexer::prepareResponses(){
+	struct kevent changes;
 	std::list<IResponse* >::iterator its = Responses.begin();
 	while (its != Responses.end()){
 		IResponse* res = *its;
@@ -198,6 +192,32 @@ void	KqueueMultiplexer::prepare(){
         }
 		++its;
 	}
+}
+
+void	KqueueMultiplexer::prepareServers(){
+	struct kevent changes;
+	std::list<IServerSocket* >::iterator it = Servers.begin();
+	while (it != Servers.end())
+	{
+		IServerSocket* server = *it;
+		EV_SET(&changes, server->getID(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+		if (kevent(Kq, &changes, 1, NULL, 0, NULL) == -1)
+        {
+            perror("kevent");
+            close(Kq);
+            exit(EXIT_FAILURE);
+        }
+		++it;
+	}
+}
+void	KqueueMultiplexer::prepare(){
+    if (fdsChanged == false)
+        return ;
+
+	prepareServers();
+	prepareClients();
+	prepareResponses();
+
     fdsChanged = false;
 }
 

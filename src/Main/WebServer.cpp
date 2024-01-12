@@ -104,7 +104,7 @@ void    WebServer::takeAndHandleRequests(std::queue<IClient*>& qc)
       else if (client->hasRequest()) {
         std::cout << "client has request.\n" << std::flush;
         IRequest *request = client->getRequest();
-        request->dump(true);
+        // request->dump(true);
         // std::cout << "handling request.\n" << std::flush;
         IResponse *response = mServers->handle(request);
         // ResponseWrapper  *res = mServers.handle(request);
@@ -137,7 +137,6 @@ void    WebServer::sendResponses(std::queue<IResponse*>& qr)
       res->send();
       if (res->isSendingComplete())
       {
-        std::cout << "removing response ...\n";
         mMux->remove(*res);
         // delete res;
       }

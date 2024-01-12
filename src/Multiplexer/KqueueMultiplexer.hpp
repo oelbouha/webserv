@@ -18,6 +18,7 @@
 #define MAX_EVENTS 10
 
 class KqueueMultiplexer : public IMultiplexer {
+  private:
 	std::list<IServerSocket *> Servers;
 	std::list<IClient *> Clients;
 	std::list<IResponse *> Responses;
@@ -36,15 +37,17 @@ class KqueueMultiplexer : public IMultiplexer {
 
 		void wait(unsigned long int timeout);
 		void prepare();
+		void prepareClients();
+		void prepareResponses();
+		void prepareServers();
 
 		std::queue<IServerSocket *> getReadyServerSockets() const;
 		std::queue<IClient *> getReadyClients() const;
 		std::queue<IResponse *> getReadyResponses() const;
-   
    private:
 		struct kevent events[MAX_EVENTS];
 		int		Kq;
-		int 	Eventsnum;
+		int 	ReadyEvents;
 		bool	fdsChanged;
 };
 #endif
