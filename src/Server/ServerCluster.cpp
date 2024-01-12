@@ -29,14 +29,9 @@ void    ServerCluster::SetupServers(Config* config){
 
             // con->addBlock("cgi", clusterCgiConfig);
             // serverCgiConfig.push_back(clusterCgiConfig);
-
             // cgi
-
             // error pages
-
-            // root
-
-            
+            // root            
         }
         Server *ser = new Server(con);
         servers.push_back(ser);
@@ -116,29 +111,26 @@ bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req)
     return false;
 }
 
-void	ServerCluster::getMatchedServer(const IRequest &req)
+Server*	ServerCluster::getMatchedServer(const IRequest &req)
 {
     std::vector<Server *>::iterator it = servers.begin();
     while (it != servers.end())
     {
-        Server *ser = *it;
-        if (isServerMatched(*ser, req))
-        {
-            server = ser;
-            return ;
+        Server *server = *it;
+        if (isServerMatched(*server, req)){
+            return (server);
         }
         ++it;
     }
     it = servers.begin();
     while (it != servers.end()){
-        Server *ser = *it;
-        if (ser->isDefault())
-        {
-            server = ser;
-            return ;
+        Server *server = *it;
+        if (server->isDefault()){
+            return (server);
         }
         ++it;
     }
+    return NULL;
 }
 
 void	ServerCluster::getMatchedRoute(const IRequest& req)
@@ -148,8 +140,8 @@ void	ServerCluster::getMatchedRoute(const IRequest& req)
     int pos = URI.rfind("/");
     if (pos >= 0)
         uri = URI.substr(0, pos + 1);
-    std::cout << "uri ->" << URI << pos <<  std::endl;
-    std::cout << "uri ->" << uri << std::endl;
+    // std::cout << "uri ->" << URI << pos <<  std::endl;
+    // std::cout << "uri ->" << uri << std::endl;
     std::vector<Route*> routes = server->getRoutes();
     std::vector<Route*>::iterator it = routes.begin();
     while (it != routes.end()){
@@ -172,15 +164,13 @@ IResponse*  ServerCluster::handle(IRequest* request)
     {
         // the request is not well structerd;
     }
-    getMatchedServer(*request);
+    server = getMatchedServer(*request);
     getMatchedRoute(*request);
     IResponse *res = server->handle(*request);
     return (res);
 }
 
 /*
-#include "src/Server/CGIHandler.hpp"
-
 IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
 {
     CGIHandler    handler;
@@ -198,26 +188,3 @@ IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
     response.
 }
 */
-
-// Config* ServerCluster::getServerConfig(Config* con, string host){
-//     const string name = con->getInlineConfig("name");
-//     if (name == host)
-//         return con;
-//     return NULL;
-// }
-
-// Config* ServerCluster::getRouteConfig(Config* con, string uri){
-//     const string name = con->getInlineConfig("uri");
-//     std::cout << "uri    :{" << name << "}" << std::endl;
-//     if (name == uri)
-//         return con;
-//     return NULL;
-// }
-
-	/*
-		get matched location for the requested resource file
-	
-		if no location match the uri return 404 not found
-		if location have redirection return 301 move permanently
-		if method not allowed return 405 method not allowed 
-	*/

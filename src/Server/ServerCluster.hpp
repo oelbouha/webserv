@@ -33,7 +33,7 @@ class ServerCluster
 		bool		IsValidURI();
 		void		SetupServers(Config* config);
 
-		void		getMatchedServer(const IRequest &req);
+		Server*		getMatchedServer(const IRequest &req);
 		void		getMatchedRoute(const IRequest &req);
 		bool		isServerMatched(const Server& , const  IRequest& );
 	

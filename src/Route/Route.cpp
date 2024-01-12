@@ -1,39 +1,3 @@
-/*
-		if requested resource not found in root return 400 not found 
-		
-		check the resource file 
-		if the resource is a directory
-		{
-			if resource does not have a / in the end return 301 move permanenly
-			if dir has index file in config file 
-			{
-				// join the index file at the end of the URI
-				// continue as file
-				is location has cgi 
-				{
-					run cgi  on requested file
-					return code depend on cgi
-				}
-				else if location does not have cgi
-					return requested file
-			}
-			if this directory has autoindex on in config file
-			{
-				return autoindex of the directory 200 ok // return an HTML page full of the current directory elements like "ls -la"
-			}
-			return 403
-		}
-		else if resource is a file
-		{
-			is location has cgi 
-			{
-				run cgi  on requested file
-				return code depend on cgi
-			}
-			else if location does not have cgi
-				return requested file
-		}
-	*/
 
 
 #include "Route.hpp"
@@ -294,7 +258,6 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 
 IResponse*  Route::handle(const IRequest& request)
 {
-	// std::cout << "Handle route ... " << std::endl;
 	setMethod(request.getMethod());
 	if (method == "NOTIMPLEMENTED")
 	{

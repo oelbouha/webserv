@@ -27,8 +27,6 @@ Server::Server(Config *config){
 
 Server::Server( const Server& s ) {(void)s;}
 
-// const Config*	Server::getConfig() const { return config; }
-
 unsigned int Server::getPort() const  { return port; }
 
 unsigned int Server::getIp() const  { return ip; }
