@@ -78,11 +78,9 @@ void    WebServer::acceptNewClients(std::queue<IServerSocket*>& qs)
         IClientSocket *clientSock = sock->accept();
         clientSock->setNonBlocking();
         Client client(clientSock, sock->getIP(), sock->getPort());
-
         mClients.push_back(client);
         mMux->add(mClients.back());
         qs.pop();
-
     }
     // std::cout << "Done.\n" << std::flush;
 }
@@ -91,7 +89,6 @@ void    WebServer::takeAndHandleRequests(std::queue<IClient*>& qc)
 {
     while (qc.size()) {
       IClient *client = qc.front();
-
       client->makeRequest();
       if (client->hasClosedTheConnection()) {
           std::cout << "client closed connection.\n" << std::flush;

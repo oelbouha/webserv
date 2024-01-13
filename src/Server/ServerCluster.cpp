@@ -60,8 +60,7 @@ ServerCluster::~ServerCluster(){
         delete servers[i];
 }
 
-ServerCluster&	ServerCluster::operator=( const ServerCluster& s )
-{
+ServerCluster&	ServerCluster::operator=( const ServerCluster& s ){
     (void)s;
 	return (*this);
 }
@@ -122,6 +121,7 @@ Server*	ServerCluster::getMatchedServer(const IRequest &req)
         }
         ++it;
     }
+    // looking for default
     it = servers.begin();
     while (it != servers.end()){
         Server *server = *it;
@@ -140,8 +140,6 @@ void	ServerCluster::getMatchedRoute(const IRequest& req)
     int pos = URI.rfind("/");
     if (pos >= 0)
         uri = URI.substr(0, pos + 1);
-    // std::cout << "uri ->" << URI << pos <<  std::endl;
-    // std::cout << "uri ->" << uri << std::endl;
     std::vector<Route*> routes = server->getRoutes();
     std::vector<Route*>::iterator it = routes.begin();
     while (it != routes.end()){
@@ -152,8 +150,9 @@ void	ServerCluster::getMatchedRoute(const IRequest& req)
     }
     route = server->getMatchedRoute();
     if (route == NULL){
+        // looking for default
         std::vector<Route*>::iterator it = routes.begin();
-        server->setRoute(*(*it)); // look for default
+        server->setRoute(*(*it));
         return ;
     }
 }

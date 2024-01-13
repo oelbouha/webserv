@@ -10,38 +10,69 @@ Route::Route(const Config* config){
 	allowedMethods = config->getListConfig("allowed_methods");
 }
 
+std::vector<std::string>	Route::getAllowedMethods() const{ return allowedMethods; }
+
 std::string	Route::getURI() const{ return URI; }
 
-bool	Route::IsExist(string& uri) const{
-	std::string path = root + uri;
-	int fd = ::open(path.c_str(), O_RDONLY);
+bool	Route::hasRedirect() const {return hasRedirection; }
+
+Route::Route( const Route& s ) {(void)s;}
+
+Route&	Route::operator=( const Route& s ){
+    (void)s;
+	return (*this);
+}
+
+Route::~Route() {}
+
+bool	Route::IsResourceFileExist(string& uri) const{
+	int fd = ::open(uri.c_str(), O_RDONLY);
 	if (fd < 0)
 		return false;
 	return true;
 }
 
-bool	Route::isCGI(string& uri) const{
-
-	std::vector<string> cgi;
-	cgi.push_back(".php");
-	cgi.push_back(".py");
-
-	std::string extension = utils::getExtension(uri);
-	std::vector<string>::iterator it = cgi.begin();
-	while (it != cgi.end()){
-		if (*it == extension)
-			return true;
-	}
-	return true;
+Route&	Route::setStatusCode(unsigned int sts){
+	statusCode = sts;
+	return *this;
 }
 
-std::vector<std::string>	Route::getAllowedMethods() const{ return allowedMethods; }
+Route&	Route::setResponseHeader(const string& key, const string& value){
+	resHeader[key] = value;
+	return (*this);
+}
 
-bool	Route::hasRedirect() const {return hasRedirection; }
+const string	Route::getMimeType(const string& uri){
+	string mime = "text/html";
+	std::string extension = utils::getExtension(uri);
+	if (extension == "html")
+		mime = "text/html";
+	else if (extension == "jpeg")
+		mime = "image/jpeg";
+	else if (extension == "mp4")
+		mime = "video/mp4";
+	else if (extension == "css")
+		mime = "text/css";
+	return mime;
+}
+
+bool	Route::hasCGIExtension(string& uri) const{
+	std::vector<string> cgiExtensions;
+	cgiExtensions.push_back(".php");
+	cgiExtensions.push_back(".py");
+
+	std::string extension = utils::getExtension(uri);
+	std::vector<string>::iterator it = cgiExtensions.begin();
+	while (it != cgiExtensions.end()){
+		if (*it == extension)
+			return true;
+		++it;
+	}
+	return false;
+}
 
 bool	Route::IsMethodAllowed() const {
-	for(size_t i = 0; i < allowedMethods.size(); ++i)
-	{
+	for(size_t i = 0; i < allowedMethods.size(); ++i){
 		if (method == allowedMethods[i])
 			return true;
 	}
@@ -50,20 +81,19 @@ bool	Route::IsMethodAllowed() const {
 
 IResponse*	Route::handleDirectory(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
-
 	string uri = request.getURI();
-	if (uri[uri.length() - 1] != '/')
+	if (uri.back() != '/')
 	{
 		res->setHeader("location", uri += "/")
 		.setHeader("connection", "Keep-Alive")
 		.setStatusCode(301).build();
+		return res;
 	}
-	res->setHeader("connection", "Keep-Alive")
-	.setHeader("content-type", "text/html")
-	.setStatusCode(200)
-	.setBodyFile(root + uri + indexfile)
-	.build();
-
+	res->setStatusCode(200)
+		.setHeader("connection", request.getHeader("Connection"))
+		.setHeader("content-type", getMimeType(uri))
+		.setBodyFile(root + uri + indexfile)
+		.build();
 	return res;
 }
 
@@ -85,38 +115,25 @@ IResponse*	Route::deleteDirectory(const IRequest& request){
 		// system error 
 	}
 	res->setHeader("connection", "close")
-	.setStatusCode(204)
-	.setBody("204 No Content")
-	.build();
-
+		.setStatusCode(204)
+		.setBody("204 No Content")
+		.build();
 	return res;
 }
 
 IResponse*	Route::handleFile(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
-	string mime = "text/html";
 	string uri = request.getURI();
-	if (isCGI(uri))
+	if (hasCGIExtension(uri))
 	{
 		// handleCGI();
 		// return ;
 	}
-	std::string extension = utils::getExtension(uri);
-	if (extension == "html")
-		mime = "text/html";
-	else if (extension == "jpeg")
-		mime = "image/jpeg";
-	else if (extension == "mp4")
-		mime = "video/mp4";
-	else if (extension == "css")
-		mime = "text/css";
-
-	std::string file = root + uri;
 	res->setStatusCode(200)
-		.setHeader("content-type", mime)
-		.setHeader("connection", "keep-alive")
+		.setHeader("content-type", getMimeType(uri))
+		.setHeader("connextion", request.getHeader("Connection"))
 		.setBody("hello from webserve")
-		.setBodyFile(file)
+		.setBodyFile(root + uri)
 		.build();
 	return res;
 }
@@ -134,15 +151,6 @@ void	Route::setMethod(method_t m){
 		method = "NOTIMPLEMENTED";
 }
 
-Route::Route( const Route& s ) {(void)s;}
-
-Route::~Route() {}
-
-Route&	Route::operator=( const Route& s )
-{
-    (void)s;
-	return (*this);
-}
 
 IResponse*  Route::WhichMethodTouse(const IRequest& request)
 {
@@ -161,13 +169,11 @@ IResponse*  Route::WhichMethodTouse(const IRequest& request)
 IResponse*  Route::HandleGET(const IRequest& request)
 {
 	IResponse * response = NULL;
-	std::string mime = "text/html";
 	string requestUri = request.getURI();
 	string path = root + requestUri;
-
 	if (utils::IsDirectory(path))
 		return (handleDirectory(request));
-	if (IsExist(path) == false)
+	if (IsResourceFileExist(path) == false)
 	{
 		response = new Response(request.getSocket());
 		response->setStatusCode(400)
@@ -184,7 +190,6 @@ IResponse*  Route::HandleGET(const IRequest& request)
 IResponse*  Route::HandlePOST(const IRequest& request)
 {
 	IResponse * response = NULL;
-	std::string mime = "text/html";
 	string uri = request.getURI();
 	string path = root + uri;
 	// if (route suport upload)
@@ -193,27 +198,26 @@ IResponse*  Route::HandlePOST(const IRequest& request)
 	// }
 	// if (utils::IsDirectory(path))
 	// 	return (handleDirectory(request));
-	if (IsExist(path) == false)
+	response = new Response(request.getSocket());
+	if (IsResourceFileExist(path) == false)
 	{
-		response = new Response(request.getSocket());
 		response->setStatusCode(400)
-			.setHeader("content-type", "text/html")
-			.setHeader("connection", "close")
+			.setHeader("content-type", getMimeType(uri))
+			.setHeader("connection", request.getHeader("Connection"))
 			.setBody("400 Not Found")
 			.build();
 		return response;
 	}
-	if (isCGI(uri))
+	if (hasCGIExtension(uri))
 	{
 		// handleCGI();
 		// return ;
 	}
-	std::string file = root + uri;
 	response->setStatusCode(403)
-		.setHeader("content-type", mime)
-		.setHeader("connection", "close")
+		.setHeader("content-type", getMimeType(uri))
+		.setHeader("connection", request.getHeader("Connection"))
 		.setBody("403 forbidden")
-		.setBodyFile(file)
+		.setBodyFile(path)
 		.build();
 	return response;
 }
@@ -226,9 +230,9 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 
 	if (utils::IsDirectory(path))
 		return (deleteDirectory(request));
-	if (IsExist(path) == false)
+	response = new Response(request.getSocket());
+	if (IsResourceFileExist(path) == false)
 	{
-		response = new Response(request.getSocket());
 		response->setStatusCode(400)
 			.setHeader("content-type", "text/html")
 			.setHeader("connection", "close")
@@ -236,7 +240,7 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 			.build();
 		return response;
 	}
-	if (isCGI(uri))
+	if (hasCGIExtension(uri))
 	{
 		// handleCGI();
 		// return ;
@@ -261,8 +265,13 @@ IResponse*  Route::handle(const IRequest& request)
 	setMethod(request.getMethod());
 	if (method == "NOTIMPLEMENTED")
 	{
-		// method not implemented
-		// if method not allowed return 405 method not allowed 
+		IResponse *response = new Response(request.getSocket());
+		response->setStatusCode(405)
+			.setHeader("content-type", "text/html")
+			.setHeader("connection", "close")
+			.setBody("405 Method Not Implemented")
+			.build();
+		return response;
 	}
 	IResponse* response =  WhichMethodTouse(request);
 	return response;
