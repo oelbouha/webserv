@@ -73,6 +73,7 @@ bool	Route::hasCGIExtension(string& uri) const{
 
 bool	Route::IsMethodAllowed() const {
 	for(size_t i = 0; i < allowedMethods.size(); ++i){
+		std::cout <<"method :" << allowedMethods[i] << std::endl;
 		if (method == allowedMethods[i])
 			return true;
 	}
@@ -139,6 +140,7 @@ IResponse*	Route::handleFile(const IRequest& request){
 }
 
 void	Route::setMethod(method_t m){
+	std::cout << "seting method:" << m << ":" << std::endl;
 	if (m == GET)
 		method = "GET";
 	else if (m == HEAD)
@@ -147,8 +149,6 @@ void	Route::setMethod(method_t m){
 		method = "DELETE";
 	else if (m == POST)
 		method = "POST";
-	else
-		method = "NOTIMPLEMENTED";
 }
 
 
@@ -177,8 +177,8 @@ IResponse*  Route::HandleGET(const IRequest& request)
 	{
 		response = new Response(request.getSocket());
 		response->setStatusCode(400)
-			.setHeader("content-type", "text/html")
-			.setHeader("connection", "close")
+			.setHeader("content-type", getMimeType(requestUri))
+			.setHeader("connection", request.getHeader("Connection"))
 			.setBody("400 Not Found")
 			.build();
 		return response;
@@ -245,8 +245,7 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 		// handleCGI();
 		// return ;
 	}
-	std::string file = root + uri;
-	string cmd = "rm -rf " + file;
+	string cmd = "rm -rf " + path;
 	int ret = std::system(cmd.c_str());
 	if (ret < 0)
 	{
@@ -255,7 +254,7 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 	response->setStatusCode(204)
 		.setHeader("connection", "close")
 		.setBody("204 No Content")
-		.setBodyFile(file)
+		.setBodyFile(path)
 		.build();
 	return response;
 }
@@ -263,8 +262,9 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 IResponse*  Route::handle(const IRequest& request)
 {
 	setMethod(request.getMethod());
-	if (method == "NOTIMPLEMENTED")
+	if (IsMethodAllowed() == false)
 	{
+		std::cout << "method :" << method <<":" << "Not implemented " << std::endl;
 		IResponse *response = new Response(request.getSocket());
 		response->setStatusCode(405)
 			.setHeader("content-type", "text/html")

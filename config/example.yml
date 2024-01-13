@@ -24,14 +24,12 @@ cluster:
       allowed_methods:
         - GET
         - POST
-        - DELETE
     route:
       uri: /pages/
       # index: myfile.php
       allowed_methods:
         - GET
         - POST
-        - DELETE
   server:
     index: index.html
     root: /Users/oelbouha/Desktop/web
