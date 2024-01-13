@@ -73,7 +73,6 @@ bool	Route::hasCGIExtension(string& uri) const{
 
 bool	Route::IsMethodAllowed() const {
 	for(size_t i = 0; i < allowedMethods.size(); ++i){
-		std::cout <<"method :" << allowedMethods[i] << std::endl;
 		if (method == allowedMethods[i])
 			return true;
 	}
@@ -86,7 +85,7 @@ IResponse*	Route::handleDirectory(const IRequest& request){
 	if (uri.back() != '/')
 	{
 		res->setHeader("location", uri += "/")
-		.setHeader("connection", "Keep-Alive")
+		.setHeader("connection", request.getHeader("Connection"))
 		.setStatusCode(301).build();
 		return res;
 	}
@@ -100,29 +99,28 @@ IResponse*	Route::handleDirectory(const IRequest& request){
 
 IResponse*	Route::deleteDirectory(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
-
 	string uri = request.getURI();
-	if (uri[uri.length() - 1] != '/')
+	if (uri.back() != '/')
 	{
-		res->setHeader("connection", "close")
-		.setStatusCode(409)
-		.setBody("409 conflict")
-		.build();
+		res->setStatusCode(409)
+			.setHeader("connection", request.getHeader("Connection"))
+			.setBody("409 conflict")
+			.build();
+		return res;
 	}
-	std::string cmd = "m -rf " + std::string(root + uri);
-	int ret = std::system(cmd.c_str());
-	if (ret < 0)
+	std::string cmd = "rm -rf " + std::string(root + uri);
+	if (std::system(cmd.c_str()) < 0)
 	{
-		// system error 
+		std::cout << "system error ..." << std::endl;
 	}
-	res->setHeader("connection", "close")
+	res->setHeader("connection", request.getHeader("Connection"))
 		.setStatusCode(204)
 		.setBody("204 No Content")
 		.build();
 	return res;
 }
 
-IResponse*	Route::handleFile(const IRequest& request){
+IResponse*	Route::handleResourceFile(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
 	string uri = request.getURI();
 	if (hasCGIExtension(uri))
@@ -140,7 +138,6 @@ IResponse*	Route::handleFile(const IRequest& request){
 }
 
 void	Route::setMethod(method_t m){
-	std::cout << "seting method:" << m << ":" << std::endl;
 	if (m == GET)
 		method = "GET";
 	else if (m == HEAD)
@@ -151,22 +148,21 @@ void	Route::setMethod(method_t m){
 		method = "POST";
 }
 
-
-IResponse*  Route::WhichMethodTouse(const IRequest& request)
+IResponse*  Route::ProcessRequestMethod(const IRequest& request)
 {
 	IResponse * response = NULL;
 	if (method == "GET")
-		response = HandleGET(request);
+		response = ExecuteGETMethod(request);
 	else if (method == "POST")
-		response = HandleGET(request);
+		response = ExecutePOSTMethod(request);
 	else if (method == "DELETE")
-		response = HandleGET(request);
+		response = ExecuteDELETEMethod(request);
 	else if (method == "HEAD")
-		response = HandleGET(request);
+		response = ExecuteGETMethod(request);
 	return response;
 }
 
-IResponse*  Route::HandleGET(const IRequest& request)
+IResponse*  Route::ExecuteGETMethod(const IRequest& request)
 {
 	IResponse * response = NULL;
 	string requestUri = request.getURI();
@@ -183,11 +179,10 @@ IResponse*  Route::HandleGET(const IRequest& request)
 			.build();
 		return response;
 	}
-	response = handleFile(request);
-	return response;
+	return (handleResourceFile(request));
 }
 
-IResponse*  Route::HandlePOST(const IRequest& request)
+IResponse*  Route::ExecutePOSTMethod(const IRequest& request)
 {
 	IResponse * response = NULL;
 	string uri = request.getURI();
@@ -222,12 +217,11 @@ IResponse*  Route::HandlePOST(const IRequest& request)
 	return response;
 }
 
-IResponse*  Route::HandleDELETE(const IRequest& request)
+IResponse*  Route::ExecuteDELETEMethod(const IRequest& request)
 {
 	IResponse * response = NULL;
 	string uri = request.getURI();
 	string path = root + uri;
-
 	if (utils::IsDirectory(path))
 		return (deleteDirectory(request));
 	response = new Response(request.getSocket());
@@ -235,7 +229,7 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 	{
 		response->setStatusCode(400)
 			.setHeader("content-type", "text/html")
-			.setHeader("connection", "close")
+			.setHeader("connection", request.getHeader("Connection"))
 			.setBody("400 Not Found")
 			.build();
 		return response;
@@ -246,13 +240,12 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 		// return ;
 	}
 	string cmd = "rm -rf " + path;
-	int ret = std::system(cmd.c_str());
-	if (ret < 0)
+	if (std::system(cmd.c_str()) < 0)
 	{
-		// system error 
+		std::cout << "system error ..." << std::endl;
 	}
 	response->setStatusCode(204)
-		.setHeader("connection", "close")
+		.setHeader("connection", request.getHeader("Connection"))
 		.setBody("204 No Content")
 		.setBodyFile(path)
 		.build();
@@ -262,17 +255,15 @@ IResponse*  Route::HandleDELETE(const IRequest& request)
 IResponse*  Route::handle(const IRequest& request)
 {
 	setMethod(request.getMethod());
-	if (IsMethodAllowed() == false)
+	if (!IsMethodAllowed())
 	{
-		std::cout << "method :" << method <<":" << "Not implemented " << std::endl;
 		IResponse *response = new Response(request.getSocket());
 		response->setStatusCode(405)
 			.setHeader("content-type", "text/html")
-			.setHeader("connection", "close")
+			.setHeader("connection", request.getHeader("Connection"))
 			.setBody("405 Method Not Implemented")
 			.build();
 		return response;
 	}
-	IResponse* response =  WhichMethodTouse(request);
-	return response;
+	return (ProcessRequestMethod(request));
 }

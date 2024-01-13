@@ -44,6 +44,7 @@ class ServerCluster
 		Server			*server;
 		Route			*route;
 		std::string		URI;
+		std::string		body;
 		unsigned int	statusCode;
 		unsigned int	UriMaxlength;
 

@@ -49,18 +49,12 @@ void 	Server::setPort(unsigned int port)  { this->port = port; }
 
 Server::~Server() {}
 
-Server&	Server::operator=( const Server& s )
-{
+Server&	Server::operator=( const Server& s ){
     (void)s;
 	return (*this);
 }
 
 IResponse*  Server::handle(const IRequest& request)
 {
-	if (route == NULL)
-	{
-		std::cout << "route is NULL ...\n";
-	}
-	IResponse *res = route->handle(request);
-	return res;
+	return (route->handle(request));
 }

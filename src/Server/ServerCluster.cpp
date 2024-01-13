@@ -73,6 +73,7 @@ bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
         if (transfer != "chunked")
         {
             statusCode = 501;
+            body = "501 Not Implemented ";
             return false;
         }
     }
@@ -81,11 +82,13 @@ bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
     if (IsValidURI() == false)
     {
         statusCode = 400;
+        body = "400 bad Request";
         return false;
     }
     else if (URI.length() > UriMaxlength)
     {
         statusCode = 414;
+        body = "414 Request-URI Too Long";
         return false;
     }
     return true;
@@ -98,7 +101,6 @@ bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req)
     unsigned int inComingPort = req.getIncomingPort();
     unsigned int inComingIp = req.getIncomingIP();
 
-    // std::cout << "port -> " << port << "incoming port -> " << inComingPort << std::endl;
     std::string host = req.getHeader("Host");
     int pos = host.find(":");
     host = host.substr(0, pos);
@@ -113,8 +115,7 @@ bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req)
 Server*	ServerCluster::getMatchedServer(const IRequest &req)
 {
     std::vector<Server *>::iterator it = servers.begin();
-    while (it != servers.end())
-    {
+    while (it != servers.end()){
         Server *server = *it;
         if (isServerMatched(*server, req)){
             return (server);
@@ -159,14 +160,20 @@ void	ServerCluster::getMatchedRoute(const IRequest& req)
 
 IResponse*  ServerCluster::handle(IRequest* request)
 {
-    if (isRequestProperlyStructured(*request) == false)
+    if (!isRequestProperlyStructured(*request))
     {
-        // the request is not well structerd;
+        std::cout << "Request not well structred ....\n";
+       	IResponse* response = new Response(request->getSocket());
+		response->setStatusCode(statusCode)
+			.setHeader("content-type", "text/html")
+			.setHeader("connection", request->getHeader("Connection"))
+			.setBody(body)
+			.build();
+		return response;
     }
     server = getMatchedServer(*request);
     getMatchedRoute(*request);
-    IResponse *res = server->handle(*request);
-    return (res);
+    return (server->handle(*request));
 }
 
 /*

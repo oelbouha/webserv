@@ -24,6 +24,7 @@ cluster:
       allowed_methods:
         - GET
         - POST
+        - DELETE
     route:
       uri: /pages/
       # index: myfile.php
