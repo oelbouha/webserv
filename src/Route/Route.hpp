@@ -35,15 +35,16 @@ public:
 	void		setMethod(method_t m);
 	Route&		setResponseHeader(const string& key, const string& value);
 	Route&		setStatusCode(unsigned int);
+	bool		IsDefault() const;
 	bool		hasRedirect() const;
-	bool		IsResourceFileExist(string& uri) const;
-	bool		hasCGIExtension(string& uri) const;
+	bool		IsResourceFileExist(const string& uri) const;
+	bool		hasCGIExtension(const string& uri) const;
 	bool		IsMethodAllowed() const;
 
 	
 	IResponse*	handleDirectory(const IRequest&);
 	IResponse*	deleteDirectory(const IRequest&);
-	IResponse*	handleResourceFile(const IRequest&);
+	IResponse*	handleRequestedFile(const IRequest&);
 	IResponse*  handle(const IRequest&);
 	IResponse*	ProcessRequestMethod(const IRequest& );
 	IResponse*	ExecuteGETMethod(const IRequest&);
@@ -53,6 +54,7 @@ public:
 
 	const string	getMimeType(const string& uri);
 private:
+	bool	Default;
 	string	method;
 	string	URI;
 	string	root;

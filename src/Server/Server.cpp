@@ -54,7 +54,6 @@ Server&	Server::operator=( const Server& s ){
 	return (*this);
 }
 
-IResponse*  Server::handle(const IRequest& request)
-{
+IResponse*  Server::handle(const IRequest& request){
 	return (route->handle(request));
 }

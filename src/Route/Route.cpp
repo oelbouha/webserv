@@ -4,6 +4,7 @@
 
 Route::Route(const Config* config){ 
 	hasRedirection = false;
+	Default = false;
 	URI = config->getInlineConfig("uri");
 	root = config->getInlineConfig("root");
 	indexfile = config->getInlineConfig("index");
@@ -11,6 +12,8 @@ Route::Route(const Config* config){
 }
 
 std::vector<std::string>	Route::getAllowedMethods() const{ return allowedMethods; }
+
+bool	Route::IsDefault() const { return Default; }
 
 std::string	Route::getURI() const{ return URI; }
 
@@ -25,7 +28,7 @@ Route&	Route::operator=( const Route& s ){
 
 Route::~Route() {}
 
-bool	Route::IsResourceFileExist(string& uri) const{
+bool	Route::IsResourceFileExist(const string& uri) const{
 	int fd = ::open(uri.c_str(), O_RDONLY);
 	if (fd < 0)
 		return false;
@@ -56,7 +59,7 @@ const string	Route::getMimeType(const string& uri){
 	return mime;
 }
 
-bool	Route::hasCGIExtension(string& uri) const{
+bool	Route::hasCGIExtension(const string& uri) const{
 	std::vector<string> cgiExtensions;
 	cgiExtensions.push_back(".php");
 	cgiExtensions.push_back(".py");
@@ -81,10 +84,11 @@ bool	Route::IsMethodAllowed() const {
 
 IResponse*	Route::handleDirectory(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
-	string uri = request.getURI();
+	const string& uri = request.getURI();
 	if (uri.back() != '/')
 	{
-		res->setHeader("location", uri += "/")
+		
+		res->setHeader("location", std::string(uri + "/"))
 		.setHeader("connection", request.getHeader("Connection"))
 		.setStatusCode(301).build();
 		return res;
@@ -99,7 +103,7 @@ IResponse*	Route::handleDirectory(const IRequest& request){
 
 IResponse*	Route::deleteDirectory(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
-	string uri = request.getURI();
+	const string& uri = request.getURI();
 	if (uri.back() != '/')
 	{
 		res->setStatusCode(409)
@@ -120,9 +124,9 @@ IResponse*	Route::deleteDirectory(const IRequest& request){
 	return res;
 }
 
-IResponse*	Route::handleResourceFile(const IRequest& request){
+IResponse*	Route::handleRequestedFile(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
-	string uri = request.getURI();
+	const string &uri = request.getURI();
 	if (hasCGIExtension(uri))
 	{
 		// handleCGI();
@@ -165,8 +169,8 @@ IResponse*  Route::ProcessRequestMethod(const IRequest& request)
 IResponse*  Route::ExecuteGETMethod(const IRequest& request)
 {
 	IResponse * response = NULL;
-	string requestUri = request.getURI();
-	string path = root + requestUri;
+	const string& requestUri = request.getURI();
+	const string& path = root + requestUri;
 	if (utils::IsDirectory(path))
 		return (handleDirectory(request));
 	if (IsResourceFileExist(path) == false)
@@ -179,14 +183,14 @@ IResponse*  Route::ExecuteGETMethod(const IRequest& request)
 			.build();
 		return response;
 	}
-	return (handleResourceFile(request));
+	return (handleRequestedFile(request));
 }
 
 IResponse*  Route::ExecutePOSTMethod(const IRequest& request)
 {
 	IResponse * response = NULL;
-	string uri = request.getURI();
-	string path = root + uri;
+	const string& uri = request.getURI();
+	const string& path = root + uri;
 	// if (route suport upload)
 	// {
 	// 	// upload file
@@ -220,8 +224,8 @@ IResponse*  Route::ExecutePOSTMethod(const IRequest& request)
 IResponse*  Route::ExecuteDELETEMethod(const IRequest& request)
 {
 	IResponse * response = NULL;
-	string uri = request.getURI();
-	string path = root + uri;
+	const string& uri = request.getURI();
+	const string& path = root + uri;
 	if (utils::IsDirectory(path))
 		return (deleteDirectory(request));
 	response = new Response(request.getSocket());
@@ -239,7 +243,7 @@ IResponse*  Route::ExecuteDELETEMethod(const IRequest& request)
 		// handleCGI();
 		// return ;
 	}
-	string cmd = "rm -rf " + path;
+	const string& cmd = "rm -rf " + path;
 	if (std::system(cmd.c_str()) < 0)
 	{
 		std::cout << "system error ..." << std::endl;

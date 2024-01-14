@@ -156,9 +156,6 @@ void	KqueueMultiplexer::wait(unsigned long int time){
 	
 	ReadyEvents = kevent(Kq, NULL, 0, events, MAX_EVENTS, &timeout);
     // std::cout << "ReadyEvents -> " << ReadyEvents << std::endl;
-	// if (ReadyEvents == -1) {
-	// 	perror("kevent");
-	// }
 }
 
 void	KqueueMultiplexer::prepareClients(){
@@ -172,7 +169,7 @@ void	KqueueMultiplexer::prepareClients(){
         {
             perror("kevent");
             close(Kq);
-            exit(EXIT_FAILURE);
+            // exit(EXIT_FAILURE);
         }
 		++itc;
 	}
@@ -188,7 +185,7 @@ void	KqueueMultiplexer::prepareResponses(){
         {
             perror("kevent");
             close(Kq);
-            exit(EXIT_FAILURE);
+            // exit(EXIT_FAILURE);
         }
 		++its;
 	}
@@ -205,7 +202,7 @@ void	KqueueMultiplexer::prepareServers(){
         {
             perror("kevent");
             close(Kq);
-            exit(EXIT_FAILURE);
+            // exit(EXIT_FAILURE);
         }
 		++it;
 	}

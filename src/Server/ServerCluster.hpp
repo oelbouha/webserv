@@ -21,6 +21,9 @@
 
 class ServerCluster
 {
+	std::vector<Server *> servers;
+	unsigned int	statusCode;
+	unsigned int	UriMaxlength;
 	public:
 		ServerCluster();
 		ServerCluster(Config *config);
@@ -30,24 +33,22 @@ class ServerCluster
 		ServerCluster&	operator=( const ServerCluster& s );
 
 		bool		isRequestProperlyStructured(const IRequest &);
-		bool		IsValidURI();
+		bool		IsValidURI(string uri);
 		void		SetupServers(Config* config);
 
-		Server*		getMatchedServer(const IRequest &req);
-		void		getMatchedRoute(const IRequest &req);
+		Route*		getDefaultRoute();
+		Server*		getDefaultServer();
+		Server*		getMatchedServer(const IRequest &);
+		Route*		getMatchedRoute(const IRequest &);
 		bool		isServerMatched(const Server& , const  IRequest& );
 	
 		IResponse*  handle(IRequest* request);
 
 	private:
-		std::vector<Server *> servers;
-		Server			*server;
-		Route			*route;
-		std::string		URI;
-		std::string		body;
-		unsigned int	statusCode;
-		unsigned int	UriMaxlength;
-
+		Server	*server;
+		Route	*route;
+		string	URI;
+		string	body;
 };
 
 #endif

@@ -13,8 +13,10 @@
 
 ServerCluster::ServerCluster() {}
 
+
 void    ServerCluster::SetupServers(Config* config){
     server = NULL;
+    route = NULL;
     Config* cluster = config->getBlockConfig("cluster").front();
     std::vector<Config *> con = cluster->getBlockConfig("server");
     std::vector<Config *>::iterator it = con.begin();
@@ -44,11 +46,11 @@ ServerCluster::ServerCluster(Config* config){
     SetupServers(config);
 }
 
-bool	ServerCluster::IsValidURI(){
-    string allowed_char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
+bool	ServerCluster::IsValidURI(string uri){
+    const string& allowed_char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
 	std::string::iterator it = std::find_first_of(URI.begin(), URI.end()
 		, allowed_char.begin(), allowed_char.end());
-	if (it != URI.end())
+    if (it != uri.end())
 		return true;
 	return false;
 }
@@ -67,9 +69,8 @@ ServerCluster&	ServerCluster::operator=( const ServerCluster& s ){
 
 bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
 {
-	URI = req.getURI();
     try{
-        std::string transfer  = req.getHeader("Transfer-Encoding");
+        const string& transfer  = req.getHeader("Transfer-Encoding");
         if (transfer != "chunked")
         {
             statusCode = 501;
@@ -79,13 +80,13 @@ bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
     }
     catch(...){}
 
-    if (IsValidURI() == false)
+    if (IsValidURI(req.getURI()) == false)
     {
         statusCode = 400;
         body = "400 bad Request";
         return false;
     }
-    else if (URI.length() > UriMaxlength)
+    else if (req.getURI().length() > UriMaxlength)
     {
         statusCode = 414;
         body = "414 Request-URI Too Long";
@@ -94,14 +95,13 @@ bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
     return true;
 }
 
-
 bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req)
 {
     unsigned int port = server.getPort();
     unsigned int inComingPort = req.getIncomingPort();
     unsigned int inComingIp = req.getIncomingIP();
 
-    std::string host = req.getHeader("Host");
+    string host = req.getHeader("Host");
     int pos = host.find(":");
     host = host.substr(0, pos);
     if (host == server.getName())
@@ -110,6 +110,29 @@ bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req)
     (void)port;
     (void)inComingPort;
     return false;
+}
+
+Server*	ServerCluster::getDefaultServer(){
+    std::vector<Server *>::iterator it = servers.begin();
+    while (it != servers.end()){
+        Server *server = *it;
+        if (server->isDefault())
+            return (server);
+        ++it;
+    }
+    return (servers[0]);
+}
+
+Route*	ServerCluster::getDefaultRoute(){
+    std::vector<Route *> routes = server->getRoutes();
+    std::vector<Route *>::iterator it = routes.begin();
+    while (it != routes.end()){
+        Route *route = *it;
+        if (route->IsDefault())
+            return (route);
+        ++it;
+    }
+    return (routes[0]);
 }
 
 Server*	ServerCluster::getMatchedServer(const IRequest &req)
@@ -122,47 +145,29 @@ Server*	ServerCluster::getMatchedServer(const IRequest &req)
         }
         ++it;
     }
-    // looking for default
-    it = servers.begin();
-    while (it != servers.end()){
-        Server *server = *it;
-        if (server->isDefault()){
-            return (server);
-        }
-        ++it;
-    }
-    return NULL;
+    return (getDefaultServer());
 }
 
-void	ServerCluster::getMatchedRoute(const IRequest& req)
+Route*	ServerCluster::getMatchedRoute(const IRequest& req)
 {
-    URI = req.getURI();
-    string uri;
-    int pos = URI.rfind("/");
-    if (pos >= 0)
-        uri = URI.substr(0, pos + 1);
+    int pos = req.getURI().rfind("/");
+    const string& uri = URI.substr(0, pos + 1);
     std::vector<Route*> routes = server->getRoutes();
     std::vector<Route*>::iterator it = routes.begin();
     while (it != routes.end()){
         Route *route = *it;
         if (route->getURI() == uri)
-            server->setRoute(*route);
+            return (route);
         ++it;
     }
-    route = server->getMatchedRoute();
-    if (route == NULL){
-        // looking for default
-        std::vector<Route*>::iterator it = routes.begin();
-        server->setRoute(*(*it));
-        return ;
-    }
+    return (getDefaultRoute());
 }
 
 IResponse*  ServerCluster::handle(IRequest* request)
 {
     if (!isRequestProperlyStructured(*request))
     {
-        std::cout << "Request not well structred ....\n";
+        std::cout << "Request not well structred ...\n";
        	IResponse* response = new Response(request->getSocket());
 		response->setStatusCode(statusCode)
 			.setHeader("content-type", "text/html")
@@ -172,7 +177,8 @@ IResponse*  ServerCluster::handle(IRequest* request)
 		return response;
     }
     server = getMatchedServer(*request);
-    getMatchedRoute(*request);
+    route = getMatchedRoute(*request);
+    server->setRoute(*route);
     return (server->handle(*request));
 }
 
