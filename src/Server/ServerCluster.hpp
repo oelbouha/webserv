@@ -28,26 +28,21 @@ class ServerCluster
 		ServerCluster();
 		ServerCluster(Config *config);
 		ServerCluster( const ServerCluster& s );
-		~ServerCluster();
-
 		ServerCluster&	operator=( const ServerCluster& s );
+		~ServerCluster();
 
 		bool		isRequestProperlyStructured(const IRequest &);
 		bool		IsValidURI(string uri);
 		void		SetupServers(Config* config);
 
-		Route*		getDefaultRoute();
 		Server*		getDefaultServer();
 		Server*		getMatchedServer(const IRequest &);
-		Route*		getMatchedRoute(const IRequest &);
 		bool		isServerMatched(const Server& , const  IRequest& );
 	
 		IResponse*  handle(IRequest* request);
 
 	private:
 		Server	*server;
-		Route	*route;
-		string	URI;
 		string	body;
 };
 

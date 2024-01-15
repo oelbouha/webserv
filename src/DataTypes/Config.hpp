@@ -24,7 +24,7 @@ using std::fstream;
 
 class Config
 {
-	map<string, vector<Config*> >	mBlockConfigs;
+	map<string, vector<Config*> >	mBlockConfig;
 	map<string, vector<string> >	mListConfig;
 	map<string, string>				mInlineConfig;
 
@@ -43,6 +43,10 @@ class Config
 		void				addBlock(const string& property, Config* value);
 		void				addList(const string& property, const vector<string>& value);
 		void				addInline(const string& property, const string& value);
+
+		bool				hasBlock(const string& property);
+		bool				hasList(const string& property);
+		bool				hasInline(const string& property);
 
 		void	dump(int indent = 0) const;
 };

@@ -16,7 +16,6 @@ ServerCluster::ServerCluster() {}
 
 void    ServerCluster::SetupServers(Config* config){
     server = NULL;
-    route = NULL;
     Config* cluster = config->getBlockConfig("cluster").front();
     std::vector<Config *> con = cluster->getBlockConfig("server");
     std::vector<Config *>::iterator it = con.begin();
@@ -48,7 +47,7 @@ ServerCluster::ServerCluster(Config* config){
 
 bool	ServerCluster::IsValidURI(string uri){
     const string& allowed_char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
-	std::string::iterator it = std::find_first_of(URI.begin(), URI.end()
+	std::string::iterator it = std::find_first_of(uri.begin(), uri.end()
 		, allowed_char.begin(), allowed_char.end());
     if (it != uri.end())
 		return true;
@@ -123,18 +122,6 @@ Server*	ServerCluster::getDefaultServer(){
     return (servers[0]);
 }
 
-Route*	ServerCluster::getDefaultRoute(){
-    std::vector<Route *> routes = server->getRoutes();
-    std::vector<Route *>::iterator it = routes.begin();
-    while (it != routes.end()){
-        Route *route = *it;
-        if (route->IsDefault())
-            return (route);
-        ++it;
-    }
-    return (routes[0]);
-}
-
 Server*	ServerCluster::getMatchedServer(const IRequest &req)
 {
     std::vector<Server *>::iterator it = servers.begin();
@@ -146,21 +133,6 @@ Server*	ServerCluster::getMatchedServer(const IRequest &req)
         ++it;
     }
     return (getDefaultServer());
-}
-
-Route*	ServerCluster::getMatchedRoute(const IRequest& req)
-{
-    int pos = req.getURI().rfind("/");
-    const string& uri = URI.substr(0, pos + 1);
-    std::vector<Route*> routes = server->getRoutes();
-    std::vector<Route*>::iterator it = routes.begin();
-    while (it != routes.end()){
-        Route *route = *it;
-        if (route->getURI() == uri)
-            return (route);
-        ++it;
-    }
-    return (getDefaultRoute());
 }
 
 IResponse*  ServerCluster::handle(IRequest* request)
@@ -177,8 +149,6 @@ IResponse*  ServerCluster::handle(IRequest* request)
 		return response;
     }
     server = getMatchedServer(*request);
-    route = getMatchedRoute(*request);
-    server->setRoute(*route);
     return (server->handle(*request));
 }
 

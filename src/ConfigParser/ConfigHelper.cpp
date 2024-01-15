@@ -63,6 +63,7 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 
 		"route:",
 			"uri",
+			"root",
 			"allowed_methods",
 
         "server_props:",

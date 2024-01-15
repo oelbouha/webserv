@@ -3,8 +3,7 @@
 #include "Route.hpp"
 
 Route::Route(const Config* config){ 
-	hasRedirection = false;
-	Default = false;
+	hasRedirect = false;
 	URI = config->getInlineConfig("uri");
 	root = config->getInlineConfig("root");
 	indexfile = config->getInlineConfig("index");
@@ -13,11 +12,9 @@ Route::Route(const Config* config){
 
 std::vector<std::string>	Route::getAllowedMethods() const{ return allowedMethods; }
 
-bool	Route::IsDefault() const { return Default; }
-
 std::string	Route::getURI() const{ return URI; }
 
-bool	Route::hasRedirect() const {return hasRedirection; }
+bool	Route::hasRedirection() const {return hasRedirect; }
 
 Route::Route( const Route& s ) {(void)s;}
 
@@ -35,19 +32,9 @@ bool	Route::IsResourceFileExist(const string& uri) const{
 	return true;
 }
 
-Route&	Route::setStatusCode(unsigned int sts){
-	statusCode = sts;
-	return *this;
-}
-
-Route&	Route::setResponseHeader(const string& key, const string& value){
-	resHeader[key] = value;
-	return (*this);
-}
-
 const string	Route::getMimeType(const string& uri){
 	string mime = "text/html";
-	std::string extension = utils::getExtension(uri);
+	const string& extension = utils::getExtension(uri);
 	if (extension == "html")
 		mime = "text/html";
 	else if (extension == "jpeg")
@@ -74,7 +61,9 @@ bool	Route::hasCGIExtension(const string& uri) const{
 	return false;
 }
 
-bool	Route::IsMethodAllowed() const {
+bool	Route::IsMethodAllowed(method_t m){
+	const string & method = setMethod(m);
+	std::cout << "method -> " << method << std::endl;
 	for(size_t i = 0; i < allowedMethods.size(); ++i){
 		if (method == allowedMethods[i])
 			return true;
@@ -82,29 +71,61 @@ bool	Route::IsMethodAllowed() const {
 	return false;
 }
 
+
+const string	Route::setMethod(method_t m){
+	switch (m){
+	case GET:
+		return "GET";
+	case POST:
+		return "POST";
+	case DELETE:
+		return "DELETE";
+	case HEAD:
+		return "HEAD";
+	}
+	return "";
+}
+
+
+IResponse*  Route::ProcessRequestMethod(const IRequest& request)
+{
+	method_t method = request.getMethod();
+	switch (method){
+	case GET:
+		return (ExecuteGETMethod(request));
+	case POST:
+		return (ExecutePOSTMethod(request));
+	case DELETE:
+		return (ExecuteDELETEMethod(request));
+	case HEAD:
+		return (ExecuteGETMethod(request));
+	}
+	return NULL;
+}
+
+
+
 IResponse*	Route::handleDirectory(const IRequest& request){
-	IResponse * res = new Response(request.getSocket());
+	IResponse * response = new Response(request.getSocket());
 	const string& uri = request.getURI();
-	if (uri.back() != '/')
+	if (root.back() != '/')
 	{
-		
-		res->setHeader("location", std::string(uri + "/"))
+		response->setHeader("location", std::string(uri + "/"))
 		.setHeader("connection", request.getHeader("Connection"))
 		.setStatusCode(301).build();
-		return res;
+		return response;
 	}
-	res->setStatusCode(200)
+	response->setStatusCode(200)
 		.setHeader("connection", request.getHeader("Connection"))
-		.setHeader("content-type", getMimeType(uri))
-		.setBodyFile(root + uri + indexfile)
+		.setHeader("content-type", getMimeType(root))
+		.setBodyFile(root + indexfile)
 		.build();
-	return res;
+	return response;
 }
 
 IResponse*	Route::deleteDirectory(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
-	const string& uri = request.getURI();
-	if (uri.back() != '/')
+	if (root.back() != '/')
 	{
 		res->setStatusCode(409)
 			.setHeader("connection", request.getHeader("Connection"))
@@ -112,7 +133,7 @@ IResponse*	Route::deleteDirectory(const IRequest& request){
 			.build();
 		return res;
 	}
-	std::string cmd = "rm -rf " + std::string(root + uri);
+	std::string cmd = "rm -rf " + std::string(root);
 	if (std::system(cmd.c_str()) < 0)
 	{
 		std::cout << "system error ..." << std::endl;
@@ -126,97 +147,63 @@ IResponse*	Route::deleteDirectory(const IRequest& request){
 
 IResponse*	Route::handleRequestedFile(const IRequest& request){
 	IResponse * res = new Response(request.getSocket());
-	const string &uri = request.getURI();
-	if (hasCGIExtension(uri))
+	if (hasCGIExtension(root))
 	{
 		// handleCGI();
 		// return ;
 	}
 	res->setStatusCode(200)
-		.setHeader("content-type", getMimeType(uri))
+		.setHeader("content-type", getMimeType(root))
 		.setHeader("connextion", request.getHeader("Connection"))
 		.setBody("hello from webserve")
-		.setBodyFile(root + uri)
+		.setBodyFile(root)
 		.build();
 	return res;
 }
 
-void	Route::setMethod(method_t m){
-	if (m == GET)
-		method = "GET";
-	else if (m == HEAD)
-		method = "HEAD";
-	else if (m == DELETE)
-		method = "DELETE";
-	else if (m == POST)
-		method = "POST";
-}
-
-IResponse*  Route::ProcessRequestMethod(const IRequest& request)
-{
-	IResponse * response = NULL;
-	if (method == "GET")
-		response = ExecuteGETMethod(request);
-	else if (method == "POST")
-		response = ExecutePOSTMethod(request);
-	else if (method == "DELETE")
-		response = ExecuteDELETEMethod(request);
-	else if (method == "HEAD")
-		response = ExecuteGETMethod(request);
-	return response;
-}
-
 IResponse*  Route::ExecuteGETMethod(const IRequest& request)
 {
-	IResponse * response = NULL;
-	const string& requestUri = request.getURI();
-	const string& path = root + requestUri;
-	if (utils::IsDirectory(path))
+	if (utils::IsDirectory(root))
 		return (handleDirectory(request));
-	if (IsResourceFileExist(path) == false)
-	{
-		response = new Response(request.getSocket());
-		response->setStatusCode(400)
-			.setHeader("content-type", getMimeType(requestUri))
-			.setHeader("connection", request.getHeader("Connection"))
-			.setBody("400 Not Found")
-			.build();
-		return response;
-	}
-	return (handleRequestedFile(request));
+	if (IsResourceFileExist(root))
+		handleRequestedFile(request);
+	IResponse * response = new Response(request.getSocket());
+	response->setStatusCode(400)
+		.setHeader("content-type", getMimeType(root))
+		.setHeader("connection", request.getHeader("Connection"))
+		.setBody("400 Not Found")
+		.build();
+	return response;
 }
 
 IResponse*  Route::ExecutePOSTMethod(const IRequest& request)
 {
-	IResponse * response = NULL;
-	const string& uri = request.getURI();
-	const string& path = root + uri;
 	// if (route suport upload)
 	// {
 	// 	// upload file
 	// }
 	// if (utils::IsDirectory(path))
 	// 	return (handleDirectory(request));
-	response = new Response(request.getSocket());
-	if (IsResourceFileExist(path) == false)
+	IResponse * response = new Response(request.getSocket());
+	if (IsResourceFileExist(root) == false)
 	{
 		response->setStatusCode(400)
-			.setHeader("content-type", getMimeType(uri))
+			.setHeader("content-type", getMimeType(root))
 			.setHeader("connection", request.getHeader("Connection"))
 			.setBody("400 Not Found")
 			.build();
 		return response;
 	}
-	if (hasCGIExtension(uri))
+	if (hasCGIExtension(root))
 	{
 		// handleCGI();
 		// return ;
 	}
 	response->setStatusCode(403)
-		.setHeader("content-type", getMimeType(uri))
+		.setHeader("content-type", getMimeType(root))
 		.setHeader("connection", request.getHeader("Connection"))
 		.setBody("403 forbidden")
-		.setBodyFile(path)
+		.setBodyFile(root)
 		.build();
 	return response;
 }
@@ -258,16 +245,19 @@ IResponse*  Route::ExecuteDELETEMethod(const IRequest& request)
 
 IResponse*  Route::handle(const IRequest& request)
 {
-	setMethod(request.getMethod());
-	if (!IsMethodAllowed())
+	root += request.getURI();
+	// std::cout << "URI --> " << root << std::endl;
+	if (IsMethodAllowed(request.getMethod()))
+		return (ProcessRequestMethod(request));
+	else if (hasRedirection())
 	{
-		IResponse *response = new Response(request.getSocket());
-		response->setStatusCode(405)
-			.setHeader("content-type", "text/html")
-			.setHeader("connection", request.getHeader("Connection"))
-			.setBody("405 Method Not Implemented")
-			.build();
-		return response;
+		// handle redirection 
 	}
-	return (ProcessRequestMethod(request));
+	IResponse *response = new Response(request.getSocket());
+	response->setStatusCode(405)
+		.setHeader("content-type", "text/html")
+		.setHeader("connection", request.getHeader("Connection"))
+		.setBody("405 Method Not Allowed")
+		.build();
+	return response;
 }

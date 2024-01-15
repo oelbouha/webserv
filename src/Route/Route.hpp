@@ -20,7 +20,7 @@ class Route{
 	std::vector<string> allowedMethods;
 	std::map<string, string> resHeader;
 	unsigned int		statusCode;
-	bool				hasRedirection;
+	bool				hasRedirect;
 	
 public:
 	Route(const Config * config);
@@ -32,14 +32,11 @@ public:
 	std::vector<string>	getAllowedMethods() const;
 	std::string	getURI() const;
 
-	void		setMethod(method_t m);
-	Route&		setResponseHeader(const string& key, const string& value);
-	Route&		setStatusCode(unsigned int);
-	bool		IsDefault() const;
-	bool		hasRedirect() const;
+	const string		setMethod(method_t m);
+	bool		hasRedirection() const;
 	bool		IsResourceFileExist(const string& uri) const;
 	bool		hasCGIExtension(const string& uri) const;
-	bool		IsMethodAllowed() const;
+	bool		IsMethodAllowed(method_t method);
 
 	
 	IResponse*	handleDirectory(const IRequest&);
@@ -54,8 +51,6 @@ public:
 
 	const string	getMimeType(const string& uri);
 private:
-	bool	Default;
-	string	method;
 	string	URI;
 	string	root;
 	string	indexfile;

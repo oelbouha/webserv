@@ -22,9 +22,9 @@ Config::Config( const fstream& aFileStream )
 
 Config::~Config()
 {
-	map<string, vector<Config*> >::iterator	mapIt = mBlockConfigs.begin();
+	map<string, vector<Config*> >::iterator	mapIt = mBlockConfig.begin();
 
-	while (mapIt != mBlockConfigs.end())
+	while (mapIt != mBlockConfig.end())
 	{
 		// mapIt->second is a vector of Config*
 		vector<Config*>&	vec = mapIt->second;
@@ -48,7 +48,7 @@ Config&	Config::operator=( Config& c )
 
 vector<Config*>		Config::getBlockConfig(const string& key) const
 {
-	return (mBlockConfigs.at(key));
+	return (mBlockConfig.at(key));
 }
 
 vector<string>		Config::getListConfig(const string& key) const
@@ -63,7 +63,7 @@ const string&		Config::getInlineConfig(const string& key) const
 
 void				Config::addBlock(const string& property, Config* value)
 {
-	mBlockConfigs[property].push_back(value);
+	mBlockConfig[property].push_back(value);
 }
 
 void				Config::addList(const string& property, const vector<string>& value)
@@ -74,6 +74,39 @@ void				Config::addList(const string& property, const vector<string>& value)
 void				Config::addInline(const string& property, const string& value)
 {
 	mInlineConfig[property] = value;
+}
+
+bool		Config::hasBlock(const string& property)
+{
+	try {
+		mBlockConfig.at(property);
+		return (true);
+	}
+	catch(...){
+		return (false);
+	}
+}
+
+bool		Config::hasList(const string& property)
+{
+	try {
+		mListConfig.at(property);
+		return (true);
+	}
+	catch(...){
+		return (false);
+	}
+}
+
+bool		Config::hasInline(const string& property)
+{
+	try {
+		mInlineConfig.at(property);
+		return (true);
+	}
+	catch(...){
+		return (false);
+	}
 }
 
 
@@ -113,9 +146,9 @@ void				Config::dump(int indent) const
 	if (mListConfig.size())
 		std::cout << std::endl;
 
-	std::map<string, vector<Config*> >::const_iterator	bit = mBlockConfigs.begin();
+	std::map<string, vector<Config*> >::const_iterator	bit = mBlockConfig.begin();
 
-	while (bit != mBlockConfigs.end())
+	while (bit != mBlockConfig.end())
 	{
 		const vector<Config*>&	v = bit->second;
 		vector<Config*>::const_iterator	it = v.begin();

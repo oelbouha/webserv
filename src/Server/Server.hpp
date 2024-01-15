@@ -15,11 +15,13 @@
 
 class Route;
 
-class Server
-{
+class Server{
+	std::vector<Route*>	routes;
+
 	public:
 		Server(Config * config);
 		Server( const Server& s );
+		const Config*	getConfig() const;
 		Server&	operator=( const Server& s );
 		~Server();
 
@@ -29,26 +31,24 @@ class Server
 		std::string	getName() const ;
 		std::string	getRoot() const ;
 		std::vector<Route*> getRoutes() const ;
-	
+
+		bool	IsRouteURIMatched(const string& , const string& );
 		bool	isDefault() const;
 		void	setPort( unsigned int );
-		void	setRoute(Route& route);
+		void	setRoute(Route& r);
 		void	setIp( unsigned int );
 		void	setName( string name );
 		
 		IResponse*	handle(const IRequest& );
-		Route* 		getMatchedRoute() const;
-
-		const Config*		getConfig() const;
+		Route*		getMatchedRoute(const IRequest& req);
 
 	private:
-		std::vector<Route*>	routes;
-		Route				*route;
-		unsigned int		port;
-		unsigned int		ip;
-		std::string			name;
-		std::string			root;
-		bool				Default;
+		Route			*route;
+		unsigned int	port;
+		unsigned int	ip;
+		std::string		name;
+		std::string		root;
+		bool			Default;
 };
 
 #endif

@@ -14,8 +14,8 @@ cluster:
   server:
     # host: 10.30.252.176
     port: 8000
-    name: localhost
     index: index.html
+    name: localhost
     root: /Users/oelbouha/Desktop/web
     # cgi: python3 .py
     route:
@@ -25,6 +25,7 @@ cluster:
         - GET
         - POST
     route:
+      root: /Users/oelbouha/Desktop/web
       uri: /pages/
       # index: myfile.php
       allowed_methods:
@@ -36,6 +37,7 @@ cluster:
     port: 8004
     name: localhost\\\
     route:
+      root: /Udsdsdsdsdsdsdsdsdsdsds
       uri: /
       allowed_methods:
         - GET
