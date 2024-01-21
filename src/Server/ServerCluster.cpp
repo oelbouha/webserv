@@ -17,31 +17,29 @@ ServerCluster::ServerCluster() {}
 void    ServerCluster::SetupServers(Config* config){
     server = NULL;
     Config* cluster = config->getBlockConfig("cluster").front();
-    std::vector<Config *> con = cluster->getBlockConfig("server");
-    std::vector<Config *>::iterator it = con.begin();
-    while (it != con.end()){
-        Config  *con = *it;
-        {
-            // php .php
-            // php7.4 .php
-            // complete con;
-            // Config* clusterCgiConfig = cluster->getBlockConfig("cgi").front();
-            // std::vector<Config*> serverCgiConfig = con->getBlockConfig("cgi");
 
-            // con->addBlock("cgi", clusterCgiConfig);
-            // serverCgiConfig.push_back(clusterCgiConfig);
-            // cgi
-            // error pages
-            // root            
-        }
-        Server *ser = new Server(con);
-        servers.push_back(ser);
+    setBlockIfExist(*cluster, error_page, "error_page");
+    setupErrorPages();
+    
+    std::vector<Config *> ServersConfig = cluster->getBlockConfig("server");
+    std::vector<Config *>::iterator it = ServersConfig.begin();
+    
+    while (it != ServersConfig.end()){
+        Config  *serverConfig = *it;
+
+        addBlockIfExist(*serverConfig, *cluster, "error_page");
+		addListIfExist(*serverConfig, *cluster, "cgi");
+
+        Server *server = new Server(serverConfig);
+        servers.push_back(server);
         ++it;
     }
 }
 
+std::string	ServerCluster::getRoot() const{ return root; }
+
 ServerCluster::ServerCluster(Config* config){
-    UriMaxlength = 2048;
+    UriMaxlength = 20;
     SetupServers(config);
 }
 
@@ -73,7 +71,6 @@ bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
         if (transfer != "chunked")
         {
             statusCode = 501;
-            body = "501 Not Implemented ";
             return false;
         }
     }
@@ -82,32 +79,34 @@ bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
     if (IsValidURI(req.getURI()) == false)
     {
         statusCode = 400;
-        body = "400 bad Request";
         return false;
     }
     else if (req.getURI().length() > UriMaxlength)
     {
         statusCode = 414;
-        body = "414 Request-URI Too Long";
         return false;
     }
     return true;
 }
 
-bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req)
-{
-    unsigned int port = server.getPort();
-    unsigned int inComingPort = req.getIncomingPort();
-    unsigned int inComingIp = req.getIncomingIP();
+bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req){
+    unsigned int serverPort = server.getPort();
+    const string& serverHost = server.getHost();
 
+    unsigned int inComingPort = req.getIncomingPort();
+    const string& inComingHost = utils::ip(req.getIncomingIP());
+    // if (serverPort == inComingPort)
+    //     std::cout << "port matched\n";
     string host = req.getHeader("Host");
     int pos = host.find(":");
     host = host.substr(0, pos);
     if (host == server.getName())
         return true;
-    (void)inComingIp;
-    (void)port;
+
+    (void)serverPort;
     (void)inComingPort;
+    (void)inComingHost;
+    (void)serverHost;
     return false;
 }
 
@@ -135,38 +134,14 @@ Server*	ServerCluster::getMatchedServer(const IRequest &req)
     return (getDefaultServer());
 }
 
-IResponse*  ServerCluster::handle(IRequest* request)
+IResponse*  ServerCluster::handle(const IRequest& request)
 {
-    if (!isRequestProperlyStructured(*request))
+    server = getMatchedServer(request);
+    if (isRequestProperlyStructured(request) == false)
     {
-        std::cout << "Request not well structred ...\n";
-       	IResponse* response = new Response(request->getSocket());
-		response->setStatusCode(statusCode)
-			.setHeader("content-type", "text/html")
-			.setHeader("connection", request->getHeader("Connection"))
-			.setBody(body)
-			.build();
-		return response;
+        root = server->getURI() + request.getURI();
+        return (GenerateErrorPageResponse(request, statusCode));
     }
-    server = getMatchedServer(*request);
-    return (server->handle(*request));
+    return (server->handle(request));
 }
 
-/*
-IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
-{
-    CGIHandler    handler;
-
-    return (handler.handle(request));
-    std::string file = "pages/index.py";
-    
-
-    const std::string&  uri = request->getURI();
-    if (uri != "/")
-        file = "pages/" + uri.substr(uri.rfind("/"));
-
-    ProxiedResponse& response = *new ProxiedResponse(request->getSocket());
-
-    response.
-}
-*/

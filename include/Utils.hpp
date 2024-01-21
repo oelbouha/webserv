@@ -14,6 +14,10 @@
 #include <string>
 #include <algorithm>
 #include <dirent.h>
+#include "../src/DataTypes/Config.hpp"
+using std::string;
+using std::cout;
+using std::endl;
 
 namespace utils
 {
@@ -27,8 +31,7 @@ namespace utils
 
 	std::string&	trimSpaces(std::string& aString);
 
-	bool	IsDirectory(std::string uri);
-	std::string	getExtension(std::string line);
+	int	get_exit_status(pid_t pid);
 }
 
 #endif

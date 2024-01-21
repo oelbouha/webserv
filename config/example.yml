@@ -9,31 +9,53 @@ cluster:
   keep_alive:	65
   #keep_alive_timeout: 10
   server_props: no
-
-
+  error_page:
+    file: /40x.html
+    codes:
+      - 414
+      - 404
+      - 414
   server:
-    # host: 10.30.252.176
+    Default: yes
+    host: 0.0.0.0
     port: 8000
-    index: index.html
     name: localhost
+    index: index.html
+    error_page:
+      file: /40x.html
+      codes:
+        - 500
+        - 501
+    error_page:
+      file: /pages/50x.html
+      codes:
+        - 414
+        - 404
+        - 405
     root: /Users/oelbouha/Desktop/web
-    # cgi: python3 .py
+    upload: /upload
+    cgi:
+      - .py
     route:
-      uri: /
-      # index: myfile.php
+      uri: /pages
+      root: /Users/oelbouha/Desktop/web/pages
+      autoindex: yes
+      upload: /upload
       allowed_methods:
-        - GET
         - POST
+        - DELETE
+        - GET
     route:
-      root: /Users/oelbouha/Desktop/web
-      uri: /pages/
-      # index: myfile.php
+      uri: /test
+      root: /Users/oelbouha/Desktop/web/test
+      index: myfile.php
       allowed_methods:
+        - DELETE
         - GET
         - POST
   server:
-    index: index.html
-    root: /Users/oelbouha/Desktop/web
+    # index: index.html
+    root: /Users/oelbouha/Desktop/web/
     port: 8004
     name: localhost\\\
     route:

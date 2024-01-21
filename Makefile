@@ -64,6 +64,8 @@ MULTIPLEXER_COMPONENT := Multiplexer/KqueueMultiplexer.cpp \
 
 SERVER_COMPONENT := Server/ServerCluster.cpp \
 					Server/Server.cpp \
+					Server/IServer.cpp \
+					Route/Upload.cpp \
 					Route/Route.cpp
 
 CLIENT_COMPONENT := Client/Client.cpp

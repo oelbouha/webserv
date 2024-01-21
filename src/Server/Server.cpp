@@ -1,33 +1,48 @@
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
+/*   Updated: 2024/01/20 21:25:55 by oelbouha         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "Server.hpp"
+#include <iostream>
 
-Server::Server(Config *serverConfig){
+Server::Server(Config *serverConfig) : host("127.0.0.1"){
 	route = NULL;
-	Default = true; // set it to false when it added to config
-	name = serverConfig->getInlineConfig("name");
+	Default = false;
+	if (serverConfig->hasInline("Default"))
+		Default = true; 
 	port = std::stod(serverConfig->getInlineConfig("port"), NULL);
+	
+	setInlineIfExist(*serverConfig, name, "name");
+	setInlineIfExist(*serverConfig, host, "host");
+	setInlineIfExist(*serverConfig, root, "root");
+	setBlockIfExist(*serverConfig, error_page, "error_page");
+	
 	std::vector<Config*> routeBlockConfig = serverConfig->getBlockConfig("route");
 	std::vector<Config*>::iterator it = routeBlockConfig.begin();
-	std::string	prop;
+	
 	while (it != routeBlockConfig.end()){
 		Config* routeConfig = *it;
-		{
-			// addIfNotExist(routeConfig, serverConfig, "root");
-			// addIfNotExist(routeConfig, serverConfig, "index");
-			if (routeConfig->hasInline("root") == false){
-				prop = serverConfig->getInlineConfig("root");
-				routeConfig->addInline("root", prop);
-			}
-			if (routeConfig->hasInline("index") == false){
-				prop = serverConfig->getInlineConfig("index");
-				routeConfig->addInline("index", prop);
-			}
-		}
+	
+		addInlineIfNotExist(*routeConfig, *serverConfig, "root");
+		addInlineIfNotExist(*routeConfig, *serverConfig, "index");
+		addInlineIfNotExist(*routeConfig, *serverConfig, "upload");
+		
+		addBlockIfExist(*routeConfig, *serverConfig, "error_page");
+		addBlockIfExist(*routeConfig, *serverConfig, "cgi");
+
 		Route *route = new Route(routeConfig);
 		routes.push_back(route);
 		++it;
 	}
+	setupErrorPages();
 }
 
 Server::Server( const Server& s ) {(void)s;}
@@ -36,19 +51,16 @@ unsigned int Server::getPort() const  { return port; }
 
 unsigned int Server::getIp() const  { return ip; }
 
-std::string Server::getName() const  { return name; }
+string Server::getName() const  { return name; }
 
-std::string Server::getRoot() const  { return root; }
+string Server::getRoot() const  { return rootPath; }
 
-std::vector<Route*> Server::getRoutes() const { return routes; };
+string Server::getURI() const  { return root; }
 
-void 	Server::setIp(unsigned int ip)  { this->ip = ip; }
-
-void	Server::setRoute(Route& route) { this->route = &route; }
+string Server::getHost() const  { return host; }
 
 bool 	Server::isDefault() const { return Default; }
 
-void 	Server::setPort(unsigned int port)  { this->port = port; }
 
 Server::~Server() {}
 
@@ -58,7 +70,6 @@ Server&	Server::operator=( const Server& s ){
 }
 
 bool	Server::IsRouteURIMatched(const string& reqURI, const string& routeURI){
-	// std::cout << "req uri :" << reqURI << ": | route uri :" << routeURI << ":" << std::endl;
 	if (strncmp(routeURI.c_str(), reqURI.c_str(), routeURI.length()) == 0)
 		return true;
     return (false);
@@ -85,15 +96,11 @@ Route*	Server::getMatchedRoute(const IRequest& req)
 
 IResponse*  Server::handle(const IRequest& request){
 	route = getMatchedRoute(request);
-	if (route)
-		return (route->handle(request));
-	std::cout << "there is no route for :" << request.getURI() << std::endl;;
-	IResponse* response = new Response(request.getSocket());
-	response->setStatusCode(404)
-		.setHeader("content-type", "text/html")
-		.setHeader("connection", "close")
-		.setBody("404 Not Found")
-		.build();
-	return response;
-
+	if (route == NULL)
+	{
+		std::cout << "No route matched uri ......\n";
+		rootPath = root + request.getURI();
+		return (GenerateErrorPageResponse(request, 404));
+	}
+	return (route->handle(request));
 }

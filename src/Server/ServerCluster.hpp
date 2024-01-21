@@ -19,9 +19,8 @@
 #include "src/DataTypes/Config.hpp"
 #include "src/Server/Server.hpp"
 
-class ServerCluster
-{
-	std::vector<Server *> servers;
+class ServerCluster : public IServer {
+	std::vector<Server *>	servers;
 	unsigned int	statusCode;
 	unsigned int	UriMaxlength;
 	public:
@@ -35,15 +34,17 @@ class ServerCluster
 		bool		IsValidURI(string uri);
 		void		SetupServers(Config* config);
 
+		string		getRoot() const ;
 		Server*		getDefaultServer();
 		Server*		getMatchedServer(const IRequest &);
 		bool		isServerMatched(const Server& , const  IRequest& );
 	
-		IResponse*  handle(IRequest* request);
+		IResponse*  handle(const IRequest& request);
 
 	private:
 		Server	*server;
 		string	body;
+		string	ServerRoot;
 };
 
 #endif

@@ -29,7 +29,6 @@ public:
 
     virtual void        close() = 0;
     virtual void        setNonBlocking() = 0;
-
     virtual void        dump() = 0;
 };
 #endif

@@ -15,8 +15,8 @@
 WebServer::WebServer() : mConfig(NULL) {}
 
 WebServer::WebServer( Config *aConfig) : mConfig(aConfig) {
-  // mMux = new SelectMultiplexer();
-  mMux = new KqueueMultiplexer();
+  mMux = new SelectMultiplexer();
+  // mMux = new KqueueMultiplexer();
   mServers = new ServerCluster(mConfig);
 }
 
@@ -25,7 +25,7 @@ WebServer::~WebServer() {}
 void WebServer::start() {
   (void)mConfig;
 
-  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8000));
+  mSockets.push_back(ServerSocket(utils::ip(127, 0, 0, 1), 8000));
   mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8001));
   mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8002));
   mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8003));
@@ -59,10 +59,10 @@ void WebServer::loop() {
     //     continue;
     // }
 
-    std::cout << std::endl;
-    std::cout << "qs: " << qs.size();
-    std::cout << " qc: " << qc.size();
-    std::cout << " qr: " << qr.size() << std::endl << std::flush;
+    // std::cout << std::endl;
+    // std::cout << "qs: " << qs.size();
+    // std::cout << " qc: " << qc.size();
+    // std::cout << " qr: " << qr.size() << std::endl << std::flush;
     acceptNewClients(qs);
     takeAndHandleRequests(qc);
     sendResponses(qr);
@@ -103,7 +103,7 @@ void    WebServer::takeAndHandleRequests(std::queue<IClient*>& qc)
         IRequest *request = client->getRequest();
         // request->dump(true);
         // std::cout << "handling request.\n" << std::flush;
-        IResponse *response = mServers->handle(request);
+        IResponse *response = mServers->handle(*request);
         // ResponseWrapper  *res = mServers.handle(request);
         // if (res->getType() == SIMPLE_RESPONSE)
         // std::cout << "start sending.\n" << std::flush;

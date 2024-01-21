@@ -20,11 +20,19 @@ const string	ConfigHelper::sInlineConfigs[] = {
 	"error_log_file",
 	"error_log_level",
 	"server_props",
+	"upload",
+	"extension",
+	"handler",
+	"file",
+	"Default",
+	"autoindex",
 	LIST_END
 };
 
 const string	ConfigHelper::sListConfigs[] = {
 	"allowed_methods",
+	"codes",
+	"cgi",
 	LIST_END
 };
 
@@ -32,8 +40,10 @@ const string    ConfigHelper::sBlockConfigs[] = {
     "cluster",
   
 //bool    ConfigHelper::(const std::string& aConfig, const std::string& aProperty);
-"server",
-    "route",
+	"server",
+		"route",
+	"error_page",
+
     LIST_END
 };
 
@@ -48,7 +58,7 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"mime_types",
 			"keep_alive",
 			"server_props",
-			"error_pages",
+			"error_page",
 			"server",
 		
 		"mime_types:",
@@ -60,11 +70,26 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"root",
 			"index",
 			"route",
+			"host",
+			"upload",
+			"cgi",
+			"Default",
+			"index",
+			"error_page",
 
 		"route:",
 			"uri",
 			"root",
+			"upload",
 			"allowed_methods",
+			"index",
+			"autoindex",
+		"error_page:",
+			"file",
+			"codes",
+		"cgi:",
+			".py",
+			".php",
 
         "server_props:",
             "yes", "no",

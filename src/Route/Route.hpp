@@ -1,6 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Route.hpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
+/*   Updated: 2024/01/21 17:32:13 by oelbouha         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-
-#pragma once
 #ifndef ROUTE_HPP
 #define ROUTE_HPP
 
@@ -12,32 +21,39 @@
 #include "src/DataTypes/Config.hpp"
 #include "src/Methods/Method.hpp"
 #include "src/Server/Server.hpp"
+#include "src/Route/Upload.hpp"
+#include "src/Interfaces/IServer.hpp"
 #include "Utils.hpp"
 
-class Server;
+class Upload;
 
-class Route{
-	std::vector<string> allowedMethods;
-	std::map<string, string> resHeader;
-	unsigned int		statusCode;
-	bool				hasRedirect;
+class Route : public IServer {
+	std::vector<string> 	allowedMethods;
+	std::vector<string> 	CGIExtensions;
 	
+	Upload 				*upload;
 public:
-	Route(const Config * config);
+	Route(Config * config);
 	Route( const Route& s );
 	Route&	operator=( const Route& s );
 	~Route();
 
-	const Config*		getConfig() const;
 	std::vector<string>	getAllowedMethods() const;
-	std::string	getURI() const;
+	string	getURI() const;
+	string	getRoot() const;
 
-	const string		setMethod(method_t m);
+	const string	setMethod(method_t m);
+	string			GenerateDirectoryListingHtmlPage();
+
 	bool		hasRedirection() const;
 	bool		IsResourceFileExist(const string& uri) const;
 	bool		hasCGIExtension(const string& uri) const;
 	bool		IsMethodAllowed(method_t method);
+	bool 		canDeleteFile(const string& filePath) const;
+	bool 		canReadFile(const string& filePath) const ;
 
+	int 		DeleteFile();
+	std::vector<string> ReadDirectory();
 	
 	IResponse*	handleDirectory(const IRequest&);
 	IResponse*	deleteDirectory(const IRequest&);
@@ -49,11 +65,13 @@ public:
 	IResponse*	ExecuteDELETEMethod(const IRequest&);
 	IResponse*	ExecuteHEADMethod(const IRequest&);
 
-	const string	getMimeType(const string& uri);
 private:
+	bool	autoindex;
 	string	URI;
+	string	path;
 	string	root;
 	string	indexfile;
+	string  uploadPath;
 };
 
 #endif

@@ -25,6 +25,7 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &aClientSocket) {
 
 int ClientSocket::getID() const { return mID; }
 
+
 int ClientSocket::write(const char *aBuffer, int aSize) {
   int r = ::write(mID, aBuffer, aSize);
 
