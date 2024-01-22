@@ -76,7 +76,7 @@ void				Config::addInline(const string& property, const string& value)
 	mInlineConfig[property] = value;
 }
 
-bool		Config::hasBlock(const string& property)
+bool		Config::hasBlock(const string& property) const
 {
 	try {
 		mBlockConfig.at(property);
@@ -87,7 +87,7 @@ bool		Config::hasBlock(const string& property)
 	}
 }
 
-bool		Config::hasList(const string& property)
+bool		Config::hasList(const string& property) const 
 {
 	try {
 		mListConfig.at(property);
@@ -98,7 +98,7 @@ bool		Config::hasList(const string& property)
 	}
 }
 
-bool		Config::hasInline(const string& property)
+bool		Config::hasInline(const string& property) const
 {
 	try {
 		mInlineConfig.at(property);
@@ -110,6 +110,78 @@ bool		Config::hasInline(const string& property)
 }
 
 
+void	Config::addInLineIfExist(Config& config, const string& prop)
+{
+	if (prop.empty())
+	return ;
+	string property;
+	if (config.hasInline(prop) == true)
+	{
+		property = config.getInlineConfig(prop);
+		addInline(prop, property);
+	}
+}
+
+
+void	Config::addInlineIfNotExist(Config& config, const string& prop){
+	if (prop.empty())
+		return ;
+	if (hasInline(prop) == false)
+		addInLineIfExist(config, prop);
+}
+
+void	Config::addBlockIfExist(Config& server, string prop)
+{
+	if (prop.empty())
+		return ;
+	if (server.hasBlock(prop) == true)
+	{
+		std::vector<Config*> error_page = server.getBlockConfig(prop);
+		std::vector<Config*>::iterator it = error_page.begin();
+		while (it != error_page.end()){
+				addBlock(prop, *it);
+			++it;
+		}
+	}
+}
+
+void	Config::addListIfExist(Config& server, const string& prop)
+{
+	if (prop.empty())
+		return ;
+	if (server.hasList(prop) == true)
+		addList(prop, server.getListConfig(prop));
+}
+
+
+vector<Config*>	Config::getBlockConfigIfExist(const string& property) const 
+{
+	vector<Config*> ret;
+	if (hasBlock(property) == true){
+		ret = getBlockConfig(property);
+	}
+	return ret;
+}
+
+vector<string>	Config::getListConfigIfExist(const string& property) const 
+{
+	vector<string> ret;
+	if (hasList(property) == true){
+		ret = getListConfig(property);
+	}
+	return ret;
+}
+
+const string 	Config::getInlineConfigIfExist(const string& property) const 
+{
+	if (hasInline(property) == true){
+		return (getInlineConfig(property));
+	}
+	return "";
+}
+
+
+/****************************************************************************************************/
 void				Config::dump(int indent) const
 {
 	// std::cout << "==================\n" << "|| " << indent << "\n=================\n" << std::endl;

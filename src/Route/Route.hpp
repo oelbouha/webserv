@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/21 17:32:13 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/22 23:47:44 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "src/DataTypes/Config.hpp"
 #include "src/Methods/Method.hpp"
 #include "src/Server/Server.hpp"
+#include "src/Server/ErrorPages.hpp"
 #include "src/Route/Upload.hpp"
 #include "src/Interfaces/IServer.hpp"
 #include "Utils.hpp"
@@ -33,8 +34,7 @@ class Route : public IServer {
 	
 	Upload 				*upload;
 public:
-	Route(Config * config);
-	Route( const Route& s );
+	Route(Config * config, ErrorPages& pages);
 	Route&	operator=( const Route& s );
 	~Route();
 
@@ -44,7 +44,7 @@ public:
 
 	const string	setMethod(method_t m);
 	string			GenerateDirectoryListingHtmlPage();
-
+	
 	bool		hasRedirection() const;
 	bool		IsResourceFileExist(const string& uri) const;
 	bool		hasCGIExtension(const string& uri) const;
@@ -66,12 +66,14 @@ public:
 	IResponse*	ExecuteHEADMethod(const IRequest&);
 
 private:
-	bool	autoindex;
-	string	URI;
-	string	path;
-	string	root;
-	string	indexfile;
-	string  uploadPath;
+	ErrorPages&		error_pages;
+	string			autoindex;
+	string			location;
+	string			URI;
+	string			path;
+	string			root;
+	string			indexfile;
+	string  		uploadPath;
 };
 
 #endif

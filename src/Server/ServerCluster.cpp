@@ -18,19 +18,19 @@ void    ServerCluster::SetupServers(Config* config){
     server = NULL;
     Config* cluster = config->getBlockConfig("cluster").front();
 
-    setBlockIfExist(*cluster, error_page, "error_page");
+    error_page  = cluster->getBlockConfigIfExist("error_page");
     setupErrorPages();
     
-    std::vector<Config *> ServersConfig = cluster->getBlockConfig("server");
+    std::vector<Config *> ServersConfig = cluster->getBlockConfigIfExist("server");
     std::vector<Config *>::iterator it = ServersConfig.begin();
     
     while (it != ServersConfig.end()){
         Config  *serverConfig = *it;
 
-        addBlockIfExist(*serverConfig, *cluster, "error_page");
-		addListIfExist(*serverConfig, *cluster, "cgi");
+        serverConfig->addBlockIfExist(*cluster, "error_page");
+		serverConfig->addListIfExist(*cluster, "cgi");
 
-        Server *server = new Server(serverConfig);
+        Server *server = new Server(serverConfig, errorPages);
         servers.push_back(server);
         ++it;
     }

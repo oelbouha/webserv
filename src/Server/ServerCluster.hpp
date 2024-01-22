@@ -18,6 +18,7 @@
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
 #include "src/Server/Server.hpp"
+#include "src/Server/ErrorPages.hpp"
 
 class ServerCluster : public IServer {
 	std::vector<Server *>	servers;
@@ -42,9 +43,10 @@ class ServerCluster : public IServer {
 		IResponse*  handle(const IRequest& request);
 
 	private:
-		Server	*server;
-		string	body;
-		string	ServerRoot;
+		ErrorPages	errorPages;
+		Server		*server;
+		string		body;
+		string		ServerRoot;
 };
 
 #endif

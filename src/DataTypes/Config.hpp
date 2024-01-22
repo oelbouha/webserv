@@ -39,15 +39,26 @@ class Config
 		vector<Config*>		getBlockConfig(const string& key) const;
 		vector<string>		getListConfig(const string& key) const;
 		const string&		getInlineConfig(const string& key) const;
+	
+		vector<Config*>		getBlockConfigIfExist(const string& prop) const;
+		vector<string>		getListConfigIfExist(const string& prop) const;
+		const string		getInlineConfigIfExist(const string& prop) const;
 
 		void				addBlock(const string& property, Config* value);
 		void				addList(const string& property, const vector<string>& value);
 		void				addInline(const string& property, const string& value);
 
-		bool				hasBlock(const string& property);
-		bool				hasList(const string& property);
-		bool				hasInline(const string& property);
+		bool				hasBlock(const string& property) const;
+		bool				hasList(const string& property) const ;
+		bool				hasInline(const string& property) const;
 
+		void				addInlineIfNotExist(Config& config, const string& prop);
+		
+		void				addInLineIfExist(Config& config, const string& prop);
+		void				addBlockIfExist(Config& config, string prop);
+		void				addListIfExist(Config& server, const string& prop);
+
+	
 		void	dump(int indent = 0) const;
 };
 #endif

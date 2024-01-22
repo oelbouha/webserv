@@ -6,35 +6,23 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/21 17:33:25 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/22 23:50:24 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Route.hpp"
 
-Route::Route(Config* config){
-	autoindex = false;
-	if (config->hasInline("autoindex"))
-		autoindex = true;
-	setInlineIfExist(*config, URI, "uri");
-	setInlineIfExist(*config, root, "root");
-	setInlineIfExist(*config, indexfile, "index");
-	setInlineIfExist(*config, uploadPath, "upload");
-	setBlockIfExist(*config, error_page, "error_page");
-	setListIfExist(*config, CGIExtensions, "cgi");
-	setListIfExist(*config, allowedMethods, "allowed_methods");
-	setupErrorPages();
+Route::Route(Config* config, ErrorPages& pages): error_pages(pages)
+{
+	autoindex =  config->getInlineConfigIfExist("autoindex");
+	location =  config->getInlineConfigIfExist("location");
+	URI =  config->getInlineConfigIfExist("uri");
+	root =  config->getInlineConfigIfExist("root");
+	uploadPath =  config->getInlineConfigIfExist("upload");
+	indexfile =  config->getInlineConfigIfExist("index");
+	allowedMethods = config->getListConfigIfExist("allowed_methods");
+	error_pages.setErrorPage(config, root);
 }
-
-std::vector<std::string>	Route::getAllowedMethods() const{ return allowedMethods; }
-
-std::string	Route::getURI() const{ return URI; }
-
-std::string	Route::getRoot() const{ return root; }
-
-bool	Route::hasRedirection() const {return false; /* set it when it added*/ }
-
-Route::Route( const Route& s ) {(void)s;}
 
 Route&	Route::operator=( const Route& s ){
     (void)s;
@@ -42,6 +30,16 @@ Route&	Route::operator=( const Route& s ){
 }
 
 Route::~Route() {}
+
+std::vector<std::string>	Route::getAllowedMethods() const{ return allowedMethods; }
+
+std::string	Route::getURI() const{ return URI; }
+
+std::string	Route::getRoot() const{ return root; }
+
+bool	Route::hasRedirection() const {
+	return location.size();
+}
 
 bool Route::canDeleteFile(const string& filePath) const {
     return (access(filePath.c_str(), W_OK) == 0);
@@ -105,7 +103,10 @@ IResponse*  Route::ProcessRequestMethod(const IRequest& request)
 		return (ExecuteGETMethod(request));
 	}
 }
-std::vector<string> Route::ReadDirectory(){
+
+
+std::vector<string> Route::ReadDirectory()
+{
 	std::vector<string> list;
 
 	DIR* dir = opendir(path.c_str());
@@ -158,7 +159,7 @@ IResponse*	Route::handleDirectory(const IRequest& request){
 			.build();
 		return response;
 	}
-	if (autoindex == true){
+	if (autoindex.size()){
 		string body = GenerateDirectoryListingHtmlPage();
 		IResponse * response = new Response(request.getSocket());
 		response->setHeader("connection", request.getHeader("Connection"))
@@ -266,9 +267,8 @@ IResponse*  Route::handle(const IRequest& request)
 	path = root + tmp;
 	if (IsMethodAllowed(request.getMethod()) == false)
 		return GenerateErrorPageResponse(request, 405);
-	else if (hasRedirection())
-	{
-		// handle redirection
-	}
 	return (ProcessRequestMethod(request));
 }
+
+
+
