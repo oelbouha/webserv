@@ -29,9 +29,7 @@ const string	ConfigHelper::sListConfigs[] = {
 
 const string    ConfigHelper::sBlockConfigs[] = {
     "cluster",
-  
-//bool    ConfigHelper::(const std::string& aConfig, const std::string& aProperty);
-"server",
+    "server",
     "route",
     LIST_END
 };

@@ -11,8 +11,11 @@
 #ifndef RESPONSEWRAPPER_HPP
 #define RESPONSEWRAPPER_HPP
 
-#include "src/Response/SimpleResponse.hpp"
+#include "src/Response/Response.hpp"
+//#include "src/Response/SimpleResponse.hpp"
 #include "src/Response/ProxiedResponse.hpp"
+
+typedef Response    SimpleResponse;
 
 class ResponseWrapper
 {
@@ -20,7 +23,8 @@ class ResponseWrapper
     ProxiedResponse*    mProxiedResponse;
 
 public:
-    enum ResponseType{
+    enum ResponseType
+    {
         SIMPLE_RESPONSE,
         PROXIED_RESPONSE
     };
@@ -34,9 +38,9 @@ public:
 
 	ResponseWrapper&	operator=( const ResponseWrapper& r );
 
-    ResponseType    getType();
+    ResponseType    getType() const;
 
-    SimpleResponse*     getSimpleResponse();
-    ProxiedResponse*    getProxiedResponse();
+    SimpleResponse*     getSimpleResponse() const;
+    ProxiedResponse*    getProxiedResponse() const;
 };
 #endif

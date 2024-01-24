@@ -54,14 +54,18 @@ SOCKET_COMPONENT := Socket/ClientSocket.cpp \
 	Socket/SocketException.cpp
 
 REQUEST_COMPONENT := Request/Request.cpp \
+	Request/DefaultRequestReader.cpp \
+	Request/ChunkedRequestReader.cpp \
 	Request/RequestException.cpp
 
 RESPONSE_COMPONENT := Response/Response.cpp \
+	Response/ProxiedResponse.cpp \
 	Response/ResponseException.cpp 
 
 MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
 
-SERVER_COMPONENT := Server/ServerCluster.cpp
+SERVER_COMPONENT := Server/ServerCluster.cpp \
+					Server/CGIHandler.cpp
 
 CLIENT_COMPONENT := Client/Client.cpp
 

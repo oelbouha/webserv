@@ -24,13 +24,13 @@ int main(int c, char *v[])
 	{
 		const Config&	config = factory::makeConfigParser(configFilePath)->parse();
 
-        Config * cluster = config.getBlockConfig("cluster").front();
+        // Config * cluster = config.getBlockConfig("cluster").front();
 
-        cluster->dump();
+        // cluster->dump();
 
-        std::vector<Config*>    servers = cluster->getBlockConfig("server");
+        // std::vector<Config*>    servers = cluster->getBlockConfig("server");
 
-        servers.front()->dump();
+        // servers.front()->dump();
 
 		WebServer		server(&config);
 

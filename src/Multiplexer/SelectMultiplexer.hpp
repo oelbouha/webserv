@@ -19,6 +19,9 @@
 
 #include "IMultiplexer.hpp"
 #include "IServerSocket.hpp"
+#include "IClient.hpp"
+#include "IResponse.hpp"
+#include "IProxiedResponse.hpp"
 
 class SelectMultiplexer : public IMultiplexer {
   fd_set mReadfds, mReadfdsTmp;
@@ -28,6 +31,7 @@ class SelectMultiplexer : public IMultiplexer {
   std::map<int, IServerSocket *> serverSockets;
   std::map<int, IClient *> clients;
   std::map<int, IResponse *> responses;
+  std::map<int, IProxiedResponse *> proxiedResponses;
 
   int mMaxfd;
   int mReadyfdsCount;
@@ -37,6 +41,7 @@ public:
   typedef std::map<int, IServerSocket *> ServerSockets;
   typedef std::map<int, IClient *> Clients;
   typedef std::map<int, IResponse *> Responses;
+  typedef std::map<int, IProxiedResponse *> ProxiedResponses;
 
 public:
   SelectMultiplexer();
@@ -58,6 +63,10 @@ public:
   void add(IResponse &res);
   void remove(IResponse &res);
   std::queue<IResponse *> getReadyResponses() const;
+
+  void  add(IProxiedResponse& aResponse);
+  void  remove(IProxiedResponse& aResponse);
+  std::queue<IProxiedResponse *> getReadyToForwardRequests() const;
 
   void wait(std::size_t timeout);
 

@@ -4,3 +4,5 @@ pages/index.mp4
 pages/video.mp4
 pages/*.mp4
 .gitignore
+main.cpp
+.gitignore

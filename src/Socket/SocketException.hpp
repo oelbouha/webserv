@@ -11,19 +11,28 @@
 #ifndef SOCKETEXCEPTION_HPP
 #define SOCKETEXCEPTION_HPP
 
-#include <iostream>
 #include <string>
 #include <cstring>
 
 class SocketException : public std::exception
 {
-	std::string	mMessage;
+    std::string	mMessage;
 
-	public:
-		SocketException();
-		SocketException( const std::string& aMessage );
-		~SocketException() throw ();
-		const char*	what( void ) const throw();
+public:
+    enum Error {
+        CANT_BE_SET_TO_NON_BLOCKING,
+        CONNECTION_CLOSED,
+        DEFAULT
+    };
+
+    Error   error;
+
+public:
+    SocketException( const std::string& aMsg = "Socket Error", Error aErr = DEFAULT );
+    SocketException( Error aErr );
+
+    ~SocketException() throw ();
+    const char*	what( void ) const throw();
 
 
 };

@@ -9,10 +9,14 @@
 
 #include "SocketException.hpp"
 
-SocketException::SocketException( void ) : mMessage("Socket Error")
+SocketException::SocketException( const std::string& aMessage, SocketException::Error aErr):
+mMessage(aMessage),
+error(aErr)
 {}
 
-SocketException::SocketException( const std::string& aMessage ) : mMessage(aMessage)
+SocketException::SocketException( SocketException::Error aErr ):
+mMessage("Socket Error"),
+error(aErr)
 {}
 
 SocketException::~SocketException( void ) throw()

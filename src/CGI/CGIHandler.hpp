@@ -13,8 +13,13 @@
 
 #include "IProxyHandler.hpp"
 #include "src/Interfaces/IRequest.hpp"
+#include "src/Response/ProxiedResponse.hpp"
 
-class CGIHandler : public IProxyHandler
+#include "ProxyPair.hpp"
+#include "DescriptorProxyRequest.hpp"
+#include "ProxyResponse.hpp"
+
+class CGIHandler
 {
 public:
 	CGIHandler();
@@ -23,7 +28,6 @@ public:
 
 	CGIHandler&	operator=( const CGIHandler& c );
 
-    virtual IProxiedResponse*   handle(IRequest* request);
-
+    virtual ProxyPair*   handle(IRequest* request);
 };
 #endif

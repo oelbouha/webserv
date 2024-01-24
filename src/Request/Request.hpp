@@ -22,49 +22,54 @@
 #include "RequestException.hpp"
 #include "Utils.hpp"
 
+#include "DefaultRequestReader.hpp"
+#include "ChunkedRequestReader.hpp"
+
+#include "src/Socket/SocketException.hpp"
+
 typedef std::map<std::string, std::string> RHeaders;
 
-class Request : public IRequest {
+class Request : public IRequest
+{
+    IClientSocket&  mSocket;
+    IRequestReader* mReader;
 
-  IClientSocket &mSocket;
+    int             mIncommingIP;
+    int             mIncommingPort;
 
-  method_t mMethod;
-  std::string mUri;
-  std::string mQuery;
-  std::string mHttpVersion;
-  RHeaders mHeaders;
-
-  int mIncommingIP;
-  int mIncommingPort;
-
-public:
-  Request(IClientSocket &mSocket, int aIncomingIP, int aIncomingPort);
-  Request(const Request &aRequest);
-  ~Request();
+    std::string     mMethod;
+    std::string     mUri;
+    std::string     mQuery;
+    std::string     mHttpVersion;
+    RHeaders        mHeaders;
 
 public:
-  Request &operator=(const Request &aRequest);
+    Request(IClientSocket &mSocket, int aIncomingIP, int aIncomingPort);
+    ~Request();
 
-public:
-  IClientSocket&    getSocket() const;
-  int               getIncomingIP() const;
-  int               getIncomingPort() const;
-  method_t          getMethod() const;
-  const std::string &getURI() const;
-  const std::string &getHttpVersion() const;
-  const std::string &getQuery() const;
-  const std::string &getHeader(const std::string &aKey) const;
+    const IClientSocket&      getSocket() const;
 
-public:
-  void build();
+    int                 getIncomingIP() const;
+    int                 getIncomingPort() const;
+    const std::string&  getMethod() const;
+    const std::string&  getURI() const;
+    const std::string&  getHttpVersion() const;
+    const std::string&  getQuery() const;
+    const std::string&  getHeader(const std::string &aKey) const;
+    size_t              getContentLength() const;
 
-public:
-  void dump(bool colors = true) const;
+    void                build();
+    std::string         read();
+    bool                done() const;
+    void                dump( bool colors = true ) const;
 
 private:
-  void parse();
-  void parseRequestLine(const std::string &aRequestLine);
-  void parseHeaderProperty(const std::string &aHeaderLine);
-  void setMethod(const std::string &aMethod);
+    Request(const Request &aRequest);
+    Request &operator=(const Request &aRequest);
+
+    void parse();
+    void parseRequestLine(const std::string &aRequestLine);
+    void parseHeaderProperty(const std::string &aHeaderLine);
+    void setMethod(const std::string &aMethod);
 };
 #endif

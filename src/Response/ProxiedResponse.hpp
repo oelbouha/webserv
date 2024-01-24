@@ -18,11 +18,15 @@
 
 #include "IProxiedResponse.hpp"
 
+#include "src/Interfaces/IRequest.hpp"
 #include "src/Interfaces/IClientSocket.hpp"
+#include "src/Response/ProxiedResponse.hpp"
+
 
 class ProxiedResponse : public IProxiedResponse
 {
-  IClientSocket&    mSocket;
+  IRequest&         mRequest;
+  const IClientSocket&    mSocket;
   int               mInput;
   int               mOutput;
 
@@ -34,27 +38,40 @@ class ProxiedResponse : public IProxiedResponse
   std::string       mInputBuffer;
   std::string       mOutputBuffer;
 
+  int               mForwarded;
+  bool              mOutputEOF;
+
 public:
-	ProxiedResponse(IClientSocket& sock, int inputFd, int outputFd);
-	ProxiedResponse( const ProxiedResponse& p);
+	ProxiedResponse(IRequest& req, int inputFd, int outputFd);
 	~ProxiedResponse();
 
 	ProxiedResponse&	operator=( const ProxiedResponse& p );
+
+  virtual int         getInputFd() const;
+  virtual int         getOutputFd() const;
+  virtual int         getSocketFd() const;
     
-    virtual void        setIsHeaderComplete(bool isHeaderComplete);
-    virtual bool        isHeaderComplete();
-    virtual void        completeHeader();
+  virtual void        setIsHeaderComplete(bool isHeaderComplete);
+  virtual bool        isHeaderComplete();
+  virtual void        completeHeader();
 
-    virtual void        forward();
-    virtual void        send();
+  virtual IResponse&  setStatusCode( unsigned int aStatusCode );
+  virtual IResponse&  setHeader( const std::string& aKey, const std::string& aValue );
+  virtual IResponse&  build();
 
-    virtual bool        isSendingComplete() const;
-    virtual bool        isFrowardingComplete() const;
+  virtual void        forward();
+  virtual void        send();
+
+  virtual bool        isSendingComplete() const;
+  virtual bool        isFrowardingComplete() const;
 
 private:
     std::string         readHeader();
-    void                writeAll(int fd, std::string& buffer);
-    void                readAll(int fd, std::string& buffer);
+    int                 writeAll(int fd, std::string& buffer);
+    int                 readAll(int fd, std::string& buffer);
     void                setNonBlocking();
+
+    virtual IResponse&  setBody( const std::string& aBody );
+    virtual IResponse&  setBodyFile( const std::string& aFileName );
 };
 #endif

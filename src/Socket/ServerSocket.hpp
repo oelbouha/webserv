@@ -45,11 +45,10 @@ public:
   virtual void bind();
   virtual void listen();
   virtual IClientSocket *accept() const;
-  virtual void close();
   virtual void setNonBlocking();
 
   virtual int getPort() const;
   virtual ip_t getIP() const;
-  virtual int getID() const;
+  virtual int getSocketFd() const;
 };
 #endif

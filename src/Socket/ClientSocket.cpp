@@ -10,105 +10,122 @@
 #include "ClientSocket.hpp"
 #include <string>
 
-ClientSocket::ClientSocket(int aFileDes) : mID(aFileDes) {}
+ClientSocket::ClientSocket(int aFileDes):
+    mID(aFileDes)
+{}
 
-ClientSocket::ClientSocket(const ClientSocket &aClientSocket)
-    : mID(aClientSocket.mID) {}
+ClientSocket::ClientSocket(const ClientSocket &aClientSocket):
+    mID(aClientSocket.mID)
+{}
 
-ClientSocket::~ClientSocket() {}
-
-ClientSocket &ClientSocket::operator=(const ClientSocket &aClientSocket) {
-  if (this != &aClientSocket) {
-  }
-  return (*this);
+ClientSocket::~ClientSocket() {
+    ::close(mID);
 }
 
-int ClientSocket::getID() const { return mID; }
-
-int ClientSocket::write(const char *aBuffer, int aSize) {
-  int r = ::write(mID, aBuffer, aSize);
-
-  if (r < 0)
-    throw SocketException(std::string("Couldn't write to socket: ") +
-                          strerror(errno));
-  return (r);
+ClientSocket &ClientSocket::operator=(const ClientSocket &aClientSocket)
+{
+    if (this != &aClientSocket) {
+    }
+    return (*this);
 }
 
-std::string ClientSocket::read(unsigned int aMaxSize) {
-  char buffer[aMaxSize + 1];
+int ClientSocket::getSocketFd() const { return mID; }
 
-  int r = ::read(mID, buffer, aMaxSize);
+int ClientSocket::write( const std::string& aBuffer ) const
+{
+    int r = ::write(mID, aBuffer.c_str(), aBuffer.length());
 
-  if (r < 0)
-    throw SocketException("Empty socket buffer");
+    if (r < 0)
+        throw SocketException(std::string("Couldn't write to socket: ") + strerror(errno));
 
-  buffer[r] = 0;
-
-  return (std::string(buffer, r));
+    return (r);
 }
 
-std::string ClientSocket::readHeaderOnly() {
-  std::string ret;
-  size_t pos;
+int ClientSocket::writeAll( const std::string& aBuffer ) const
+{
+    int         r = 0;
+    const char* buffer = aBuffer.data();
+    size_t      size = aBuffer.length();
 
-  std::cout << "mBuffer size: " << mBuffer.length() << std::endl << std::flush;
+    while (true)
+    {
+        int w = ::write(mID, buffer + r, size - r);
+        if (w <= 0)
+            break ;
+        r += w;
+    }
+    return (r);
+}
 
-  pos = mBuffer.find("\r\n\r\n");
+std::string ClientSocket::read(unsigned int aMaxSize) 
+{
+    mBuffer = readAll();
 
-  try {
-    while (pos == std::string::npos) {
-      std::string r = read(1024);
-      if (r.empty()) {
-        ret = mBuffer;
+    std::string ret = mBuffer.substr(0, aMaxSize);
+
+    if (mBuffer.length() > aMaxSize)
+        mBuffer.erase(0, aMaxSize);
+    else
         mBuffer.clear();
-        return (ret);
-      }
-      mBuffer += r;
-      pos = mBuffer.find("\r\n\r\n");
-    }
-  } catch (const SocketException &e) {
-    throw SocketException("Incomplete request header");
-  }
-  ret = mBuffer.substr(0, pos);
-  mBuffer = mBuffer.substr(pos + 4);
-  return (ret);
+    return (ret);
 }
 
-std::string ClientSocket::readAll() {
-  std::string ret = mBuffer;
-  char buffer[1024];
-  int r;
+std::string ClientSocket::readHeaderOnly() 
+{
+    mBuffer = readAll();
 
-  while ((r = ::read(mID, buffer, 1023)) > 0) {
-    buffer[r] = 0;
-    ret += buffer;
-  }
-  return (ret);
+    if (mBuffer.empty())
+        return (mBuffer);
+
+    std::size_t pos = mBuffer.find("\r\n\r\n");
+
+    if (pos == std::string::npos)
+        return ("");
+
+    std::string ret = mBuffer.substr(0, pos);
+    mBuffer.erase(0, pos + 4);
+
+    return (ret);
 }
 
-void ClientSocket::dump() {
-  std::string s;
+std::string ClientSocket::readAll()
+{
+    std::string   ret = mBuffer;
+    std::size_t   bufferSize = 4096;
+    char          buffer[bufferSize];
+    int           r;
 
-  while (true) {
-    try {
-      s = read(1024);
-      for (std::string::iterator it = s.begin(); it != s.end(); ++it) {
+    mBuffer.clear();
+
+    while ((r = ::read(mID, buffer, bufferSize)) > 0)
+        ret += std::string(buffer, r);
+
+    if (r != -1)
+        mRead = r;
+
+    if (mRead == 0 && ret.empty())
+        throw SocketException("Connection Closed");
+
+    return (ret);
+}
+
+void ClientSocket::dump() 
+{
+    std::string s = readAll();
+
+    for (std::string::iterator it = s.begin(); it != s.end(); ++it)
+    {
         if (*it != 10 && (*it < 32 || *it > 126))
-          std::cout << "▒";
+            std::cout << "▒";
         else
-          std::cout << *it;
-      }
-      std::cout << std::flush;
-    } catch (...) {
-      break;
+            std::cout << *it;
     }
-  }
-  std::cout << std::endl << std::flush;
+    std::cout << std::endl << std::flush;
 }
 
-void ClientSocket::close() { ::close(mID); }
-
-void ClientSocket::setNonBlocking() {
-  if (fcntl(mID, F_SETFL, O_NONBLOCK, O_CLOEXEC) < 0)
-    throw SocketException("Can't switch socket to non-blocking mode");
+void ClientSocket::setNonBlocking()
+{
+    if (fcntl(mID, F_SETFL, O_NONBLOCK, O_CLOEXEC) < 0)
+        throw SocketException("Can't switch socket to non-blocking mode");
 }
+

@@ -27,11 +27,16 @@ ServerCluster&	ServerCluster::operator=( const ServerCluster& s )
 
 IResponse*  ServerCluster::handle(IRequest* request)
 {
+    std::cout << "handling request...\n" << std::flush;
+
     (void)request;
     std::string file = "pages/index.html";
     std::string mime = "text/html";
 
+    std::cout << "req.uri: " << request->getURI() << std::endl << std::flush;
+
     if (request->getURI() != "/"){
+        std::cout << "a file\n" << std::flush;
         file = "pages/";
         const std::string&    uri = request->getURI();
         file += uri.substr(uri.rfind('/'));
@@ -49,19 +54,22 @@ IResponse*  ServerCluster::handle(IRequest* request)
         }
     }
 
+    std::cout << "file: " << file << std::endl << "mime: " << mime << std::endl << std::flush;
+
     Response*   response = new Response(request->getSocket());
+
+    std::cout << "configuring response...\n" << std::flush;
 
     response->setStatusCode(200)
         .setHeader("content-type", mime)
         .setHeader("connection", "keep-alive")
-        .setBody("hello from webserve")
+        // .setBody("hello from webserve")
         .setBodyFile(file)
         .build();
 
     return (response);
 }
 
-/*
 #include "src/Server/CGIHandler.hpp"
 
 IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
@@ -69,7 +77,7 @@ IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
     CGIHandler    handler;
 
     return (handler.handle(request));
-    std::string file = "pages/index.py";
+/*    std::string file = "pages/index.py";
     
 
     const std::string&  uri = request->getURI();
@@ -78,6 +86,5 @@ IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
 
     ProxiedResponse& response = *new ProxiedResponse(request->getSocket());
 
-    response.
+    response.*/
 }
-*/

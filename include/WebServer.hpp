@@ -33,7 +33,7 @@ class WebServer {
   std::vector<ServerSocket>     mSockets;
   IMultiplexer*                 mMux;
   ServerCluster                 mServers;
-  std::vector<Client>           mClients;
+  std::vector<Client*>          mClients;
   std::vector<IResponse *>      mResponses;
 
   WebServer();

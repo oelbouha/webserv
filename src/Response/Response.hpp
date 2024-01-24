@@ -22,7 +22,7 @@
 #include "IResponse.hpp"
 
 class Response : public IResponse {
-  IClientSocket&                        mSocket;
+  const IClientSocket&                  mSocket;
   unsigned int                          mStatusCode;
   std::map<std::string, std::string>    mHeaders;
 
@@ -31,17 +31,17 @@ class Response : public IResponse {
 
   std::string mRawResponse;
 
-  size_t mCursor;
+  size_t    mCursor;
   bool      isComplete;
 
-public:
-  Response(IClientSocket &aSocket);
   Response(const Response &aResponse);
-  ~Response();
-
   Response &operator=(const Response &aResponse);
 
-  virtual int getID() const;
+public:
+  Response(const IClientSocket &aSocket);
+  ~Response();
+
+  virtual int getSocketFd() const;
 
   Response &setStatusCode(unsigned int aStatusCode);
   Response &setHeader(const std::string &aHeader, const std::string &aValue);
@@ -50,12 +50,10 @@ public:
 
   Response &build();
 
-  Response &startSending();
   void send();
-  bool isSendingComplete();
+  bool isSendingComplete() const;
 
   void dump();
-  void dumpHeader();
 
   static const std::map<unsigned int, std::string> sStatusCodes;
   static std::map<unsigned int, std::string> initStatusCodes();

@@ -9,48 +9,85 @@
 
 #include "Client.hpp"
 
-Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort)
-    : mIncomingIP(aIncomingIP), mIncomingPort(aIncomingPort), mSocket(aSocket),
-      mHasRequest(false), mRequest(NULL) {}
+const IClientSocket&    Client::getSocket() const { return (*mSocket); }
 
-Client::~Client() {}
+Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort) :
+    mIncomingIP(aIncomingIP),
+    mIncomingPort(aIncomingPort),
+    mSocket(aSocket),
+    mRequest(NULL)
+{}
+
+Client::~Client()
+{
+    delete  mSocket;
+    delete  mRequest;
+}
 
 bool    Client::operator==(const IClient& client) const
-{ return (this->getID() == client.getID()); }
-
-int Client::getID() const { return mSocket->getID(); }
-
-int Client::getIncomingIP() const { return mIncomingIP; }
-
-int Client::getIncomingPort() const { return mIncomingPort; }
-
-void Client::makeRequest() {
-  try {
-    if (mRequest == NULL)
-      mRequest = new Request(*mSocket, mIncomingIP, mIncomingPort);
-
-    mRequest->build();
-    mHasRequest = true;
-
-  } catch(const RequestException& e)
-  {
-      if (e.error == RequestException::CONNECTION_COLOSED)
-        mHasClosedTheConnection = true;
-  }
-  catch (const SocketException &e) {
-  }
-}
-
-bool    Client::hasClosedTheConnection() const
 {
-    return (mHasClosedTheConnection);
+    return (this->getSocketFd() == client.getSocketFd());
 }
 
-bool Client::hasRequest() const { return mHasRequest; }
+int     Client::getSocketFd() const { return mSocket->getSocketFd(); }
 
-IRequest *Client::getRequest() {
+int     Client::getIncomingIP() const { return mIncomingIP; }
+
+int     Client::getIncomingPort() const { return mIncomingPort; }
+
+bool    Client::hasRequest() const { return (mRequest != NULL); }
+
+bool    Client::hasClosedTheConnection() const { return (mHasClosedTheConnection); }
+
+void Client::makeRequest() 
+{ 
+    try
+    {
+        if (mRequest == NULL)
+            mRequest = new Request(*mSocket, mIncomingIP, mIncomingPort);
+        mRequest->build();
+
+    } catch(const RequestException& e)
+    {
+        if (e.error == RequestException::CONNECTION_COLOSED)
+        {
+            mHasClosedTheConnection = true;
+            std::cout << "client closed connection\n" << std::flush;
+        }
+    }
+    catch (const SocketException &e) {
+    }
+}
+
+IRequest *Client::getRequest()
+{
   IRequest *ret = mRequest;
   mRequest = NULL;
-  mHasRequest = false;
   return (ret);
+}
+
+void    Client::dump()
+{
+    // mSocket->dump();
+    if (!mRequest){
+        makeRequest();
+
+        if (mHasClosedTheConnection)
+        {
+            delete  mRequest;
+            mRequest = NULL;
+            return;
+        }
+
+        mRequest->dump();
+    }
+    std::cout << "dumping...\n" << std::flush;
+    std::cout << mRequest->read() << std::flush;
+    if (mRequest->done()){
+        std::cout << "request complete - content length: " 
+            << mRequest->getContentLength() << "\n" << std::flush;
+        delete mRequest;
+        mRequest = NULL;
+        throw 42;
+    }
 }

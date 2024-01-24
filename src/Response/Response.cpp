@@ -12,32 +12,45 @@
 #include <fstream>
 #include <string>
 
-Response::Response(IClientSocket &aSocket) : mSocket(aSocket), mFile(-1), mCursor(0), isComplete(false) {}
+Response::Response( const IClientSocket &aSocket ) :
+    mSocket(aSocket),
+    mFile(-1),
+    mCursor(0),
+    isComplete(false)
+{}
 
-Response::Response(const Response &aResponse)
-    : mSocket(aResponse.mSocket), mFile(aResponse.mFile), mCursor(0), isComplete(aResponse.isComplete) {}
+Response::Response(const Response &aResponse) :
+    mSocket(aResponse.mSocket),
+    mFile(aResponse.mFile),
+    mCursor(0),
+    isComplete(aResponse.isComplete)
+{}
 
-Response::~Response() {}
+Response::~Response()
+{
+    ::close(mFile);
+}
 
 Response &Response::operator=(const Response &aResponse) {
   (void)aResponse;
   return (*this);
 }
 
-int Response::getID() const { return mSocket.getID(); }
+int Response::getSocketFd() const { return mSocket.getSocketFd(); }
 
 Response &Response::setStatusCode(unsigned int aStatusCode) {
   mStatusCode = aStatusCode;
   return (*this);
 }
 
-Response &Response::setHeader(const std::string &aHeader,
-                              const std::string &aValue) {
+Response &Response::setHeader(const std::string &aHeader, const std::string &aValue)
+{
   mHeaders[aHeader] = aValue;
   return (*this);
 }
 
-Response &Response::setBody(const std::string &aBody) {
+Response &Response::setBody(const std::string &aBody)
+{
   mBody = aBody;
   mHeaders["content-length"] = std::to_string(mBody.length());
   return (*this);
@@ -60,31 +73,31 @@ Response&   Response::setBodyFile( const std::string& aFileName )
     return *this;
 }
 
-Response &Response::build() {
+Response &Response::build()
+{
   mRawResponse = "HTTP/1.1 " + Response::sStatusCodes.at(mStatusCode) + "\r\n";
+
   for (std::map<std::string, std::string>::iterator it = mHeaders.begin();
        it != mHeaders.end(); ++it)
     mRawResponse += it->first + ": " + it->second + "\r\n";
   mRawResponse += "\r\n";
+
+  if (mFile < 0)
+    mRawResponse += mBody;
+
   return (*this);
 }
 
-Response &Response::startSending() { 
-    if (mFile < 0)
-        mRawResponse += mBody;
-    return (*this); 
-}
-
 void Response::send() {
-    if (mFile < 0){
-        const char *buff = mRawResponse.c_str();
-        size_t size = mRawResponse.length();
-        mCursor = mSocket.write(buff, size);
+    if (mFile < 0)
+    {
+        mCursor = mSocket.write(mRawResponse);
         mRawResponse.erase(0, mCursor);
         if (mRawResponse.empty())
             isComplete = true;
     }
-    else {
+    else
+    {
         size_t  bufferSize = 250000;
         int r = 0;
         if (mRawResponse.length() < bufferSize)
@@ -95,31 +108,25 @@ void Response::send() {
             mRawResponse += std::string(readBuffer, r);
         }
 
-        const char *buff = mRawResponse.c_str();
-        size_t      size = mRawResponse.length();
-        mCursor = mSocket.write(buff, size);
+        mCursor = mSocket.write(mRawResponse);
         mRawResponse.erase(0, mCursor);
         if (static_cast<size_t>(r) < bufferSize - 1 && mRawResponse.empty())
             isComplete = true;
     }
 }
 
-bool Response::isSendingComplete() {
+bool Response::isSendingComplete() const
+{
   return (isComplete);
 }
 
 void Response::dump() { std::cout << mRawResponse << std::endl << std::flush; }
 
-void Response::dumpHeader() {
-  std::cout << mRawResponse.substr(0, mRawResponse.find("\r\n\r\n"))
-            << std::endl
-            << std::flush;
-}
-
 const std::map<unsigned int, std::string> Response::sStatusCodes =
     Response::initStatusCodes();
 
-std::map<unsigned int, std::string> Response::initStatusCodes() {
+std::map<unsigned int, std::string> Response::initStatusCodes()
+{
   std::map<unsigned int, std::string> statusMap;
 
   { // status codes 1xx
@@ -128,6 +135,7 @@ std::map<unsigned int, std::string> Response::initStatusCodes() {
     statusMap[102] = "102 Processing";
     statusMap[103] = "103 Early Hints";
   }
+
 
   { // status codes 2xx
     statusMap[200] = "200 OK";
@@ -142,6 +150,7 @@ std::map<unsigned int, std::string> Response::initStatusCodes() {
     statusMap[226] = "226 IM Used";
   }
 
+  
   { // status codes 3xx
     statusMap[300] = "300 Multiple Choices";
     statusMap[301] = "301 Moved Permanently";
@@ -153,6 +162,7 @@ std::map<unsigned int, std::string> Response::initStatusCodes() {
     statusMap[307] = "307 Temporary Redirect";
     statusMap[308] = "308 Permanent Redirect";
   }
+
 
   { // status codes 4xx
     statusMap[400] = "400 Bad Request";
@@ -199,6 +209,7 @@ std::map<unsigned int, std::string> Response::initStatusCodes() {
     statusMap[510] = "510 Not Extended";
     statusMap[511] = "511 Network Authentication Required";
   }
+
 
   return statusMap;
 }

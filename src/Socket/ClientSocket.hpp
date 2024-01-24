@@ -29,24 +29,25 @@ class ClientSocket : public IClientSocket
 {
 	const int	mID;
 	std::string	mBuffer;
+    long int    mRead;
 
 	ClientSocket&	operator=( const ClientSocket& c ); // can't be assigned
+	ClientSocket( const ClientSocket& aClientSocket);
 
 public:
 	ClientSocket(int aFileDes);
-	ClientSocket( const ClientSocket& aClientSocket);
 	~ClientSocket();
 
-    virtual int         getID() const;
+    virtual int         getSocketFd() const;
 
 
-    virtual int         write( const char* aBuffer, int aSize );
+    virtual int         write( const std::string& aBuffer ) const;
+    virtual int         writeAll( const std::string& aBuffer ) const;
 
     virtual std::string read(unsigned int aMaxSize);
     virtual std::string readHeaderOnly();
     virtual std::string readAll();
 
-	virtual void		close();
     virtual void        setNonBlocking();
 
     virtual void        dump();

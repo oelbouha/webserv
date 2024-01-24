@@ -9,19 +9,29 @@
 
 #include "RequestException.hpp"
 
-RequestException::RequestException() : mMessage(""), error(DEFAULT) {}
+RequestException::RequestException() :
+    mMessage(""),
+    error(DEFAULT)
+{}
 
-RequestException::RequestException(const std::string &aMessage, RequestException::Error error)
-    : mMessage(aMessage), error(error) {}
+RequestException::RequestException(const std::string &aMessage, RequestException::Error error) :
+    mMessage(aMessage),
+    error(error)
+{}
 
-RequestException::RequestException(const std::string &aMessage)
-    : mMessage(aMessage), error(DEFAULT) {}
+RequestException::RequestException(const std::string &aMessage) :
+    mMessage(aMessage),
+    error(DEFAULT)
+{}
 
-RequestException::RequestException(RequestException::Error error)
-    : mMessage(""), error(error) {}
+RequestException::RequestException(RequestException::Error error) :
+    mMessage(""),
+    error(error)
+{}
 
 RequestException::~RequestException() throw() {}
 
-const char *RequestException::what() const throw() {
+const char *RequestException::what() const throw()
+{
   return (mMessage.c_str());
 }

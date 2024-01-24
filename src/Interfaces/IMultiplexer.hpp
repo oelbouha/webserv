@@ -8,6 +8,7 @@
  */
 
 #pragma once
+#include "IProxiedResponse.hpp"
 #ifndef IMULTIPLEXER_HPP
 #define IMULTIPLEXER_HPP
 
@@ -35,11 +36,39 @@ public:
   virtual void add(IResponse &aResponse) = 0;
   virtual void remove(IResponse &aResponse) = 0;
 
+  virtual void  add(IProxiedResponse& aResponse) = 0;
+  virtual void  remove(IProxiedResponse& aResponse) = 0;
+
   virtual void wait(unsigned long int timeout) = 0;
 
   virtual std::queue<IServerSocket *> getReadyServerSockets() const = 0;
   virtual std::queue<IClient *> getReadyClients() const = 0;
   virtual std::queue<IResponse *> getReadyResponses() const = 0;
+
+  // cgi
+  virtual void  add(ProxyPair*  aPair) = 0;
+  virtual void  remove()
+
+  // virtual std::queue<IProxiedResponse *> getReadyToForwardRequests() const = 0;
+
+  // virtual std::queue<ProxyPair*>  getReadyForReadingProxyRequests() const = 0;
+  // virtual std::queue<ProxyPair*>  getReadyForWritingProxyRequests() const = 0;
+  // virtual std::queue<ProxyPair*>  getReadyForReadingProxyResponses() const = 0;
+  // virtual std::queue<ProxyPair*>  getReadyForWritingProxyResponses() const = 0;
 };
+
+/*
+  add(ProxyPair*)
+  {
+    add request input for write events
+    add client socket for read events
+
+    add response output for read events
+    add client socket for write events
+
+    pb:
+      client already registered for read events
+  }
+*/
 
 #endif
