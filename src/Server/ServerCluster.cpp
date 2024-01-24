@@ -8,18 +8,31 @@
  */
 
 #include "ServerCluster.hpp"
-#include <string>
+#include <cstring>
 
 
 ServerCluster::ServerCluster() {}
 
+ServerCluster::ServerCluster( const ServerCluster& s ) {(void)s;}
 
-void    ServerCluster::SetupServers(Config* config){
-    server = NULL;
+ServerCluster&	ServerCluster::operator=( const ServerCluster& s ){
+    (void)s;
+	return (*this);
+}
+
+ServerCluster::~ServerCluster()
+{
+    delete error_pages;
+    for(size_t i = 0; i < servers.size(); ++i)
+        delete servers[i];
+}
+
+ServerCluster::ServerCluster(Config* config) : UriMaxlength(2048), server(NULL)
+{
+    error_pages = new ErrorPage();
+
     Config* cluster = config->getBlockConfig("cluster").front();
-
-    error_page  = cluster->getBlockConfigIfExist("error_page");
-    setupErrorPages();
+    error_pages->setErrorPage(*cluster);
     
     std::vector<Config *> ServersConfig = cluster->getBlockConfigIfExist("server");
     std::vector<Config *>::iterator it = ServersConfig.begin();
@@ -30,38 +43,25 @@ void    ServerCluster::SetupServers(Config* config){
         serverConfig->addBlockIfExist(*cluster, "error_page");
 		serverConfig->addListIfExist(*cluster, "cgi");
 
-        Server *server = new Server(serverConfig, errorPages);
+        Server *server = new Server(serverConfig, *error_pages);
         servers.push_back(server);
         ++it;
     }
 }
 
-std::string	ServerCluster::getRoot() const{ return root; }
+ErrorPage& 	ServerCluster::getErrorPage() const { return *error_pages; }
 
-ServerCluster::ServerCluster(Config* config){
-    UriMaxlength = 20;
-    SetupServers(config);
-}
+unsigned int ServerCluster::getStatusCode() const  { return statusCode; }
 
-bool	ServerCluster::IsValidURI(string uri){
-    const string& allowed_char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
-	std::string::iterator it = std::find_first_of(uri.begin(), uri.end()
-		, allowed_char.begin(), allowed_char.end());
-    if (it != uri.end())
-		return true;
-	return false;
-}
+string  ServerCluster::getRoot() const { return server->getRoot(); }
 
-ServerCluster::ServerCluster( const ServerCluster& s ) {(void)s;}
-
-ServerCluster::~ServerCluster(){
-    for(size_t i = 0; i < servers.size(); ++i)
-        delete servers[i];
-}
-
-ServerCluster&	ServerCluster::operator=( const ServerCluster& s ){
-    (void)s;
-	return (*this);
+bool	ServerCluster::containsValidCharacters(string uri){
+    const string& validCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
+   for (size_t i = 0; i < uri.length(); ++i){
+        if (validCharacters.find(uri[i]) == std::string::npos)
+            return false;
+    }
+	return true;
 }
 
 bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
@@ -76,7 +76,7 @@ bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
     }
     catch(...){}
 
-    if (IsValidURI(req.getURI()) == false)
+    if (containsValidCharacters(req.getURI()) == false)
     {
         statusCode = 400;
         return false;
@@ -139,8 +139,8 @@ IResponse*  ServerCluster::handle(const IRequest& request)
     server = getMatchedServer(request);
     if (isRequestProperlyStructured(request) == false)
     {
-        root = server->getURI() + request.getURI();
-        return (GenerateErrorPageResponse(request, statusCode));
+        std::cout << " Request not properly structered ...\n";
+        return (Helper::BuildResponse(request, *this));
     }
     return (server->handle(request));
 }

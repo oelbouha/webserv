@@ -26,6 +26,9 @@ const string	ConfigHelper::sInlineConfigs[] = {
 	"file",
 	"Default",
 	"autoindex",
+	"code",
+	"location",
+	"default_mime",
 	LIST_END
 };
 
@@ -40,9 +43,11 @@ const string    ConfigHelper::sBlockConfigs[] = {
     "cluster",
   
 //bool    ConfigHelper::(const std::string& aConfig, const std::string& aProperty);
+	"redirect",
 	"server",
 		"route",
 	"error_page",
+	"mime_types",
 
     LIST_END
 };
@@ -62,6 +67,7 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"server",
 		
 		"mime_types:",
+			"default_mime",
 			"*",
 		
 		"server:",
@@ -84,9 +90,11 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"allowed_methods",
 			"index",
 			"autoindex",
-		"error_page:",
-			"file",
-			"codes",
+			"error_page",
+			"redirect",
+		"redirect:"
+			"code",
+			"location",
 		"cgi:",
 			".py",
 			".php",

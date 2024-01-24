@@ -6,29 +6,24 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/22 23:53:42 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/24 11:52:23 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <iostream>
 
-Server::Server(Config *serverConfig, ErrorPages& pages) : 
-	error_pages(pages),
-	route(NULL),
-	redirectRoute(NULL),
-	host("127.0.0.1"), 
-	Default(false)
-{
-	if (serverConfig->hasInline("Default"))
-		Default = true; 
-	port = std::stod(serverConfig->getInlineConfig("port"), NULL);
+Server::Server(Config *serverConfig, ErrorPage& pages) : 
+		error_pages(pages), route(NULL), host("127.0.0.1") {
+
+	port = utils::stringToInt(serverConfig->getInlineConfigIfExist("port"));
 	
+	Default = serverConfig->getInlineConfigIfExist("Default");
 	name = serverConfig->getInlineConfigIfExist("name");
 	host = serverConfig->getInlineConfigIfExist("host");
 	root = serverConfig->getInlineConfigIfExist("root");
 
-	error_pages.setErrorPage(serverConfig, root);
+	error_pages.setErrorPage(*serverConfig);
 	
 	std::vector<Config*> routeBlockConfig = serverConfig->getBlockConfig("route");
 	std::vector<Config*>::iterator it = routeBlockConfig.begin();
@@ -36,9 +31,9 @@ Server::Server(Config *serverConfig, ErrorPages& pages) :
 	while (it != routeBlockConfig.end()){
 		Config* routeConfig = *it;
 	
-		routeConfig->addInLineIfExist(*serverConfig, "root");
-		routeConfig->addInLineIfExist(*serverConfig, "index");
-		routeConfig->addInLineIfExist(*serverConfig, "upload");
+		routeConfig->addInlineIfNotExist(*serverConfig, "root");
+		routeConfig->addInlineIfNotExist(*serverConfig, "index");
+		routeConfig->addInlineIfNotExist(*serverConfig, "upload");
 
 		routeConfig->addBlockIfExist(*serverConfig, "error_page");
 		routeConfig->addBlockIfExist(*serverConfig, "cgi");
@@ -53,17 +48,19 @@ Server::Server(Config *serverConfig, ErrorPages& pages) :
 
 unsigned int Server::getPort() const  { return port; }
 
+unsigned int Server::getStatusCode() const  { return statusCode; }
+
 unsigned int Server::getIp() const  { return ip; }
 
 string Server::getName() const  { return name; }
 
-string Server::getRoot() const  { return rootPath; }
-
-string Server::getURI() const  { return root; }
+string Server::getRoot() const  { return root; }
 
 string Server::getHost() const  { return host; }
 
-bool 	Server::isDefault() const { return Default; }
+ErrorPage& 	Server::getErrorPage() const { return error_pages; }
+
+bool 	Server::isDefault() const { return Default.size(); }
 
 Server::~Server() {}
 
@@ -74,7 +71,10 @@ Server&	Server::operator=( const Server& s ){
 
 bool	Server::IsRouteURIMatched(const string& reqURI, const string& routeURI){
 	if (strncmp(routeURI.c_str(), reqURI.c_str(), routeURI.length()) == 0)
-		return true;
+	{
+		if(reqURI[routeURI.length()] == '\0' || reqURI[routeURI.length()] == '/')
+			return true;
+	}
     return (false);
 }
 
@@ -101,14 +101,14 @@ IResponse*  Server::handle(const IRequest& request){
 	route = getMatchedRoute(request);
 	if (route == NULL)
 	{
-		std::cout << "No route matched uri ......\n";
-		rootPath = root + request.getURI();
-		return (GenerateErrorPageResponse(request, 404));
+		std::cout << "No route matched uri ... \n";
+		statusCode = 404;
+		return Helper::BuildResponse(request, *this);
 	}
-	if (route->hasRedirection())
+	else if (route->hasRedirection())
 	{
-		// redirect 
-		// return ;
+		RedirectRoute redirect(*route, error_pages);
+		return (redirect.handle(request));
 	}
 	return (route->handle(request));
 }

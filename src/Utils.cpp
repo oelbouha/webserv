@@ -82,4 +82,33 @@ namespace utils
 		ret = (unsigned char) status[1];
 		return (ret);
 	}
+	bool	IsDirectory(string uri)
+	{
+		struct stat info;
+
+		if (stat(uri.c_str(), &info) != 0)
+			return false;
+		// Check if the path corresponds to a directory
+		return S_ISDIR(info.st_mode);
+	}
+
+	string	getExtension(string line)
+	{
+		string extension;
+		int pos = line.rfind('.');
+		if (pos > 0)
+			extension = line.substr(pos + 1, line.length());
+		return (extension);	
+	}
+
+	int	stringToInt(std::string str){
+		double num = 0;
+		try{
+			num = std::stod(str, NULL);
+			return num;
+		}
+		catch(...){
+			return num;
+		}
+	}
 }

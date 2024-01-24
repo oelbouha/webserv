@@ -56,6 +56,15 @@ Response&   Response::setBodyFile( const std::string& aFileName )
     std::ifstream   file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
     std::string contentLength = std::to_string(file.tellg());
     setHeader("content-length", contentLength);
+    
+    std::string type;
+    const std::string& extension = utils::getExtension(aFileName);
+    if (MimeTypes::hasMimeType(extension))
+      type = MimeTypes::getMimeType(extension);
+    else
+      type = MimeTypes::getDefaultMimeType();
+    setHeader("content-type", type);
+
     file.close();
     return *this;
 }

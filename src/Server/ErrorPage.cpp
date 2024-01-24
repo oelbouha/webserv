@@ -1,28 +1,67 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ErrorPages.cpp                                     :+:      :+:    :+:   */
+/*   ErrorPage.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:39:26 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/22 23:50:06 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/24 12:24:34 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
-#include "ErrorPages.hpp"
+#include "ErrorPage.hpp"
 
-ErrorPages::ErrorPages(){
-	
+ErrorPage::ErrorPage(){
+	DefaultErrorPages = initDefaultErrorPages();
 }
 
-void	ErrorPages::setErrorPage(Config * config, string root)
-{
-	std::vector<Config *> error_page = config->getBlockConfigIfExist("error_page");
+std::map<unsigned int, string>	ErrorPage::initDefaultErrorPages(){
+		std::map<unsigned int, string>       DefaultPages;
+
+		DefaultPages[400] = "/40x.html";
+		DefaultPages[401] = "/40x.html";
+		DefaultPages[402] = "/40x.html";
+		
+		DefaultPages[500] = "/50x.html";
+		DefaultPages[501] = "/50x.html";
+		DefaultPages[502] = "/50x.html";
+		
+		return (DefaultPages);
+}
+
+std::string   	ErrorPage::getDefaultErrorPage(unsigned int stsCode){
+	return DefaultErrorPages.at(stsCode);
+}
 	
+bool	ErrorPage::HasErrorPageFor(unsigned int stscode){
+	try{
+		error_pages.at(std::to_string(stscode));
+		return true;
+	}
+	catch(...){
+		return false;
+	}
+}
+
+bool	ErrorPage::hasErrorCode(std::string code){
+	try{
+		error_pages.at(code);
+		return true;
+	}
+	catch(...){
+		return false;
+	}
+}
+
+void	ErrorPage::setErrorPage(Config & config)
+{
+	std::vector<Config *> error_page = config.getBlockConfigIfExist("error_page");
+
 	if (error_page.empty())
 		return ;
+
 	std::vector<Config *>::iterator it = error_page.begin();
 	while (it != error_page.end())
 	{
@@ -36,8 +75,8 @@ void	ErrorPages::setErrorPage(Config * config, string root)
 			
 			while (cur != codes.end())
 			{
-				// check if it exist dont add it
-				error_pages[*cur] = root + file;
+				if (hasErrorCode(*cur) == false)
+					error_pages[*cur] = file;
 				++cur;
 			}
 		}
@@ -45,7 +84,7 @@ void	ErrorPages::setErrorPage(Config * config, string root)
 	}
 }
 
-std::string   	ErrorPages::getErrorPagePath(unsigned int stsCode){
+std::string   	ErrorPage::getErrorPagePath(unsigned int stsCode){
 	std::string code = std::to_string(stsCode);
 	return error_pages.at(code);
 }

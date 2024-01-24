@@ -18,8 +18,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "src/Server/MimeTypes.hpp"
 #include "IClientSocket.hpp"
 #include "IResponse.hpp"
+#include "Utils.hpp"
 
 class Response : public IResponse {
   IClientSocket&                        mSocket;
@@ -31,7 +33,7 @@ class Response : public IResponse {
 
   std::string mRawResponse;
 
-  size_t mCursor;
+  size_t    mCursor;
   bool      isComplete;
 
 public:

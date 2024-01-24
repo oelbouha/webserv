@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/22 23:41:36 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/24 10:02:22 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,46 +23,49 @@
 #include "src/DataTypes/Config.hpp"
 #include "src/Route/Route.hpp"
 #include "src/Server/Helper.hpp"
-#include "src/Server/ErrorPages.hpp"
+#include "src/Server/ErrorPage.hpp"
 #include "src/Route/RedirectRoute.hpp"
 #include "src/Interfaces/IServer.hpp"
 #include "Utils.hpp"
 
 class Route;
+class RedirectRoute;
 
-class Server : public IServer {
-	std::vector<Route*>	routes;
-	public:
-		Server(Config * config, ErrorPages& errorPages);
-		const Config*	getConfig() const;
-		Server&	operator=( const Server& s );
-		~Server();
+class Server : public IHandler {
+std::vector<Route*>	routes;
+public:
+	Server(Config * config, ErrorPage& errorPage);
+	const Config*	getConfig() const;
+	Server&	operator=( const Server& s );
+	~Server();
 
-		unsigned int getPort() const;
-		unsigned int getIp() const;
+	unsigned int getPort() const;
+	unsigned int getIp() const;
+	unsigned int getStatusCode() const ;
 
-		string	getName() const ;
-		string	getHost() const ;
-		string	getRoot() const ;
-		string	getURI() const ;
+	string	getName() const ;
+	string	getHost() const ;
+	string	getRoot() const ;
+	string	getURI() const ;
 
-		bool	IsRouteURIMatched(const string& , const string& );
-		bool	isDefault() const;
-		
-		IResponse*	handle(const IRequest& );
-		Route*		getMatchedRoute(const IRequest& req);
+	bool	IsRouteURIMatched(const string& , const string& );
+	bool	isDefault() const;
+	
+	Route*		getMatchedRoute(const IRequest& req);
+	IResponse*	handle(const IRequest& );
+	ErrorPage& 	getErrorPage() const;
 
-	private:
-		ErrorPages&		error_pages;
-		Route			*route;
-		RedirectRoute	*redirectRoute;
-		unsigned int	port;
-		unsigned int	ip;
-		std::string		name;
-		std::string		host;
-		std::string		root;
-		std::string		rootPath;
-		bool			Default;
+private:
+	ErrorPage		&error_pages;
+	Route			*route;
+	unsigned int	port;
+	unsigned int	ip;
+	unsigned int	statusCode;
+	std::string		name;
+	std::string		host;
+	std::string		root;
+	std::string		rootPath;
+	std::string		Default;
 };
 
 #endif

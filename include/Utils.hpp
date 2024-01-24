@@ -14,6 +14,7 @@
 #include <string>
 #include <algorithm>
 #include <dirent.h>
+#include <sys/stat.h>
 #include "../src/DataTypes/Config.hpp"
 using std::string;
 using std::cout;
@@ -31,7 +32,10 @@ namespace utils
 
 	std::string&	trimSpaces(std::string& aString);
 
-	int	get_exit_status(pid_t pid);
+	string	getExtension(string line);
+	bool	IsDirectory(string uri);
+	int		get_exit_status(pid_t pid);
+	int		stringToInt(std::string str);
 }
 
 #endif

@@ -12,26 +12,31 @@
 
 #include "Helper.hpp"
 
-vector<Config*>	Helper::getBlockConfigIfExist(Config &config, const string& property){
-	vector<Config*> ret;
-	if (config.hasBlock(property) == true){
-		ret = config.getBlockConfig(property);
-	}
-	return ret;
-}
+IResponse*		Helper::BuildResponse(const IRequest& request, const IHandler& handler)
+{
+	unsigned int stsCode = handler.getStatusCode();
+	IResponse * response = new Response(request.getSocket());
+	ErrorPage &error_pages = handler.getErrorPage();
 
-vector<string>	Helper::getListConfigIfExist(Config &config, const string& property){
-	vector<string> ret;
-	if (config.hasBlock(property) == true){
-		ret = config.getListConfig(property);
+	if (error_pages.HasErrorPageFor(stsCode))
+	{
+		const string& filePath = error_pages.getErrorPagePath(stsCode);	
+		response->setStatusCode(stsCode)
+			.setHeader("connection", request.getHeader("Connection"))
+			.setBodyFile(handler.getRoot() + filePath)
+			.build();
+		return response;
 	}
-	return ret;
-}
+	const string& filePath = error_pages.getDefaultErrorPage(stsCode);
+	string root = handler.getRoot();
+	int pos = root.rfind('/');
+	root.erase(pos + 1, root.length());
 
-const string 	Helper::getInlineConfigIfExist(Config &config, const string& property){
-
-	if (config.hasBlock(property) == true){
-		return (config.getInlineConfig(property));
-	}
-	return "";
+	std::cout << "root :" << root + filePath << ":" << std::endl;
+	
+	response->setStatusCode(stsCode)
+		.setHeader("connection", request.getHeader("Connection"))
+		.setBodyFile(root + filePath)
+		.build();
+	return response;
 }

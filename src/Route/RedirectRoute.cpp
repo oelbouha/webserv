@@ -6,52 +6,45 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:10:43 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/22 23:27:13 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/24 10:15:28 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RedirectRoute.hpp"
 
-RedirectRoute::RedirectRoute(Config * config)
+RedirectRoute::RedirectRoute(Route & route, ErrorPage& pages):  error_pages(pages), route(route)
 {
-	code = std::stod(config->getInlineConfigIfExist("code"), NULL);
-	URI = config->getInlineConfigIfExist("uri");
-	allowedMethods = config->getListConfigIfExist("allowed_methods");
+	const Config& config  = route.getConfig();
+	
+	std::vector<Config*> redirectBlock = config.getBlockConfigIfExist("redirect");
+	std::vector<Config*>::iterator it = redirectBlock.begin();
+	
+	while (it != redirectBlock.end())
+	{
+		Config* config = *it;
+		code = utils::stringToInt(config->getInlineConfigIfExist("code"));
+		location = config->getInlineConfigIfExist("location");
+		++it;
+	}
 }
 
 RedirectRoute::~RedirectRoute(){}
 
-const string	RedirectRoute::setMethod(method_t m){
-	switch (m){
-	case GET:
-		return "GET";
-	case POST:
-		return "POST";
-	case DELETE:
-		return "DELETE";
-	case HEAD:
-		return "HEAD";
-	}
-}
+unsigned int RedirectRoute::getStatusCode() const  { return statusCode; }
 
-bool	RedirectRoute::IsMethodAllowed(method_t m){
-	const string & method = setMethod(m);
-	for(size_t i = 0; i < allowedMethods.size(); ++i){
-		if (method == allowedMethods[i])
-			return true;
-	}
-	return false;
-}
+string		RedirectRoute::getRoot() const { return route.getRoot(); }
+
+ErrorPage& 	RedirectRoute::getErrorPage() const { return error_pages; }
 
 IResponse*	RedirectRoute::handle(const IRequest& request){
-	if (IsMethodAllowed(request.getMethod()) == false)
+	if (route.IsMethodAllowed(request.getMethod()) == false)
 	{
-		// return GenerateErrorPageResponse(request, 405);
+		statusCode = 405;
+		return Helper::BuildResponse(request, *this);
 	}
 	IResponse * response = new Response(request.getSocket());
 	response->setHeader("connection", request.getHeader("Connection"))
-		.setHeader("Location", URI)
-		.setHeader("content-type", "text/html")
+		.setHeader("location", location)
 		.setStatusCode(code)
 		.build();
 	return response;

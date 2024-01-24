@@ -3,39 +3,48 @@ error_log_file   : /Users/ysalmi/webserv.error.log
 error_log_level : warn
 
 cluster:
-	# mime_types:
-	# 	html: text/html
-	# 	jpg: image/jpeg
+  mime_types:
+    default_mime: text/plain
+    # html: text/html
+    # jpg: image/jpeg
   keep_alive:	65
-  #keep_alive_timeout: 10
   server_props: no
   error_page:
     file: /40x.html
     codes:
-      - 414
+      - 401
       - 404
       - 414
   server:
+    root: /Users/oelbouha/Desktop/web/pages
     Default: yes
     host: 0.0.0.0
     port: 8000
     name: localhost
-    index: index.html
+    # index: index.html
     error_page:
       file: /40x.html
       codes:
         - 500
         - 501
     error_page:
-      file: /pages/50x.html
+      file: /50x.html
       codes:
         - 414
         - 404
         - 405
-    root: /Users/oelbouha/Desktop/web
     upload: /upload
     cgi:
       - .py
+
+    route:
+      uri: /test
+      redirect:
+        code: 301
+        location: /pages
+      allowed_methods:
+        - POST
+    
     route:
       uri: /pages
       root: /Users/oelbouha/Desktop/web/pages
@@ -45,16 +54,9 @@ cluster:
         - POST
         - DELETE
         - GET
-    route:
-      uri: /test
-      root: /Users/oelbouha/Desktop/web/test
-      index: myfile.php
-      allowed_methods:
-        - DELETE
-        - GET
-        - POST
+
   server:
-    # index: index.html
+    index: index.html
     root: /Users/oelbouha/Desktop/web/
     port: 8004
     name: localhost\\\

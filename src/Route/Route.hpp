@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/22 23:47:44 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/23 21:24:36 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,27 +21,31 @@
 #include "src/DataTypes/Config.hpp"
 #include "src/Methods/Method.hpp"
 #include "src/Server/Server.hpp"
-#include "src/Server/ErrorPages.hpp"
+#include "src/Server/ErrorPage.hpp"
 #include "src/Route/Upload.hpp"
-#include "src/Interfaces/IServer.hpp"
+#include "src/Interfaces/IHandler.hpp"
 #include "Utils.hpp"
 
 class Upload;
 
-class Route : public IServer {
+class Route : public IHandler {
 	std::vector<string> 	allowedMethods;
 	std::vector<string> 	CGIExtensions;
-	
-	Upload 				*upload;
+	std::vector<Config*> 	redirect;
+
 public:
-	Route(Config * config, ErrorPages& pages);
+	Route(Config * config, ErrorPage& pages);
 	Route&	operator=( const Route& s );
 	~Route();
 
+	Config& getConfig() const;
 	std::vector<string>	getAllowedMethods() const;
 	string	getURI() const;
 	string	getRoot() const;
 
+	unsigned int getStatusCode() const ;
+	
+	ErrorPage& 		getErrorPage() const;
 	const string	setMethod(method_t m);
 	string			GenerateDirectoryListingHtmlPage();
 	
@@ -66,14 +70,15 @@ public:
 	IResponse*	ExecuteHEADMethod(const IRequest&);
 
 private:
-	ErrorPages&		error_pages;
+	ErrorPage		&error_pages;
+	Config			&config;
 	string			autoindex;
-	string			location;
 	string			URI;
 	string			path;
 	string			root;
 	string			indexfile;
 	string  		uploadPath;
+	unsigned int	statusCode;
 };
 
 #endif

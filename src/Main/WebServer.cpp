@@ -58,11 +58,6 @@ void WebServer::loop() {
     //     std::cout << "." << std::flush;
     //     continue;
     // }
-
-    // std::cout << std::endl;
-    // std::cout << "qs: " << qs.size();
-    // std::cout << " qc: " << qc.size();
-    // std::cout << " qr: " << qr.size() << std::endl << std::flush;
     acceptNewClients(qs);
     takeAndHandleRequests(qc);
     sendResponses(qr);

@@ -7,7 +7,6 @@
  *			File: ServerCluster.hpp 
  */
 
-#pragma once
 #ifndef SERVERCLUSTER_HPP
 #define SERVERCLUSTER_HPP
 
@@ -18,12 +17,12 @@
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
 #include "src/Server/Server.hpp"
-#include "src/Server/ErrorPages.hpp"
+#include "src/Server/ErrorPage.hpp"
 
-class ServerCluster : public IServer {
+class ServerCluster : public IHandler {
 	std::vector<Server *>	servers;
-	unsigned int	statusCode;
-	unsigned int	UriMaxlength;
+	unsigned int			statusCode;
+	unsigned int			UriMaxlength;
 	public:
 		ServerCluster();
 		ServerCluster(Config *config);
@@ -31,22 +30,25 @@ class ServerCluster : public IServer {
 		ServerCluster&	operator=( const ServerCluster& s );
 		~ServerCluster();
 
-		bool		isRequestProperlyStructured(const IRequest &);
-		bool		IsValidURI(string uri);
-		void		SetupServers(Config* config);
+		bool			isServerMatched(const Server& , const  IRequest& );
+		bool			isRequestProperlyStructured(const IRequest &);
+		bool			containsValidCharacters(string uri);
+		void			SetupServers(Config* config);
 
-		string		getRoot() const ;
-		Server*		getDefaultServer();
-		Server*		getMatchedServer(const IRequest &);
-		bool		isServerMatched(const Server& , const  IRequest& );
+		string			getRoot() const ;
+		unsigned int 	getStatusCode() const ;
+
+		ErrorPage& 		getErrorPage() const;
+
+		Server*			getDefaultServer();
+		Server*			getMatchedServer(const IRequest &);
 	
-		IResponse*  handle(const IRequest& request);
+		IResponse*  	handle(const IRequest& request);
 
 	private:
-		ErrorPages	errorPages;
 		Server		*server;
+		ErrorPage	*error_pages;
 		string		body;
-		string		ServerRoot;
 };
 
 #endif

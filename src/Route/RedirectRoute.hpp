@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:11:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/22 21:18:53 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/23 21:40:57 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,26 +17,31 @@
 
 #include "src/Response/Response.hpp"
 #include "src/Request/Request.hpp"
+#include "src/Route/Route.hpp"
 #include "src/DataTypes/Config.hpp"
 #include "src/Interfaces/IHandler.hpp"
 #include "Utils.hpp"
 
+class Route;
+
 class RedirectRoute : public IHandler {
 	std::vector<string> 	allowedMethods;
 public:
-	RedirectRoute(Config * config);
-	// RedirectRoute( const RedirectRoute& s );
+	RedirectRoute(Route & route, ErrorPage& pages);
 	~RedirectRoute();
 	
-	virtual IResponse*  handle(const IRequest&);
+	virtual ErrorPage& 		getErrorPage() const;
+	virtual IResponse*  	handle(const IRequest&);
+	virtual string			getRoot() const;
+	unsigned int    		getStatusCode() const;
 	
-	bool			IsMethodAllowed(method_t m);
-	const string	setMethod(method_t m);
 
 private:
+	ErrorPage	&error_pages;
+	Route		&route;
+	string		location;
 	unsigned int code;
-	string	URI;
-	string	location;
+	unsigned int statusCode;
 };
 
 #endif
