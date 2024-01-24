@@ -14,7 +14,15 @@
 
 WebServer::WebServer() : mConfig(NULL) {}
 
+void  setMimetypes(Config * config){
+  Config* cluster = config->getBlockConfig("cluster").front();
+
+  if (cluster->hasBlock("mime_types"))
+    MimeTypes::setMimeTypes(cluster->getBlockConfig("mime_types").front());
+}
+
 WebServer::WebServer( Config *aConfig) : mConfig(aConfig) {
+  setMimetypes(aConfig);
   mMux = new SelectMultiplexer();
   // mMux = new KqueueMultiplexer();
   mServers = new ServerCluster(mConfig);
