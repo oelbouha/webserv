@@ -19,6 +19,11 @@ void  setMimetypes(Config * config){
 
   if (cluster->hasBlock("mime_types"))
     MimeTypes::setMimeTypes(cluster->getBlockConfig("mime_types").front());
+  else
+  {
+      Config * mimeConfig = new Config();
+      
+  }
 }
 
 WebServer::WebServer( Config *aConfig) : mConfig(aConfig) {
