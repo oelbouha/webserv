@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/25 21:37:08 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/25 23:07:08 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,7 @@ Server&	Server::operator=( const Server& s ){
 }
 
 bool	Server::IsRouteURIMatched(const string& reqURI, const string& routeURI){
-	if (strncmp(routeURI.c_str(), reqURI.c_str(), routeURI.length()) == 0)
-	{
+	if (strncmp(routeURI.c_str(), reqURI.c_str(), routeURI.length()) == 0) {
 		if(reqURI[routeURI.length()] == '\0' || reqURI[routeURI.length()] == '/')
 			return true;
 	}
@@ -84,8 +83,7 @@ Route*	Server::getMatchedRoute(const IRequest& req)
     std::vector<Route*>::iterator it = routes.begin();
     while (it != routes.end()){
         Route *route = *it;
-        if (IsRouteURIMatched(reqUri, route->getURI()))
-        {
+        if (IsRouteURIMatched(reqUri, route->getURI())) {
 			if (ret == NULL)
 				ret = route;
 			else if (ret && ret->getURI().length() < route->getURI().length())

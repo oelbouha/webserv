@@ -18,8 +18,8 @@ cluster:
   server:
     root: /Users/oelbouha/Desktop/web/pages
     Default: yes
-    host: 127.0.0.1
-    port: dsds 8000
+    host: 10.12.1.9
+    port: 8000
     name: localhost
     # index: index.html
     error_page:

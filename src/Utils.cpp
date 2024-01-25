@@ -160,8 +160,6 @@ namespace utils
 	}
 
 	int	stringToInt(std::string line) {
-		if (isValidNumber(line) == false)
-			return (0);
 		return std::stod(line, NULL);
 	}
 

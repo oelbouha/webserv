@@ -99,13 +99,13 @@ bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req) {
 
     std::vector<string>::iterator it = ports.begin();
     while(it != ports.end()) {
-        unsigned int serverPort = utils::stringToInt(*it);
-        if (serverPort == inComingPort)
-        {
-            if (serverHost == inComingHost)
-            {
-                std::cout << "server matched : port <" << serverPort << ">" << " IP <" << serverHost << ">" << std::endl;;
-                return true;
+        if (utils::isValidNumber(*it)) {
+            unsigned int serverPort = utils::stringToInt(*it);
+            if (serverPort == inComingPort) {
+                if (serverHost == inComingHost) {
+                    std::cout << "server matched : port <" << serverPort << ">" << " IP <" << serverHost << ">" << std::endl;;
+                    return true;
+                }
             }
         }
         ++it;
