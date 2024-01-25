@@ -8,6 +8,7 @@
  */
 
 #include "Utils.hpp"
+#include <sstream>
 
 namespace utils
 {
@@ -45,15 +46,28 @@ namespace utils
 		unsigned char	byte = aIP >> 0;
 
 		ret += std::to_string(byte) + ".";
-		byte = aIP >> 8 & 255;
+		byte = aIP >> 24 & 255;
 		ret += std::to_string(byte) + ".";
 		byte = aIP >> 16 & 255;
 		ret += std::to_string(byte) + ".";
-		byte = aIP >> 24 & 255;
+		byte = aIP >> 8 & 255;
 		ret += std::to_string(byte);
 		return (ret);
 	}
 
+	std::string UintToIp(unsigned int ip_int) {
+		std::stringstream ip_stream;
+
+		unsigned char octet1 = (ip_int >> 24) & 0xFF;
+		unsigned char octet2 = (ip_int >> 16) & 0xFF;
+		unsigned char octet3 = (ip_int >> 8) & 0xFF;
+		unsigned char octet4 = ip_int & 0xFF;
+
+		ip_stream << static_cast<int>(octet1) << "." << static_cast<int>(octet2) << "."
+				<< static_cast<int>(octet3) << "." << static_cast<int>(octet4);
+
+		return ip_stream.str();
+	}
 	bool	isNotSpace(char c)
 	{
 		return (std::isspace(c) == false);
@@ -101,14 +115,67 @@ namespace utils
 		return (extension);	
 	}
 
-	int	stringToInt(std::string str){
-		double num = 0;
-		try{
-			num = std::stod(str, NULL);
-			return num;
+	bool isValidNumber(std::string line) {
+		for(size_t i = 0; i < line.length(); ++i) {
+			if (std::isdigit(line[i]) == false)
+				return false;
 		}
-		catch(...){
-			return num;
+		return true;
+	}
+
+	bool isValidIp_address(std::string& ip_address) {
+		std::istringstream ss(ip_address);
+		std::string component;
+		unsigned int count = 0;
+
+		while (std::getline(ss, component, '.')) {
+			if (isValidNumber(component) == false) {
+				return 0;
+			}
+			++count;
 		}
+		return (count == 4);
+	}
+
+	unsigned int ipToUint(const std::string& ip_address) {
+		std::vector<int> components;
+		std::istringstream ss(ip_address);
+		std::string component;
+
+		while (std::getline(ss, component, '.')) {
+			if (isValidNumber(component) == false) {
+				std::cerr << "Invalid IPv4 address format." << std::endl;
+				return 0;
+			}
+			components.push_back(std::stod(component, NULL));
+		}
+
+		if (components.size() != 4) {
+			std::cerr << "Invalid IPv4 address format." << std::endl;
+			return 0;
+		}
+
+		unsigned int result = (components[0] << 24) | (components[1] << 16) | (components[2] << 8) | components[3];
+		return result;
+	}
+
+	int	stringToInt(std::string line) {
+		if (isValidNumber(line) == false)
+			return (0);
+		return std::stod(line, NULL);
+	}
+
+	std::vector<string> SplitString(std::string line, char delimeter) {
+		std::vector<string> vec;
+		std::stringstream ss(line);
+		std::string component;
+
+		while (std::getline(ss, component, delimeter)) {
+			std::vector<string>::iterator find = std::find(vec.begin(), vec.end(), component);
+			if (!component.empty() && find == vec.end())
+				vec.push_back(component);
+		}
+
+		return vec;
 	}
 }

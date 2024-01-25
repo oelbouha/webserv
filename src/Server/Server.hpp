@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/24 10:02:22 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/25 21:37:20 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,14 @@ class RedirectRoute;
 
 class Server : public IHandler {
 std::vector<Route*>	routes;
+std::vector<string>	ports;
 public:
 	Server(Config * config, ErrorPage& errorPage);
 	const Config*	getConfig() const;
 	Server&	operator=( const Server& s );
 	~Server();
 
-	unsigned int getPort() const;
+	std::vector<string> getPort() const;
 	unsigned int getIp() const;
 	unsigned int getStatusCode() const ;
 
@@ -58,7 +59,6 @@ public:
 private:
 	ErrorPage		&error_pages;
 	Route			*route;
-	unsigned int	port;
 	unsigned int	ip;
 	unsigned int	statusCode;
 	std::string		name;

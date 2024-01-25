@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:10:43 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/24 10:15:28 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/24 19:41:09 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ ErrorPage& 	RedirectRoute::getErrorPage() const { return error_pages; }
 IResponse*	RedirectRoute::handle(const IRequest& request){
 	if (route.IsMethodAllowed(request.getMethod()) == false)
 	{
+		std::cout << "Method not allowed ...\n";
 		statusCode = 405;
 		return Helper::BuildResponse(request, *this);
 	}

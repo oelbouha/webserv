@@ -15,23 +15,22 @@ ServerCluster::ServerCluster() {}
 
 ServerCluster::ServerCluster( const ServerCluster& s ) {(void)s;}
 
-ServerCluster&	ServerCluster::operator=( const ServerCluster& s ){
+ServerCluster&	ServerCluster::operator=( const ServerCluster& s ) {
     (void)s;
 	return (*this);
 }
 
-ServerCluster::~ServerCluster()
-{
+ServerCluster::~ServerCluster() {
     delete error_pages;
     for(size_t i = 0; i < servers.size(); ++i)
         delete servers[i];
 }
 
-ServerCluster::ServerCluster(Config* config) : UriMaxlength(2048), server(NULL)
-{
+ServerCluster::ServerCluster(Config* config) : UriMaxlength(2048), server(NULL) {
     error_pages = new ErrorPage();
 
     Config* cluster = config->getBlockConfig("cluster").front();
+    
     error_pages->setErrorPage(*cluster);
     
     std::vector<Config *> ServersConfig = cluster->getBlockConfigIfExist("server");
@@ -55,17 +54,16 @@ unsigned int ServerCluster::getStatusCode() const  { return statusCode; }
 
 string  ServerCluster::getRoot() const { return server->getRoot(); }
 
-bool	ServerCluster::containsValidCharacters(string uri){
+bool	ServerCluster::containsValidCharacters(string uri) {
     const string& validCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
-   for (size_t i = 0; i < uri.length(); ++i){
+    for (size_t i = 0; i < uri.length(); ++i){
         if (validCharacters.find(uri[i]) == std::string::npos)
             return false;
     }
 	return true;
 }
 
-bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
-{
+bool	ServerCluster::isRequestProperlyStructured(const IRequest &req) {
     try{
         const string& transfer  = req.getHeader("Transfer-Encoding");
         if (transfer != "chunked")
@@ -89,28 +87,39 @@ bool	ServerCluster::isRequestProperlyStructured(const IRequest &req)
     return true;
 }
 
-bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req){
-    unsigned int serverPort = server.getPort();
+bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req) {
     const string& serverHost = server.getHost();
+    std::vector<string> ports = server.getPort();
 
     unsigned int inComingPort = req.getIncomingPort();
-    const string& inComingHost = utils::ip(req.getIncomingIP());
-    // if (serverPort == inComingPort)
-    //     std::cout << "port matched\n";
+    const string& inComingHost = utils::UintToIp(req.getIncomingIP());
+
+    std::cout << "incoming ip  ------> " << inComingHost << std::endl;
+    std::cout << "incoming port -----> " << inComingPort << std::endl;
+
+    std::vector<string>::iterator it = ports.begin();
+    while(it != ports.end()) {
+        unsigned int serverPort = utils::stringToInt(*it);
+        if (serverPort == inComingPort)
+        {
+            if (serverHost == inComingHost)
+            {
+                std::cout << "server matched : port <" << serverPort << ">" << " IP <" << serverHost << ">" << std::endl;;
+                return true;
+            }
+        }
+        ++it;
+    }
     string host = req.getHeader("Host");
     int pos = host.find(":");
     host = host.substr(0, pos);
     if (host == server.getName())
         return true;
 
-    (void)serverPort;
-    (void)inComingPort;
-    (void)inComingHost;
-    (void)serverHost;
     return false;
 }
 
-Server*	ServerCluster::getDefaultServer(){
+Server*	ServerCluster::getDefaultServer() {
     std::vector<Server *>::iterator it = servers.begin();
     while (it != servers.end()){
         Server *server = *it;
@@ -121,25 +130,22 @@ Server*	ServerCluster::getDefaultServer(){
     return (servers[0]);
 }
 
-Server*	ServerCluster::getMatchedServer(const IRequest &req)
-{
+Server*	ServerCluster::getMatchedServer(const IRequest &req) {
     std::vector<Server *>::iterator it = servers.begin();
     while (it != servers.end()){
         Server *server = *it;
-        if (isServerMatched(*server, req)){
+        if (isServerMatched(*server, req))
             return (server);
-        }
         ++it;
     }
     return (getDefaultServer());
 }
 
-IResponse*  ServerCluster::handle(const IRequest& request)
-{
+IResponse*  ServerCluster::handle(const IRequest& request) {
     server = getMatchedServer(request);
     if (isRequestProperlyStructured(request) == false)
     {
-        std::cout << " Request not properly structered ...\n";
+        std::cout << " Request not properly structered ... " << statusCode << std::endl;;
         return (Helper::BuildResponse(request, *this));
     }
     return (server->handle(request));

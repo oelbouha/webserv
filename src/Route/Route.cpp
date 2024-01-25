@@ -6,14 +6,13 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/24 12:54:56 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/25 22:49:15 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Route.hpp"
 
-Route::Route(Config* config, ErrorPage& pages): error_pages(pages), config(*config)
-{
+Route::Route(Config* config, ErrorPage& pages): error_pages(pages), config(*config) {
 	redirect = config->getBlockConfigIfExist("redirect");
 	autoindex = config->getInlineConfigIfExist("autoindex");
 	URI = config->getInlineConfigIfExist("uri");
@@ -24,7 +23,7 @@ Route::Route(Config* config, ErrorPage& pages): error_pages(pages), config(*conf
 	error_pages.setErrorPage(*config);
 }
 
-Route&	Route::operator=( const Route& s ){
+Route&	Route::operator=( const Route& s ) {
     (void)s;
 	return (*this);
 }
@@ -33,13 +32,13 @@ Route::~Route() {}
 
 ErrorPage& 	Route::getErrorPage() const { return error_pages; }
 
-std::vector<std::string>	Route::getAllowedMethods() const{ return allowedMethods; }
+std::vector<std::string>	Route::getAllowedMethods() const { return allowedMethods; }
 
 Config& Route::getConfig() const { return config; }
 
 std::string	Route::getURI() const{ return URI; }
 
-std::string	Route::getRoot() const{ return path; }
+std::string	Route::getRoot() const{ return root; }
 
 bool	Route::hasRedirection() const { return redirect.size(); }
 
@@ -53,12 +52,11 @@ bool Route::canReadFile(const string& filePath) const {
     return (access(filePath.c_str(), R_OK) == 0);
 }
 
-bool	Route::IsResourceFileExist(const string& filePath) const{
+bool	Route::IsResourceFileExist(const string& filePath) const {
 	return access(filePath.c_str(), F_OK) == 0;
 }
 
-bool	Route::hasCGIExtension(const string& uri) const
-{	
+bool	Route::hasCGIExtension(const string& uri) const {
 	if (CGIExtensions.size() == 0)
 		return false;
 	std::string extension = utils::getExtension(uri);
@@ -71,7 +69,7 @@ bool	Route::hasCGIExtension(const string& uri) const
 	return false;
 }
 
-bool	Route::IsMethodAllowed(method_t m){
+bool	Route::IsMethodAllowed(method_t m) {
 	const string & method = setMethod(m);
 	for(size_t i = 0; i < allowedMethods.size(); ++i){
 		if (method == allowedMethods[i])
@@ -80,7 +78,7 @@ bool	Route::IsMethodAllowed(method_t m){
 	return false;
 }
 
-const string	Route::setMethod(method_t m){
+const string	Route::setMethod(method_t m) {
 	switch (m){
 	case GET:
 		return "GET";
@@ -93,48 +91,43 @@ const string	Route::setMethod(method_t m){
 	}
 }
 
-IResponse*  Route::ProcessRequestMethod(const IRequest& request)
-{
+IResponse*  Route::ProcessRequestMethod(const IRequest& request) {
 	method_t method = request.getMethod();
-	switch (method){
+	switch (method) {
 	case GET:
+		return (ExecuteGETMethod(request));
+	case HEAD:
 		return (ExecuteGETMethod(request));
 	case POST:
 		return (ExecutePOSTMethod(request));
 	case DELETE:
 		return (ExecuteDELETEMethod(request));
-	case HEAD:
-		return (ExecuteGETMethod(request));
 	}
 }
 
-
-std::vector<string> Route::ReadDirectory()
-{
+std::vector<string> Route::ReadDirectory() {
 	std::vector<string> list;
 
 	DIR* dir = opendir(path.c_str());
-	if (dir)
-	{
+	if (dir) {
 		struct dirent* entry;
-		while ((entry = readdir(dir)) != NULL)
-		{
-			if (entry->d_type != DT_DIR) {
+		while ((entry = readdir(dir)) != NULL) {
+			if (entry->d_type != DT_DIR) 
 				list.push_back(entry->d_name);
-			}
 		}
 		closedir(dir);
 	}
 	return list;
 }
 
-string	Route::GenerateDirectoryListingHtmlPage(){
+string	Route::GenerateDirectoryListingHtmlPage() {
 	
 	std::vector<string> fileList = ReadDirectory();
 	
 	string body = "<h1> Directory Listing </h1> <ul>";
 	std::vector<string>::iterator it = fileList.begin();
-	while (it != fileList.end()){
+
+	while (it != fileList.end()) {
 		string line = "<li> <a href=\"" + *it + "\">" + *it + "</a> </li> ";
 		body += line;
 		++it;
@@ -143,7 +136,7 @@ string	Route::GenerateDirectoryListingHtmlPage(){
 	return body;
 }
 
-IResponse*	Route::handleDirectory(const IRequest& request){
+IResponse*	Route::handleDirectory(const IRequest& request) {
 	if (path.back() != '/')
 	{
 		const string& uri = request.getURI();
@@ -176,14 +169,13 @@ IResponse*	Route::handleDirectory(const IRequest& request){
 	return (Helper::BuildResponse(request, *this));
 }
 
-int	Route::DeleteFile(){
+int	Route::DeleteFile() {
 	pid_t pid = fork();
-	if (pid < 0)
-	{
+	if (pid < 0) {
 		perror("execve");
 		return (-1);
 	}
-	if (pid == 0){
+	if (pid == 0) {
 		const char *cmd = "/bin/rm";
 		const char *args[] = {cmd, "-rf", path.c_str(), NULL};
 		execve(cmd, const_cast<char **>(args), NULL);
@@ -193,11 +185,10 @@ int	Route::DeleteFile(){
 	return (utils::get_exit_status(pid));
 }
 
-IResponse*	Route::deleteDirectory(const IRequest& request){
+IResponse*	Route::deleteDirectory(const IRequest& request) {
 	if (path.back() != '/')
 		statusCode = 409;
-	if (canDeleteFile(path))
-	{
+	if (canDeleteFile(path)) {
 		int ret = DeleteFile();
 		if (ret != 0)
 			statusCode = 500;
@@ -207,13 +198,13 @@ IResponse*	Route::deleteDirectory(const IRequest& request){
 	return (Helper::BuildResponse(request, *this));
 }
 
-IResponse*	Route::handleRequestedFile(const IRequest& request){
+IResponse*	Route::handleRequestedFile(const IRequest& request) {
 	if (hasCGIExtension(path))
 	{
 		// handleCGI();
 		// return ;
 	}
-	if (canReadFile(path)){
+	if (canReadFile(path)) {
 		IResponse * response = new Response(request.getSocket());
 		response->setHeader("connection", request.getHeader("Connection"))
 			.setStatusCode(200)
@@ -225,20 +216,18 @@ IResponse*	Route::handleRequestedFile(const IRequest& request){
 	return (Helper::BuildResponse(request, *this));
 }
 
-IResponse*  Route::ExecuteGETMethod(const IRequest& request){
+IResponse*  Route::ExecuteGETMethod(const IRequest& request) {
 	std::cout << "------------- GEt Method --------------\n";
 	if (utils::IsDirectory(path))
 		return (handleDirectory(request));
-	if (IsResourceFileExist(path))
+	else if (IsResourceFileExist(path))
 		return (handleRequestedFile(request));
 	statusCode = 400; // not found
 	return (Helper::BuildResponse(request, *this));
 }
 
-IResponse*  Route::ExecutePOSTMethod(const IRequest& request)
-{
-	if (uploadPath.size())
-	{
+IResponse*  Route::ExecutePOSTMethod(const IRequest& request) {
+	if (uploadPath.size()) {
 		Upload upload(request);
 		string body = upload.handle(request);
 		statusCode = 201;
@@ -248,11 +237,10 @@ IResponse*  Route::ExecutePOSTMethod(const IRequest& request)
 	return (Helper::BuildResponse(request, *this));
 }
 
-IResponse*  Route::ExecuteDELETEMethod(const IRequest& request){
+IResponse*  Route::ExecuteDELETEMethod(const IRequest& request) {
 	if (utils::IsDirectory(path))
 		return (deleteDirectory(request));
-	else if (IsResourceFileExist(path))
-	{
+	else if (IsResourceFileExist(path)) {
 		if (canDeleteFile(path))
 		{
 			int ret = DeleteFile();
@@ -273,22 +261,14 @@ IResponse*  Route::ExecuteDELETEMethod(const IRequest& request){
 	return (Helper::BuildResponse(request, *this));
 }
 
-IResponse*  Route::handle(const IRequest& request)
-{
+IResponse*  Route::handle(const IRequest& request) {
 	std::string tmp = request.getURI();
 
 	size_t pos = tmp.find(URI);
 	if (pos != std::string::npos)
 		tmp.erase(0, URI.length());
 	path = root + tmp;
-
-	// std::cout << "URi :" << URI << std::endl;
-	// std::cout << "root :" << root << std::endl;
-	// std::cout << "req uri :" << request.getURI() << std::endl;
-	// std::cout << "path :" << path << std::endl;
-	
-	if (IsMethodAllowed(request.getMethod()) == false)
-	{
+	if (IsMethodAllowed(request.getMethod()) == false) {
 		statusCode = 405;
 		return (Helper::BuildResponse(request, *this));
 	}

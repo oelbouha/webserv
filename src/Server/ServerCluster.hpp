@@ -51,4 +51,10 @@ class ServerCluster : public IHandler {
 		string		body;
 };
 
+
+/*
+	nc ipaddres port 
+	ipconfig getifaddr
+*/
+
 #endif

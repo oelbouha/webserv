@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:11:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/23 21:40:57 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/24 19:35:32 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@
 class Route;
 
 class RedirectRoute : public IHandler {
-	std::vector<string> 	allowedMethods;
 public:
 	RedirectRoute(Route & route, ErrorPage& pages);
 	~RedirectRoute();
@@ -37,11 +36,11 @@ public:
 	
 
 private:
-	ErrorPage	&error_pages;
-	Route		&route;
-	string		location;
-	unsigned int code;
-	unsigned int statusCode;
+	ErrorPage		&error_pages;
+	Route			&route;
+	string			location;
+	unsigned int 	code;
+	unsigned int 	statusCode;
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/24 11:52:23 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/25 21:37:08 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 Server::Server(Config *serverConfig, ErrorPage& pages) : 
 		error_pages(pages), route(NULL), host("127.0.0.1") {
 
-	port = utils::stringToInt(serverConfig->getInlineConfigIfExist("port"));
+	std::string port = serverConfig->getInlineConfigIfExist("port");
+	ports = utils::SplitString(port, ' ');
 	
 	Default = serverConfig->getInlineConfigIfExist("Default");
 	name = serverConfig->getInlineConfigIfExist("name");
@@ -44,9 +45,7 @@ Server::Server(Config *serverConfig, ErrorPage& pages) :
 	}
 }
 
-// Server::Server( const Server& s ) {(void)s;}
-
-unsigned int Server::getPort() const  { return port; }
+std::vector<string> Server::getPort() const  { return ports; }
 
 unsigned int Server::getStatusCode() const  { return statusCode; }
 
@@ -107,6 +106,7 @@ IResponse*  Server::handle(const IRequest& request){
 	}
 	else if (route->hasRedirection())
 	{
+		std::cout << "redirect route ...... " << std::endl;;
 		RedirectRoute redirect(*route, error_pages);
 		return (redirect.handle(request));
 	}

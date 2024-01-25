@@ -30,12 +30,19 @@ namespace utils
 
 	std::string	ip(unsigned int aIP);
 
-	std::string&	trimSpaces(std::string& aString);
+	unsigned int 	ipToUint(const std::string& ip_address);
 
-	string	getExtension(string line);
-	bool	IsDirectory(string uri);
-	int		get_exit_status(pid_t pid);
-	int		stringToInt(std::string str);
+	std::vector<string> SplitString(std::string line, char delimeter);
+	std::string&	trimSpaces(std::string& aString);
+	std::string		UintToIp(unsigned int ip_int);
+	std::string		getExtension(string line);
+
+	bool 			isValidIp_address(std::string& ip_address);
+	bool			IsDirectory(string uri);
+	bool 			isValidNumber(std::string line);
+	
+	int				get_exit_status(pid_t pid);
+	int				stringToInt(std::string str);
 }
 
 #endif

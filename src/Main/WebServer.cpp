@@ -12,37 +12,99 @@
 #include <queue>
 #include <vector>
 
-WebServer::WebServer() : mConfig(NULL) {}
-
-void  setMimetypes(Config * config){
+void  setMimetypes(Config * config) {
   Config* cluster = config->getBlockConfig("cluster").front();
+  
+  if (cluster->hasBlock("mime_types") == false) {
+    std::map<string, string> mimetypes;
 
-  if (cluster->hasBlock("mime_types"))
-    MimeTypes::setMimeTypes(cluster->getBlockConfig("mime_types").front());
-  else
-  {
-      Config * mimeConfig = new Config();
-      
+    mimetypes["html"] = "text/html";
+    mimetypes["css"] = "text/css";
+    mimetypes["xml"] = "text/xml";
+    mimetypes["javascript"] = "application/javascript";
+    mimetypes["rss+xml"] = "application/rss+xml";
+    mimetypes["mathml"] = "text/mathml";
+    mimetypes["plain"] = "text/plain";
+    
+    // images mimetypes
+    mimetypes["gif"] = "image/gif";
+    mimetypes["jpeg"] = "image/jpeg";
+    mimetypes["png"] = "image/png";
+    mimetypes["svg+xml"] = "image/svg+xml";
+    mimetypes["tiff"] = "image/tiff";
+    mimetypes["vnd.wap.wbmp"] = "image/vnd.wap.wbmp";
+    mimetypes["webp"] = "image/webp";
+    mimetypes["x-icon"] = "image/x-icon";
+    mimetypes["x-jng"] = "image/x-jng";
+    mimetypes["x-ms-bmp"] = "image/x-ms-bmp";
+
+    // video mimetypes
+    mimetypes["3gpp"] = "video/3gpp";
+    mimetypes["mp4"] = "video/mp4";
+    mimetypes["mpeg"] = "video/mpeg";
+    mimetypes["quicktime"] = "video/quicktime";
+    mimetypes["webm"] = "video/webm";
+
+    Config * mimeConfig = new Config();
+    std::map<string, string>::iterator it = mimetypes.begin();
+    while (it != mimetypes.end()) {
+      mimeConfig->addInline(it->first, it->second);
+      ++it;
+    }
+    mimeConfig->addInline("default_mime", "text/plain");
+    cluster->addBlock("mime_type", mimeConfig);
   }
+  MimeTypes::setMimeTypes(cluster->getBlockConfig("mime_type").front());
 }
+
+WebServer::WebServer() : mConfig(NULL) {}
 
 WebServer::WebServer( Config *aConfig) : mConfig(aConfig) {
   setMimetypes(aConfig);
   mMux = new SelectMultiplexer();
-  // mMux = new KqueueMultiplexer();
   mServers = new ServerCluster(mConfig);
+}
+
+void  WebServer::SetupServerSockets() {
+  Config *cluster = mConfig->getBlockConfigIfExist("cluster").front();
+
+  std::vector<string> ports;
+  
+  std::vector<Config*> servers = cluster->getBlockConfigIfExist("server");
+  std::vector<Config*>::iterator it = servers.begin();
+
+  while (it != servers.end()) {
+      Config* server = *it;
+
+      if (server->hasInline("port")) {
+        std::string port = server->getInlineConfigIfExist("port");
+        ports = utils::SplitString(port, ' ');
+      }
+
+      unsigned int Ip = utils::ipToUint("0.0.0.0");
+      if (server->hasInline("host")) {
+        std::string host = server->getInlineConfigIfExist("host");
+        if (utils::isValidIp_address(host))
+          Ip = utils::ipToUint(host);
+      }
+
+      std::vector<string>::iterator cur = ports.begin();
+      while (cur != ports.end()) {
+        if (utils::isValidNumber(*cur)) {
+          unsigned int Port = utils::stringToInt(*cur);
+          mSockets.push_back(ServerSocket(Ip, Port));
+        }
+        ++cur;
+      }
+      ports.clear();
+    ++it;
+  }
 }
 
 WebServer::~WebServer() {}
 
 void WebServer::start() {
-  (void)mConfig;
-
-  mSockets.push_back(ServerSocket(utils::ip(127, 0, 0, 1), 8000));
-  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8001));
-  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8002));
-  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8003));
-  mSockets.push_back(ServerSocket(utils::ip(0, 0, 0, 0), 8004));
+  SetupServerSockets();
 
   for (std::vector<ServerSocket>::iterator it = mSockets.begin();
        it != mSockets.end(); ++it) {

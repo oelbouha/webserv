@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <vector>
+#include "Utils.hpp"
 
 #include "src/DataTypes/Config.hpp"
 
@@ -45,6 +46,7 @@ private:
   void  sendResponses(std::queue<IResponse*>& qr);
 
 public:
+  void  SetupServerSockets();
   WebServer(Config *aConfig);
   ~WebServer();
 
