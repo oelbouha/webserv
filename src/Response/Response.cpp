@@ -59,9 +59,6 @@ Response&   Response::setBodyFile( const std::string& aFileName )
     
     const std::string& extension = utils::getExtension(aFileName);
     const string& type = MimeTypes::getMimeType(extension);
-
-    std::cout << "extension : " << extension << std::endl;
-    std::cout << "type : " << type << std::endl;
     setHeader("content-type", type);
 
     file.close();

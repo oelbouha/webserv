@@ -18,21 +18,19 @@ cluster:
   server:
     root: /Users/oelbouha/Desktop/web/pages
     Default: yes
-    host: 10.12.1.9
+    host: localhost
     port: 8000
-    name: localhost
-    # index: index.html
+    name: localhost othman
     error_page:
-      file: /40x.html
+      file: /50x.html
       codes:
         - 500
         - 501
     error_page:
-      file: /50x.html
+      file: /40x.html
       codes:
-        - 41
+        - 418
         - 404
-        - 405
     upload: /upload
     cgi:
       - .py
@@ -44,7 +42,15 @@ cluster:
         location: /pages
       allowed_methods:
         - POST
-    
+    route:
+      uri: /
+      root: /Users/oelbouha/Desktop/web/pages
+      autoindex: yes
+      upload: /upload
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
     route:
       uri: /pages
       root: /Users/oelbouha/Desktop/web/pages
@@ -59,8 +65,8 @@ cluster:
     host: 127.0.0.1
     index: index.html
     root: /Users/oelbouha/Desktop/web/
-    port: 8004
-    name: localhost\\\
+    port: 8055
+    name: localhost
     route:
       root: /Udsdsdsdsdsdsdsdsdsdsds
       uri: /

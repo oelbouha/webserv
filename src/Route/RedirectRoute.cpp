@@ -6,23 +6,23 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:10:43 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/24 19:41:09 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/26 13:01:38 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RedirectRoute.hpp"
 
-RedirectRoute::RedirectRoute(Route & route, ErrorPage& pages):  error_pages(pages), route(route)
-{
+RedirectRoute::RedirectRoute(Route & route, ErrorPage& pages):  error_pages(pages), route(route) {
 	const Config& config  = route.getConfig();
 	
 	std::vector<Config*> redirectBlock = config.getBlockConfigIfExist("redirect");
 	std::vector<Config*>::iterator it = redirectBlock.begin();
-	
-	while (it != redirectBlock.end())
-	{
+
+	while (it != redirectBlock.end()) {
 		Config* config = *it;
-		code = utils::stringToInt(config->getInlineConfigIfExist("code"));
+		std::string code = config->getInlineConfigIfExist("code");
+		if (utils::isValidNumber(code))
+			code = std::stod(code, NULL);
 		location = config->getInlineConfigIfExist("location");
 		++it;
 	}
@@ -36,13 +36,12 @@ string		RedirectRoute::getRoot() const { return route.getRoot(); }
 
 ErrorPage& 	RedirectRoute::getErrorPage() const { return error_pages; }
 
-IResponse*	RedirectRoute::handle(const IRequest& request){
-	if (route.IsMethodAllowed(request.getMethod()) == false)
-	{
-		std::cout << "Method not allowed ...\n";
+IResponse*	RedirectRoute::handle(const IRequest& request) {
+	if (route.IsMethodAllowed(request.getMethod()) == false) {
 		statusCode = 405;
 		return Helper::BuildResponse(request, *this);
 	}
+
 	IResponse * response = new Response(request.getSocket());
 	response->setHeader("connection", request.getHeader("Connection"))
 		.setHeader("location", location)

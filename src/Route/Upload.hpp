@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:19 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/19 18:46:21 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/26 22:36:03 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,17 @@ class Upload{
 
 		std::string handle(const IRequest& request);
 		bool	search(const string& buff, const string & line);
+		bool	IsDone() const;
 		std::string getFieldName();
 		std::string getFileName();
 		std::string getContentType();
 
+		std::string		buff;
 	private:
     	std::ofstream	file_stream;
 		std::string		body;
 		std::string		start;
 		std::string		name;
-		std::string		buff;
 		std::string		boundry;
 		std::string 	field_name;
     	std::string 	file_name;

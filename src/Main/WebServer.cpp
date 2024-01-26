@@ -62,7 +62,6 @@ WebServer::WebServer() : mConfig(NULL) {}
 WebServer::WebServer( Config *aConfig) : mConfig(aConfig) {
   setMimetypes(aConfig);
   mMux = new SelectMultiplexer();
-  mServers = new ServerCluster(mConfig);
 }
 
 void  WebServer::SetupServerSockets() {
@@ -76,24 +75,28 @@ void  WebServer::SetupServerSockets() {
   while (it != servers.end()) {
       Config* server = *it;
 
-      if (server->hasInline("port")) {
-        std::string port = server->getInlineConfigIfExist("port");
-        ports = utils::SplitString(port, ' ');
-      }
+      if (server->hasInline("host") == false)
+        server->addInline("host", "0.0.0.0");
+      if (server->hasInline("port") == false)
+        server->addInline("port", "8080");
+      
+      std::string port = server->getInlineConfigIfExist("port");
+      ports = utils::SplitString(port, ' ');
 
-      unsigned int Ip = utils::ipToUint("0.0.0.0");
-      if (server->hasInline("host")) {
-        std::string host = server->getInlineConfigIfExist("host");
-        if (utils::isValidIp_address(host))
-          Ip = utils::ipToUint(host);
-      }
+      std::string host = server->getInlineConfigIfExist("host");
+      if (host == "localhost")
+        host = "127.0.0.1";
+      else if (utils::isValidIp_address(host) == false)
+        throw "Invalid IPv4 address format.";
+      unsigned int Ip = utils::ipToUint(host);
 
       std::vector<string>::iterator cur = ports.begin();
-      while (cur != ports.end()) {
-        if (utils::isValidNumber(*cur)) {
-          unsigned int Port = utils::stringToInt(*cur);
-          mSockets.push_back(ServerSocket(Ip, Port));
-        }
+      while (cur != ports.end())
+      {
+        if (utils::isValidNumber(*cur) == false)
+          throw "Invalid Port Number";
+        unsigned int Port = std::stod(*cur, NULL);
+        mSockets.push_back(ServerSocket(Ip, Port));
         ++cur;
       }
       ports.clear();
@@ -101,10 +104,14 @@ void  WebServer::SetupServerSockets() {
   }
 }
 
-WebServer::~WebServer() {}
+WebServer::~WebServer() {
+  delete mMux;
+  delete mServers;
+}
 
 void WebServer::start() {
   SetupServerSockets();
+  mServers = new ServerCluster(mConfig);
 
   for (std::vector<ServerSocket>::iterator it = mSockets.begin();
        it != mSockets.end(); ++it) {

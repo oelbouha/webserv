@@ -124,6 +124,8 @@ namespace utils
 	}
 
 	bool isValidIp_address(std::string& ip_address) {
+		if (ip_address == "localhost")
+			return true;
 		std::istringstream ss(ip_address);
 		std::string component;
 		unsigned int count = 0;
@@ -144,23 +146,17 @@ namespace utils
 
 		while (std::getline(ss, component, '.')) {
 			if (isValidNumber(component) == false) {
-				std::cerr << "Invalid IPv4 address format." << std::endl;
 				return 0;
 			}
 			components.push_back(std::stod(component, NULL));
 		}
 
 		if (components.size() != 4) {
-			std::cerr << "Invalid IPv4 address format." << std::endl;
 			return 0;
 		}
 
 		unsigned int result = (components[0] << 24) | (components[1] << 16) | (components[2] << 8) | components[3];
 		return result;
-	}
-
-	int	stringToInt(std::string line) {
-		return std::stod(line, NULL);
 	}
 
 	std::vector<string> SplitString(std::string line, char delimeter) {

@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/23 21:24:36 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/26 15:54:32 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ public:
 	
 	ErrorPage& 		getErrorPage() const;
 	const string	setMethod(method_t m);
-	string			GenerateDirectoryListingHtmlPage();
+	string			BuildDirectoryListingHtmlPage();
 	
 	bool		hasRedirection() const;
 	bool		IsResourceFileExist(const string& uri) const;

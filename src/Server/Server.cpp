@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/25 23:07:08 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/26 16:08:42 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,27 @@
 #include <iostream>
 
 Server::Server(Config *serverConfig, ErrorPage& pages) : 
-		error_pages(pages), route(NULL), host("127.0.0.1") {
+		error_pages(pages), route(NULL), host("0.0.0.0") {
 
 	std::string port = serverConfig->getInlineConfigIfExist("port");
 	ports = utils::SplitString(port, ' ');
-	
+
 	Default = serverConfig->getInlineConfigIfExist("Default");
-	name = serverConfig->getInlineConfigIfExist("name");
+	
+	std::string name = serverConfig->getInlineConfigIfExist("name");
+	names = utils::SplitString(name, ' ');
+
 	host = serverConfig->getInlineConfigIfExist("host");
 	root = serverConfig->getInlineConfigIfExist("root");
 
 	error_pages.setErrorPage(*serverConfig);
-	
+
 	std::vector<Config*> routeBlockConfig = serverConfig->getBlockConfig("route");
 	std::vector<Config*>::iterator it = routeBlockConfig.begin();
-	
-	while (it != routeBlockConfig.end()){
+
+	while (it != routeBlockConfig.end()) {
 		Config* routeConfig = *it;
-	
+
 		routeConfig->addInlineIfNotExist(*serverConfig, "root");
 		routeConfig->addInlineIfNotExist(*serverConfig, "index");
 		routeConfig->addInlineIfNotExist(*serverConfig, "upload");
@@ -41,6 +44,7 @@ Server::Server(Config *serverConfig, ErrorPage& pages) :
 
 		Route *route = new Route(routeConfig, error_pages);
 		routes.push_back(route);
+
 		++it;
 	}
 }
@@ -51,7 +55,7 @@ unsigned int Server::getStatusCode() const  { return statusCode; }
 
 unsigned int Server::getIp() const  { return ip; }
 
-string Server::getName() const  { return name; }
+std::vector<string> Server::getName() const  { return names; }
 
 string Server::getRoot() const  { return root; }
 
@@ -61,23 +65,28 @@ ErrorPage& 	Server::getErrorPage() const { return error_pages; }
 
 bool 	Server::isDefault() const { return Default.size(); }
 
-Server::~Server() {}
+Server::~Server() {
+	std::vector<Route*>::iterator it = routes.begin();
+	while (it != routes.end()) {
+		delete *it;
+		++it;
+	}
+}
 
 Server&	Server::operator=( const Server& s ){
     (void)s;
 	return (*this);
 }
 
-bool	Server::IsRouteURIMatched(const string& reqURI, const string& routeURI){
+bool	Server::IsRouteURIMatched(const string& reqURI, const string& routeURI) {
 	if (strncmp(routeURI.c_str(), reqURI.c_str(), routeURI.length()) == 0) {
-		if(reqURI[routeURI.length()] == '\0' || reqURI[routeURI.length()] == '/')
+		// if(reqURI[routeURI.length()] == '\0' || reqURI[routeURI.length()] == '/')
 			return true;
 	}
     return (false);
 }
 
-Route*	Server::getMatchedRoute(const IRequest& req)
-{
+Route*	Server::getMatchedRoute(const IRequest& req) {
 	Route* ret = NULL;
     const string& reqUri = req.getURI();
     std::vector<Route*>::iterator it = routes.begin();
@@ -94,11 +103,11 @@ Route*	Server::getMatchedRoute(const IRequest& req)
     return (ret);
 }
 
-IResponse*  Server::handle(const IRequest& request){
+IResponse*  Server::handle(const IRequest& request) {
 	route = getMatchedRoute(request);
 	if (route == NULL)
 	{
-		std::cout << "No route matched uri ... \n";
+		std::cout << "No route matched uri ... <" << request.getURI() << ">" << std::endl;;
 		statusCode = 404;
 		return Helper::BuildResponse(request, *this);
 	}

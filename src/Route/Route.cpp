@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/25 22:49:15 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/26 22:49:41 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ std::vector<string> Route::ReadDirectory() {
 	return list;
 }
 
-string	Route::GenerateDirectoryListingHtmlPage() {
+string	Route::BuildDirectoryListingHtmlPage() {
 	
 	std::vector<string> fileList = ReadDirectory();
 	
@@ -155,7 +155,7 @@ IResponse*	Route::handleDirectory(const IRequest& request) {
 		return response;
 	}
 	else if (autoindex.size()){
-		string body = GenerateDirectoryListingHtmlPage();
+		string body = BuildDirectoryListingHtmlPage();
 		IResponse * response = new Response(request.getSocket());
 		response->setHeader("connection", request.getHeader("Connection"))
 			.setHeader("content-type", "text/html")
@@ -229,7 +229,18 @@ IResponse*  Route::ExecuteGETMethod(const IRequest& request) {
 IResponse*  Route::ExecutePOSTMethod(const IRequest& request) {
 	if (uploadPath.size()) {
 		Upload upload(request);
-		string body = upload.handle(request);
+		std::string buff;
+		IClientSocket &client = request.getSocket();
+		upload.buff += client.readAll();
+		while(true) {
+			if (upload.IsDone())
+				break ;
+			buff = upload.handle(request);
+		}
+		std::cout << "*************************************************************\n";
+		std::cout << buff << std::endl;
+		std::cout << "*************************************************************\n";
+		
 		statusCode = 201;
 	}
 	else 
