@@ -48,7 +48,7 @@ class ServerCluster : public IHandler {
 	private:
 		Server		*server;
 		ErrorPage	*error_pages;
-		string		body;
+		unsigned int KeepAlive;
 };
 
 

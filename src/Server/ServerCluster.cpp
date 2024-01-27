@@ -32,7 +32,10 @@ ServerCluster::ServerCluster(Config* config) : UriMaxlength(2048), server(NULL) 
     Config* cluster = config->getBlockConfig("cluster").front();
     
     error_pages->setErrorPage(*cluster);
-    
+    std::string alive = cluster->getInlineConfigIfExist("keep_alive");
+    KeepAlive = std::stod(alive, NULL);
+
+    std::cout << "Keep alive: " << KeepAlive << std::endl;
     std::vector<Config *> ServersConfig = cluster->getBlockConfigIfExist("server");
     std::vector<Config *>::iterator it = ServersConfig.begin();
     
@@ -152,6 +155,7 @@ IResponse*  ServerCluster::handle(const IRequest& request) {
         std::cout << " Request not properly structered ... " << statusCode << std::endl;;
         return (Helper::BuildResponse(request, *this));
     }
-    return (server->handle(request));
+    IResponse * res = server->handle(request);
+    return (res);
 }
 

@@ -68,6 +68,12 @@ void  WebServer::SetupServerSockets() {
   if (mConfig->hasBlock("cluster") == false)
     throw std::invalid_argument("Webserver: Invalid Config file");
   Config *cluster = mConfig->getBlockConfigIfExist("cluster").front();
+    
+    if (cluster->hasInline("keep_alive") == false)
+      cluster->addInline("keep_alive", "100");
+    
+    if (utils::isValidNumber(cluster->getInlineConfig("keep_alive")) == false)
+      throw std::invalid_argument("Webserver: keep_alive : Not a Valid Number");
 
   std::vector<string> ports;
   

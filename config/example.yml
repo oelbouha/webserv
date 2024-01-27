@@ -46,15 +46,15 @@ cluster:
         - GET
     route:
       uri: /pages/test
-      root: /Users/oelbouha/Desktop/web/pages/
+      root: /Users/oelbouha/Desktop/web/pages
       upload: /upload
       allowed_methods:
         - POST
         - DELETE
         - GET
     route:
-      uri: /pages/
-      root: /Users/oelbouha/Desktop/web/pages/
+      uri: /pages
+      root: /Users/oelbouha/Desktop/web/pages
       autoindex: yes
       upload: /upload
       allowed_methods:
@@ -65,7 +65,7 @@ cluster:
   server:
     host: 127.0.0.1
     index: index.html
-    root: /Users/oelbouha/Desktop/web/
+    root: /Users/oelbouha/Desktop/web
     port: 8055
     name: localhost
     route:
