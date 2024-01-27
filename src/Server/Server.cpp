@@ -6,15 +6,14 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/26 16:08:42 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/27 15:56:42 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <iostream>
 
-Server::Server(Config *serverConfig, ErrorPage& pages) : 
-		error_pages(pages), route(NULL), host("0.0.0.0") {
+Server::Server(Config *serverConfig, ErrorPage& pages) : error_pages(pages), route(NULL) {
 
 	std::string port = serverConfig->getInlineConfigIfExist("port");
 	ports = utils::SplitString(port, ' ');
@@ -73,14 +72,24 @@ Server::~Server() {
 	}
 }
 
-Server&	Server::operator=( const Server& s ){
+Server&	Server::operator=( const Server& s ) {
     (void)s;
 	return (*this);
 }
 
-bool	Server::IsRouteURIMatched(const string& reqURI, const string& routeURI) {
+// /*
+// 	/pages
+
+// 	/
+// 	/pages/test
+// 	/pages/
+	
+// */
+
+bool	Server::IsRouteURIMatched(const string& reqURI, string routeURI) {	
+	// std::cout << "reqUri : <" << reqURI << "> | route : <" << routeURI << ">" << std::endl;
 	if (strncmp(routeURI.c_str(), reqURI.c_str(), routeURI.length()) == 0) {
-		// if(reqURI[routeURI.length()] == '\0' || reqURI[routeURI.length()] == '/')
+		if(reqURI[routeURI.length()] == '\0' || reqURI[routeURI.length()] == '/')
 			return true;
 	}
     return (false);

@@ -49,7 +49,7 @@ Response&   Response::setBodyFile( const std::string& aFileName )
     if (mFile < 0)
     {
         mStatusCode = 404;
-        setBody("<h1 style=\"text-align: center;\">404 Not Found</h1>");
+        setBody(Helper::BuildCustumPage(mStatusCode));
         setHeader("content-type", "text/html");
         return *this;
     }
@@ -58,8 +58,7 @@ Response&   Response::setBodyFile( const std::string& aFileName )
     setHeader("content-length", contentLength);
     
     const std::string& extension = utils::getExtension(aFileName);
-    const string& type = MimeTypes::getMimeType(extension);
-    setHeader("content-type", type);
+    setHeader("content-type", MimeTypes::getMimeType(extension));
 
     file.close();
     return *this;

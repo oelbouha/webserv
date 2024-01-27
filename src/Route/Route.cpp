@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/26 22:49:41 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/27 15:57:38 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ Route::Route(Config* config, ErrorPage& pages): error_pages(pages), config(*conf
 	indexfile = config->getInlineConfigIfExist("index");
 	allowedMethods = config->getListConfigIfExist("allowed_methods");
 	error_pages.setErrorPage(*config);
+	if (root.back() != '/')
+		root += "/";
+	if (URI.back() == '/' && URI != "/")
+		URI.erase(URI.length() - 1);
 }
 
 Route&	Route::operator=( const Route& s ) {
@@ -212,7 +216,8 @@ IResponse*	Route::handleRequestedFile(const IRequest& request) {
 			.build();
 		return response;
 	}
-	statusCode = 403; // cant read file
+	else
+		statusCode = 403; // cant read file
 	return (Helper::BuildResponse(request, *this));
 }
 
@@ -227,6 +232,7 @@ IResponse*  Route::ExecuteGETMethod(const IRequest& request) {
 }
 
 IResponse*  Route::ExecutePOSTMethod(const IRequest& request) {
+	std::cout << "------------- POST Method --------------\n";
 	if (uploadPath.size()) {
 		Upload upload(request);
 		std::string buff;
@@ -279,6 +285,9 @@ IResponse*  Route::handle(const IRequest& request) {
 	if (pos != std::string::npos)
 		tmp.erase(0, URI.length());
 	path = root + tmp;
+	// std::cout << "path >" << path << std::endl;
+	// std::cout << "root >" << root << std::endl;
+	// std::cout << "req uri >" << request.getURI() << std::endl;
 	if (IsMethodAllowed(request.getMethod()) == false) {
 		statusCode = 405;
 		return (Helper::BuildResponse(request, *this));

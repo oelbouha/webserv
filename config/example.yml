@@ -16,11 +16,11 @@ cluster:
       - 404
       - 41
   server:
-    root: /Users/oelbouha/Desktop/web/pages
+    root: /Users/oelbouha/Desktop/web
     Default: yes
     host: localhost
     port: 8000
-    name: localhost othman
+    name: localhost
     error_page:
       file: /50x.html
       codes:
@@ -36,24 +36,25 @@ cluster:
       - .py
 
     route:
-      uri: /test
-      redirect:
-        code: 301
-        location: /pages
-      allowed_methods:
-        - POST
-    route:
       uri: /
       root: /Users/oelbouha/Desktop/web/pages
+      upload: /upload
       autoindex: yes
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+    route:
+      uri: /pages/test
+      root: /Users/oelbouha/Desktop/web/pages/
       upload: /upload
       allowed_methods:
         - POST
         - DELETE
         - GET
     route:
-      uri: /pages
-      root: /Users/oelbouha/Desktop/web/pages
+      uri: /pages/
+      root: /Users/oelbouha/Desktop/web/pages/
       autoindex: yes
       upload: /upload
       allowed_methods:

@@ -19,6 +19,7 @@
 #include <fcntl.h>
 
 #include "src/Server/MimeTypes.hpp"
+#include "src/Server/Helper.hpp"
 #include "IClientSocket.hpp"
 #include "IResponse.hpp"
 #include "Utils.hpp"

@@ -65,12 +65,16 @@ WebServer::WebServer( Config *aConfig) : mConfig(aConfig) {
 }
 
 void  WebServer::SetupServerSockets() {
+  if (mConfig->hasBlock("cluster") == false)
+    throw std::invalid_argument("Webserver: Invalid Config file");
   Config *cluster = mConfig->getBlockConfigIfExist("cluster").front();
 
   std::vector<string> ports;
   
   std::vector<Config*> servers = cluster->getBlockConfigIfExist("server");
   std::vector<Config*>::iterator it = servers.begin();
+  if (cluster->hasBlock("server") == false)
+    throw std::invalid_argument("Webserver: There Is No Server");
 
   while (it != servers.end()) {
       Config* server = *it;
@@ -87,14 +91,14 @@ void  WebServer::SetupServerSockets() {
       if (host == "localhost")
         host = "127.0.0.1";
       else if (utils::isValidIp_address(host) == false)
-        throw "Invalid IPv4 address format.";
+        throw std::invalid_argument("Webserver: Invalid IPv4 address format.");
       unsigned int Ip = utils::ipToUint(host);
 
       std::vector<string>::iterator cur = ports.begin();
       while (cur != ports.end())
       {
         if (utils::isValidNumber(*cur) == false)
-          throw "Invalid Port Number";
+          throw std::invalid_argument("Webserver: Invalid Port Number");
         unsigned int Port = std::stod(*cur, NULL);
         mSockets.push_back(ServerSocket(Ip, Port));
         ++cur;

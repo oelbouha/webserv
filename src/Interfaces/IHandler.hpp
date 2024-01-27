@@ -8,6 +8,8 @@
 #include "src/DataTypes/Config.hpp"
 #include "Utils.hpp"
 
+class IResponse;
+
 class IHandler
 {
     public:

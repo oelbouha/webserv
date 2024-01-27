@@ -34,9 +34,5 @@ int main(int c, char *v[])
 	{
 		std::cerr << e.what() << '\n';
 	}
-	catch(const char * e)
-	{
-		std::cerr << e << std::endl;
-	}
 	return (0);
 }

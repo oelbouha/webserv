@@ -12,7 +12,7 @@
 
 #include "Helper.hpp"
 
-std::string		BuildCustumPage(unsigned int stsCode){
+std::string		Helper::BuildCustumPage(unsigned int stsCode) {
 	std::string body = "<style>\
 		    body {\
             font-family: Arial, sans-serif;\
@@ -48,7 +48,7 @@ IResponse*		Helper::BuildResponse(const IRequest& request, const IHandler& handl
 	}
 	response->setStatusCode(stsCode)
 		.setHeader("connection", request.getHeader("Connection"))
-		.setBody(BuildCustumPage(stsCode))
+		.setBody(Helper::BuildCustumPage(stsCode))
 		.build();
 	return response;
 }
