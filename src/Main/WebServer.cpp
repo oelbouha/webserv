@@ -64,47 +64,57 @@ WebServer::WebServer( Config *aConfig) : mConfig(aConfig) {
   mMux = new SelectMultiplexer();
 }
 
-void  WebServer::SetupServerSockets() {
+void  WebServer::SetDefaultIfNotExist() {
   if (mConfig->hasBlock("cluster") == false)
-    throw std::invalid_argument("Webserver: Invalid Config file");
+    throw ConfigException("Webserver: Invalid Config No Cluster Found ", "cluster", "Empty");
+
   Config *cluster = mConfig->getBlockConfigIfExist("cluster").front();
     
-    if (cluster->hasInline("keep_alive") == false)
-      cluster->addInline("keep_alive", "100");
+  if (cluster->hasInline("keep_alive") == false)
+    cluster->addInline("keep_alive", "100");
     
-    if (utils::isValidNumber(cluster->getInlineConfig("keep_alive")) == false)
-      throw std::invalid_argument("Webserver: keep_alive : Not a Valid Number");
-
-  std::vector<string> ports;
-  
   std::vector<Config*> servers = cluster->getBlockConfigIfExist("server");
   std::vector<Config*>::iterator it = servers.begin();
+  
   if (cluster->hasBlock("server") == false)
-    throw std::invalid_argument("Webserver: There Is No Server");
+    throw ConfigException("Webserver: No Server Found", "server", "Empty");
 
   while (it != servers.end()) {
       Config* server = *it;
+    if (server->hasInline("host") == false)
+      server->addInline("host", "0.0.0.0");
+    if (server->hasInline("port") == false)
+      server->addInline("port", "8080");
+    ++it;
+  }
+}
 
-      if (server->hasInline("host") == false)
-        server->addInline("host", "0.0.0.0");
-      if (server->hasInline("port") == false)
-        server->addInline("port", "8080");
+void  WebServer::InitiateServersSockets() {
+  SetDefaultIfNotExist();
+
+  Config *cluster = mConfig->getBlockConfigIfExist("cluster").front();
+
+  cluster->IsValidDirective("keep_alive");
+  
+  std::vector<Config*> servers = cluster->getBlockConfigIfExist("server");
+  std::vector<Config*>::iterator it = servers.begin();
+
+  while (it != servers.end()) {
+      Config* server = *it;
       
       std::string port = server->getInlineConfigIfExist("port");
-      ports = utils::SplitString(port, ' ');
+      std::vector<string> ports = utils::SplitString(port, ' ');
 
       std::string host = server->getInlineConfigIfExist("host");
+      server->IsValidDirective("host");
       if (host == "localhost")
         host = "127.0.0.1";
-      else if (utils::isValidIp_address(host) == false)
-        throw std::invalid_argument("Webserver: Invalid IPv4 address format.");
       unsigned int Ip = utils::ipToUint(host);
 
       std::vector<string>::iterator cur = ports.begin();
       while (cur != ports.end())
       {
-        if (utils::isValidNumber(*cur) == false)
-          throw std::invalid_argument("Webserver: Invalid Port Number");
+        server->IsValidDirective("port");
         unsigned int Port = std::stod(*cur, NULL);
         mSockets.push_back(ServerSocket(Ip, Port));
         ++cur;
@@ -120,7 +130,7 @@ WebServer::~WebServer() {
 }
 
 void WebServer::start() {
-  SetupServerSockets();
+  InitiateServersSockets();
   mServers = new ServerCluster(mConfig);
 
   for (std::vector<ServerSocket>::iterator it = mSockets.begin();
@@ -139,17 +149,12 @@ void WebServer::loop() {
 
   while (true) {
     std::cout << "." << std::flush;
-    mMux->wait(10 * 1000000); // 10 seconds
+    mMux->wait(10 * 1000000);
 
     qs = mMux->getReadyServerSockets();
     qc = mMux->getReadyClients();
     qr = mMux->getReadyResponses();
 
-    // if (qs.size() == 0 && qc.size() == 0 && qr.size() == 0)
-    // {
-    //     std::cout << "." << std::flush;
-    //     continue;
-    // }
     acceptNewClients(qs);
     takeAndHandleRequests(qc);
     sendResponses(qr);

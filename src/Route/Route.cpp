@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/27 17:05:24 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/28 16:13:32 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,17 @@
 
 Route::Route(Config* config, ErrorPage& pages): error_pages(pages), config(*config) {
 	redirect = config->getBlockConfigIfExist("redirect");
+
+	if (redirect.size())
+		redirect.front()->IsValidDirective("code");
+
 	autoindex = config->getInlineConfigIfExist("autoindex");
 	URI = config->getInlineConfigIfExist("uri");
 	root = config->getInlineConfigIfExist("root");
 	uploadPath = config->getInlineConfigIfExist("upload");
 	indexfile = config->getInlineConfigIfExist("index");
 	allowedMethods = config->getListConfigIfExist("allowed_methods");
+
 	error_pages.setErrorPage(*config);
 }
 

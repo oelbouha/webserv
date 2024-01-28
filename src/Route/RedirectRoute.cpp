@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:10:43 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/26 13:01:38 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/28 14:53:02 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,12 @@ RedirectRoute::RedirectRoute(Route & route, ErrorPage& pages):  error_pages(page
 	while (it != redirectBlock.end()) {
 		Config* config = *it;
 		std::string code = config->getInlineConfigIfExist("code");
-		if (utils::isValidNumber(code))
-			code = std::stod(code, NULL);
+		std::cout << "code : " << code << std::endl;
+		if (utils::isValidNumber(code) == false) {
+			const string& msg = "Websever: error_page: " + code + ": Invalid Error Code number";
+			throw std::invalid_argument(msg);
+		}
+		code = std::stod(code, NULL);
 		location = config->getInlineConfigIfExist("location");
 		++it;
 	}
@@ -37,6 +41,7 @@ string		RedirectRoute::getRoot() const { return route.getRoot(); }
 ErrorPage& 	RedirectRoute::getErrorPage() const { return error_pages; }
 
 IResponse*	RedirectRoute::handle(const IRequest& request) {
+	std::cout << "methods -->" << route.getAllowedMethods().size() << std::endl;
 	if (route.IsMethodAllowed(request.getMethod()) == false) {
 		statusCode = 405;
 		return Helper::BuildResponse(request, *this);

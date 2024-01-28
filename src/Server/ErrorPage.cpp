@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:39:26 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/25 22:50:12 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/28 16:05:46 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ bool	ErrorPage::hasErrorCode(std::string code) {
 void	ErrorPage::setErrorPage(Config & config)
 {
 	std::vector<Config *> error_page = config.getBlockConfigIfExist("error_page");
-
 	if (error_page.empty())
 		return ;
 
@@ -52,6 +51,8 @@ void	ErrorPage::setErrorPage(Config & config)
 			std::vector<string>::iterator cur = codes.begin();
 			
 			while (cur != codes.end()) {
+				if (utils::isValidNumber(*cur) == false)
+					throw ConfigException("error_page: Invalid Error Code number", "codes", *cur);
 				if (hasErrorCode(*cur) == false)
 					error_pages[*cur] = file;
 				++cur;

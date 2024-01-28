@@ -37,7 +37,7 @@ namespace utils
 	std::string		UintToIp(unsigned int ip_int);
 	std::string		getExtension(string line);
 
-	bool 			isValidIp_address(std::string& ip_address);
+	bool 			isValidIp_address(std::string ip_address);
 	bool			IsDirectory(string uri);
 	bool 			isValidNumber(std::string line);
 	

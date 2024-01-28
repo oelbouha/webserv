@@ -28,6 +28,7 @@
 #include "src/Response/Response.hpp"
 #include "src/Socket/ClientSocket.hpp"
 #include "src/Socket/ServerSocket.hpp"
+#include "src/DataTypes/ConfigException.hpp"
 
 
 class WebServer {
@@ -46,7 +47,8 @@ private:
   void  sendResponses(std::queue<IResponse*>& qr);
 
 public:
-  void  SetupServerSockets();
+  void  SetDefaultIfNotExist();
+  void  InitiateServersSockets();
   WebServer(Config *aConfig);
   ~WebServer();
 

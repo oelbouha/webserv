@@ -42,7 +42,8 @@ MAIN_COMPONENT := Main/main.cpp \
 
 UTILS_COMPONENT := Utils.cpp
 
-DATATYPES_COMPONENT := DataTypes/Config.cpp
+DATATYPES_COMPONENT := DataTypes/Config.cpp \
+						DataTypes/ConfigException.cpp
 
 CONFIG_PARSER_COMPONENT := ConfigParser/ConfigHelper.cpp \
 	ConfigParser/YmlConfigParser.cpp \

@@ -35,7 +35,6 @@ ServerCluster::ServerCluster(Config* config) : UriMaxlength(2048), server(NULL) 
     std::string alive = cluster->getInlineConfigIfExist("keep_alive");
     KeepAlive = std::stod(alive, NULL);
 
-    std::cout << "Keep alive: " << KeepAlive << std::endl;
     std::vector<Config *> ServersConfig = cluster->getBlockConfigIfExist("server");
     std::vector<Config *>::iterator it = ServersConfig.begin();
     
@@ -95,8 +94,8 @@ bool	ServerCluster::isServerMatched(const Server& server, const IRequest& req) {
     unsigned int inComingPort = req.getIncomingPort();
     const string& inComingHost = utils::UintToIp(req.getIncomingIP());
 
-    std::cout << "incoming ip  ------> " << inComingHost << std::endl;
-    std::cout << "incoming port -----> " << inComingPort << std::endl;
+    // std::cout << "incoming ip  ------> " << inComingHost << std::endl;
+    // std::cout << "incoming port -----> " << inComingPort << std::endl;
 
     std::vector<string>::iterator it = ports.begin();
     while(it != ports.end()) {

@@ -14,7 +14,7 @@ cluster:
     codes:
       - 401
       - 404
-      - 41
+      - 416
   server:
     root: /Users/oelbouha/Desktop/web
     Default: yes
@@ -35,6 +35,16 @@ cluster:
     cgi:
       - .py
 
+    route:
+      uri: /test
+      root: /Users/oelbouha/Desktop/web/pages
+      redirect:
+        code: 301
+        location: /pages
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
     route:
       uri: /
       root: /Users/oelbouha/Desktop/web/pages
@@ -66,7 +76,7 @@ cluster:
     host: 127.0.0.1
     index: index.html
     root: /Users/oelbouha/Desktop/web
-    port: 8055
+    port: 8058
     name: localhost
     route:
       root: /Udsdsdsdsdsdsdsdsdsdsds

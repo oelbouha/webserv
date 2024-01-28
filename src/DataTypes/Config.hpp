@@ -16,6 +16,8 @@
 #include <map>
 #include <vector>
 #include <string>
+#include "Utils.hpp"
+#include "ConfigException.hpp"
 
 using std::map;
 using std::vector;
@@ -58,6 +60,7 @@ class Config
 		void				addBlockIfExist(Config& config, string prop);
 		void				addListIfExist(Config& server, const string& prop);
 
+		void				IsValidDirective(const std::string & property);
 	
 		void	dump(int indent = 0) const;
 };

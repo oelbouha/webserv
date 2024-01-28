@@ -123,7 +123,7 @@ namespace utils
 		return true;
 	}
 
-	bool isValidIp_address(std::string& ip_address) {
+	bool isValidIp_address(std::string ip_address) {
 		if (ip_address == "localhost")
 			return true;
 		std::istringstream ss(ip_address);

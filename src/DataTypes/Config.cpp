@@ -113,7 +113,7 @@ bool		Config::hasInline(const string& property) const
 void	Config::addInLineIfExist(Config& config, const string& prop)
 {
 	if (prop.empty())
-	return ;
+		return ;
 	string property;
 	if (config.hasInline(prop) == true)
 	{
@@ -166,9 +166,8 @@ vector<Config*>	Config::getBlockConfigIfExist(const string& property) const
 vector<string>	Config::getListConfigIfExist(const string& property) const 
 {
 	vector<string> ret;
-	if (hasList(property) == true){
+	if (hasList(property) == true)
 		ret = getListConfig(property);
-	}
 	return ret;
 }
 
@@ -179,6 +178,20 @@ const string 	Config::getInlineConfigIfExist(const string& property) const
 	}
 	return "";
 }
+
+void	Config::IsValidDirective(const std::string& property) {
+	std::string value;
+	if (property == "host")
+	{
+		value = getInlineConfigIfExist(property);
+		if (utils::isValidIp_address(value) == false)
+			throw ConfigException("Webserver: Invalid IPv4 address format.", property, value);
+		return ;
+	}
+	value = getInlineConfigIfExist(property);
+	if (utils::isValidNumber(value) == false)
+		throw ConfigException("Webserver : Not a Valid Number", property, value);
+} 
 
 
 /****************************************************************************************************/
