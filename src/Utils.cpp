@@ -145,9 +145,6 @@ namespace utils
 		std::string component;
 
 		while (std::getline(ss, component, '.')) {
-			if (isValidNumber(component) == false) {
-				return 0;
-			}
 			components.push_back(std::stod(component, NULL));
 		}
 
@@ -171,5 +168,9 @@ namespace utils
 		}
 
 		return vec;
+	}
+
+	int min(int a, int b) {
+		return (a < b) ? a : b;
 	}
 }

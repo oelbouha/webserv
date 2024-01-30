@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/27 15:44:20 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/30 13:30:04 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ public:
 	string	getRoot() const ;
 	string	getURI() const ;
 
-	bool	IsRouteURIMatched(const string& , string );
+	bool	findBestMatch(const string& , string );
 	bool	isDefault() const;
 	
 	Route*		getMatchedRoute(const IRequest& req);

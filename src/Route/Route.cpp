@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/28 16:13:32 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/30 15:05:00 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,7 +281,6 @@ IResponse*  Route::ExecuteDELETEMethod(const IRequest& request) {
 
 IResponse*  Route::handle(const IRequest& request) {
 	std::string tmp = request.getURI();
-	std::cout << "matching route :: " << URI << std::endl;
 	size_t pos = tmp.find(URI);
 	if (pos != std::string::npos) {
 		tmp.erase(0, URI.length());

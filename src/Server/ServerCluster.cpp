@@ -149,8 +149,7 @@ Server*	ServerCluster::getMatchedServer(const IRequest &req) {
 
 IResponse*  ServerCluster::handle(const IRequest& request) {
     server = getMatchedServer(request);
-    if (isRequestProperlyStructured(request) == false)
-    {
+    if (isRequestProperlyStructured(request) == false) {
         std::cout << " Request not properly structered ... " << statusCode << std::endl;;
         return (Helper::BuildResponse(request, *this));
     }
