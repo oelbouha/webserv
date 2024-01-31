@@ -3,11 +3,16 @@
     <head>
         <title>test page</title>
     </head>
-    <body>
+    <body style="margin:0; background-color: black;color:white;">
         <h1>This is a title</h1>
         <ul>
             <li>this is workin</li>
             <li>i guess</li>
+            <form action="/tester.py" method="post">
+                <input type="text" name="username">
+                <input type="text" name="password">
+                <input type="submit" value="send">
+            </form>
         </ul>
     </body>
 </html>

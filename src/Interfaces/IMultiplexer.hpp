@@ -17,12 +17,23 @@
 #include "IClient.hpp"
 #include "IResponse.hpp"
 #include "IServerSocket.hpp"
+#include "IProxyRequest.hpp"
+#include "IProxyResponse.hpp"
 
 // implement with time efficiency in mind
 // we are only using one thread of execution
 class IMultiplexer {
 public:
+  typedef enum {
+    READ,
+    WRITE
+  } mod_t;
+
+public:
   virtual ~IMultiplexer(){};
+
+  virtual void wait(unsigned long int timeout) = 0;
+  virtual bool ready() const = 0;
 
   // server sockets used only to listen for new Clients
   virtual void add(IServerSocket &aServer) = 0;
@@ -36,25 +47,21 @@ public:
   virtual void add(IResponse &aResponse) = 0;
   virtual void remove(IResponse &aResponse) = 0;
 
-  virtual void  add(IProxiedResponse& aResponse) = 0;
-  virtual void  remove(IProxiedResponse& aResponse) = 0;
-
-  virtual void wait(unsigned long int timeout) = 0;
-
   virtual std::queue<IServerSocket *> getReadyServerSockets() const = 0;
   virtual std::queue<IClient *> getReadyClients() const = 0;
   virtual std::queue<IResponse *> getReadyResponses() const = 0;
 
   // cgi
-  virtual void  add(ProxyPair*  aPair) = 0;
-  virtual void  remove()
+  virtual void  add(IProxyRequest*  aRequest, mod_t mod) = 0;
+  virtual void  add(IProxyResponse*  aResponse, mod_t mod) = 0;
+  virtual void  remove(IProxyRequest*  aRequest, mod_t mod) = 0;
+  virtual void  remove(IProxyResponse*  aResponse, mod_t mod) = 0;
 
-  // virtual std::queue<IProxiedResponse *> getReadyToForwardRequests() const = 0;
+  virtual std::queue<IProxyRequest*>  getReadyForReadingProxyRequests() const = 0;
+  virtual std::queue<IProxyRequest*>  getReadyForWritingProxyRequests() const = 0;
+  virtual std::queue<IProxyResponse*>  getReadyForReadingProxyResponses() const = 0;
+  virtual std::queue<IProxyResponse*>  getReadyForWritingProxyResponses() const = 0;
 
-  // virtual std::queue<ProxyPair*>  getReadyForReadingProxyRequests() const = 0;
-  // virtual std::queue<ProxyPair*>  getReadyForWritingProxyRequests() const = 0;
-  // virtual std::queue<ProxyPair*>  getReadyForReadingProxyResponses() const = 0;
-  // virtual std::queue<ProxyPair*>  getReadyForWritingProxyResponses() const = 0;
 };
 
 /*

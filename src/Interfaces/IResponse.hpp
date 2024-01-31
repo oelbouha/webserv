@@ -27,7 +27,7 @@ public:
     virtual IResponse&  build() = 0;
 
     virtual void        send() = 0;
-    virtual bool		isSendingComplete() const = 0;
+    virtual bool		done() const = 0;
 
     virtual int         getSocketFd() const = 0;
 };

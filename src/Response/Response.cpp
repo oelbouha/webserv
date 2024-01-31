@@ -17,7 +17,9 @@ Response::Response( const IClientSocket &aSocket ) :
     mFile(-1),
     mCursor(0),
     isComplete(false)
-{}
+{
+  // std::cout << "response ++++++++++++++++++++++++++++++++ client " << mSocket.getSocketFd() << std::endl;
+}
 
 Response::Response(const Response &aResponse) :
     mSocket(aResponse.mSocket),
@@ -28,6 +30,7 @@ Response::Response(const Response &aResponse) :
 
 Response::~Response()
 {
+    // std::cout << "response ++++++++++++++++++++++++++++++++ closing " << mFile << std::endl;
     ::close(mFile);
 }
 
@@ -66,9 +69,34 @@ Response&   Response::setBodyFile( const std::string& aFileName )
         setHeader("content-type", "text/html");
         return *this;
     }
+    // std::cout << "response +++++++++++++++++++++++++++++++++ opened " << mFile << std::endl;
+
     std::ifstream   file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
     std::string contentLength = std::to_string(file.tellg());
     setHeader("content-length", contentLength);
+
+    /*
+      ext = getExtension(); // without .
+      setHeader("content-type", MimeTypes::get(ext));
+
+      {
+        config* c;
+        string  default;
+
+        get(key)
+        {
+          if (c->has(key))
+            return c->getInline(key);
+          return default;
+        }
+
+        setConfig(){
+
+          addIfNotExist("html")
+          addIfNotExist("html")
+        }
+      }
+    */
     file.close();
     return *this;
 }
@@ -89,6 +117,7 @@ Response &Response::build()
 }
 
 void Response::send() {
+  try {
     if (mFile < 0)
     {
         mCursor = mSocket.write(mRawResponse);
@@ -113,9 +142,14 @@ void Response::send() {
         if (static_cast<size_t>(r) < bufferSize - 1 && mRawResponse.empty())
             isComplete = true;
     }
+  } catch (const SocketException& e)
+  {
+    std::cerr << e.what() << std::endl;
+    isComplete = true;
+  }
 }
 
-bool Response::isSendingComplete() const
+bool Response::done() const
 {
   return (isComplete);
 }

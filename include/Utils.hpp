@@ -24,7 +24,9 @@ namespace utils
 
 	std::string	ip(unsigned int aIP);
 
-	std::string&	trimSpaces(std::string& aString);
+	std::string&	trim_spaces(std::string& aString);
+
+	std::string&  str_to_lower(std::string& str);
 }
 
 #endif

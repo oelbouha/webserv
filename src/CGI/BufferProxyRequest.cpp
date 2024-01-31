@@ -50,6 +50,11 @@ bool    BufferProxyRequest::done() const
     return (mBuffer.length() == mCursor);
 }
 
+void    BufferProxyRequest::read()
+{
+    // does nothing;
+}
+
 void    BufferProxyRequest::send()
 {
     int r = ::write(mOutputFd,

@@ -27,6 +27,8 @@
 #include "src/Socket/ClientSocket.hpp"
 #include "src/Socket/ServerSocket.hpp"
 
+#include "src/Request/BufferRequest.hpp"
+
 
 class WebServer {
   const Config*                 mConfig;
@@ -35,13 +37,21 @@ class WebServer {
   ServerCluster                 mServers;
   std::vector<Client*>          mClients;
   std::vector<IResponse *>      mResponses;
+  // std::vector<ProxyPair>        mProxyPairs;
 
   WebServer();
 
 private:
-  void  acceptNewClients(std::queue<IServerSocket*>& qs);
-  void  takeAndHandleRequests(std::queue<IClient*>& qc);
-  void  sendResponses(std::queue<IResponse*>& qr);
+  void  acceptNewClients();
+  void  takeAndHandleRequests();
+  void  sendResponses();
+
+  void  readFromReadyProxyRequests();
+  void  sendReadyProxyRequests();
+  void  readFromReadyProxyResponses();
+  void  sendReadyProxyResponses();
+
+  void  disconnectClient(Client& client);
 
 public:
   WebServer(const Config *aConfig);

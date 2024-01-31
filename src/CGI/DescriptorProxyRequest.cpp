@@ -12,7 +12,9 @@
 DescriptorProxyRequest::DescriptorProxyRequest(int fd, IRequest& req) :
     mOutputFd(fd),
     mRequest(req)
-{}
+{
+    // std::cout << "cgi request    +++++++++++++++++++++++++++++++ opened " << mOutputFd << std::endl;
+}
 
 DescriptorProxyRequest::DescriptorProxyRequest( const DescriptorProxyRequest& d )
     : mRequest(d.mRequest)
@@ -22,7 +24,9 @@ DescriptorProxyRequest::DescriptorProxyRequest( const DescriptorProxyRequest& d 
 
 DescriptorProxyRequest::~DescriptorProxyRequest()
 {
+    // std::cout << "cgi request +++++++++++++++++++++++++++++++ closing " << mOutputFd << std::endl;
     ::close(mOutputFd);
+    delete &mRequest;
 }
 
 DescriptorProxyRequest&	DescriptorProxyRequest::operator=( const DescriptorProxyRequest& d )
@@ -46,9 +50,16 @@ bool    DescriptorProxyRequest::done() const
     return (mRequest.done() && mBuffer.empty());
 }
 
+void    DescriptorProxyRequest::read()
+{
+    if (!mRequest.done())
+        mBuffer += mRequest.read();
+}
+
 void    DescriptorProxyRequest::send()
 {
-    mBuffer += mRequest.read();
+    if (mBuffer.empty())
+        return;
 
     int r = ::write(mOutputFd, mBuffer.data(), mBuffer.length());
 

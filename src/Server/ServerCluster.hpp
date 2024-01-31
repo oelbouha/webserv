@@ -16,6 +16,10 @@
 #include "src/Response/Response.hpp"
 #include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
+#include "src/CGI/ProxyPair.hpp"
+
+#include "src/CGI/CGIResponse.hpp"
+#include "src/CGI/DescriptorProxyRequest.hpp"
 
 class ServerCluster
 {
@@ -27,7 +31,7 @@ public:
 	ServerCluster&	operator=( const ServerCluster& s );
 
     IResponse*          handle(IRequest* request);
-    IProxiedResponse*   handleCGI(IRequest* request);
+    ProxyPair   		handleCGI(IRequest* request);
 
 
 };

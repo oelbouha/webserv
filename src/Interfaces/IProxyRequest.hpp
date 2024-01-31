@@ -19,6 +19,7 @@ public:
     virtual int         getOutputFd() const = 0;
     virtual int         getSocketFd() const = 0;
 
+    virtual void        read() = 0;
     virtual void        send() = 0;
     virtual bool        done() const = 0;
 

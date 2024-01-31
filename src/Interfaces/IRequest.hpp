@@ -21,13 +21,14 @@ class IRequest
 {
 public:
     virtual ~IRequest(){};
-    virtual const IClientSocket&      getSocket() const = 0;
-    virtual const std::string&  getMethod() const = 0;
-    virtual const std::string&  getURI() const = 0;
-    virtual const std::string&  getHttpVersion() const = 0;
-    virtual const std::string&  getHeader( const std::string& key ) const = 0;
-    virtual const std::string&  getQuery() const = 0;
-    virtual size_t              getContentLength() const = 0;
+    virtual const IClientSocket&    getSocket() const = 0;
+    virtual int                     getSocketFd() const = 0;
+    virtual const std::string&      getMethod() const = 0;
+    virtual const std::string&      getURI() const = 0;
+    virtual const std::string&      getHttpVersion() const = 0;
+    virtual const std::string&      getHeader( const std::string& key ) const = 0;
+    virtual const std::string&      getQuery() const = 0;
+    virtual size_t                  getContentLength() const = 0;
 
     virtual int                 getIncomingIP() const = 0;
     virtual int                 getIncomingPort() const = 0;
@@ -35,6 +36,5 @@ public:
     virtual void                build() = 0;
     virtual std::string         read() = 0;
     virtual bool                done() const = 0;
-    virtual void                dump( bool colors = true ) const = 0;
 };
 #endif

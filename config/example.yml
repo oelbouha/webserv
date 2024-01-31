@@ -6,6 +6,7 @@ cluster:
 	# mime_types:
 	# 	html: text/html
 	# 	jpg: image/jpeg
+  # default_mime_type: text/plain
   keep_alive:	65
   #keep_alive_timeout: 10
   server_props: no

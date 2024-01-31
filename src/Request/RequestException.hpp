@@ -21,7 +21,7 @@ class RequestException : public std::exception {
 
 public:
   enum Error {
-      CONNECTION_COLOSED,
+      CONNECTION_CLOSED,
       DEFAULT
   };
 

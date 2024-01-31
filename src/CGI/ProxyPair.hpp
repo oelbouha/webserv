@@ -11,28 +11,32 @@
 #ifndef PROXYPAIR_HPP
 #define PROXYPAIR_HPP
 
+#include <iostream>
+
 #include <cstddef>
 #include <sys/wait.h>
+#include <signal.h>
 
+#include "src/Interfaces/IClient.hpp"
 #include "src/Interfaces/IProxyRequest.hpp"
 #include "src/Interfaces/IProxyResponse.hpp"
 
-class ProxyPair
+struct ProxyPair
 {
-    int                 mPID;
-    IProxyRequest*      mRequest;
-    IProxyResponse*     mResponse;
+    IProxyRequest*      request;
+    IProxyResponse*     response;
 
-	ProxyPair&	operator=( const ProxyPair& p );
-	ProxyPair( const ProxyPair& p );
-
-public:
+    ProxyPair();
     ProxyPair(int pid, IProxyRequest* req, IProxyResponse* res);
+	ProxyPair( const ProxyPair& p );
 	~ProxyPair();
 
-    IProxyRequest*   request();
-    IProxyResponse*  response();
+	ProxyPair&	operator=( const ProxyPair& p );
 
-    void    destroyRequest();
+    void    setChildFree();
+
+private:
+    int                 mPID;
+
 };
 #endif

@@ -16,7 +16,7 @@ ProxiedResponse::ProxiedResponse(IRequest& req, int inputFd, int outputFd) :
     mInput(inputFd),
     mOutput(outputFd),
     mIsForwardingComplete(false),
-    mIsSendingComplete(false),
+    mdone(false),
     mIsHeaderComplete(false),
     mForwarded(0),
     mOutputEOF(false)
@@ -142,7 +142,7 @@ bool    ProxiedResponse::isFrowardingComplete() const
     return (mForwarded == content_length);
 }
 
-bool ProxiedResponse::isSendingComplete() const
+bool ProxiedResponse::done() const
 {
     return (mOutputEOF && mOutputBuffer.empty());
 }

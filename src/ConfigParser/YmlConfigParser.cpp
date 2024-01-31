@@ -36,7 +36,7 @@ YmlConfigParser::YmlConfigParser( const string& aConfigFile ) : mFileName(aConfi
 
 YmlConfigParser::~YmlConfigParser()
 {
-	mFileStream.close();
+	
 }
 
 
@@ -50,6 +50,7 @@ YmlConfigParser&	YmlConfigParser::operator=( const YmlConfigParser& c )
 const Config&	YmlConfigParser::parse()
 {
 	mConfig = parseBlock_("global");
+	mFileStream.close();
 	return (*mConfig);
 }
 

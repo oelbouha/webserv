@@ -1,3 +1,13 @@
+#!//usr/local/bin/python3
+
+import os
+import sys
+test = "x-test: " + os.environ['URI']
+
+print("\n/**********************************************************", file=sys.stderr)
+print("URI:" + os.environ['URI'], file=sys.stderr)
+print("**********************************************************/\n", file=sys.stderr)
+
 body = '''
 <!DOCTYPE html>
 <html>
@@ -15,8 +25,9 @@ body = '''
 </html>
 '''
 
-print("HTTP/1.1 200 OK\r")
+# print("Status: 201 Created\r")
 print("content-type: text/html\r")
+print("set-cookie: sessionid=thisissessionid\r");
 print("content-length: ", end="")
 print(len(body), end="")
 print("\r")

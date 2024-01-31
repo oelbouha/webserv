@@ -15,13 +15,18 @@ Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort) :
     mIncomingIP(aIncomingIP),
     mIncomingPort(aIncomingPort),
     mSocket(aSocket),
-    mRequest(NULL)
+    activeResponse(NULL),
+    status(Client::CONNECTED)
 {}
 
 Client::~Client()
 {
     delete  mSocket;
-    delete  mRequest;
+    while (mRequests.size())
+    {
+        delete  mRequests.front();
+        mRequests.pop();
+    }
 }
 
 bool    Client::operator==(const IClient& client) const
@@ -29,31 +34,41 @@ bool    Client::operator==(const IClient& client) const
     return (this->getSocketFd() == client.getSocketFd());
 }
 
+
 int     Client::getSocketFd() const { return mSocket->getSocketFd(); }
 
 int     Client::getIncomingIP() const { return mIncomingIP; }
 
 int     Client::getIncomingPort() const { return mIncomingPort; }
 
-bool    Client::hasRequest() const { return (mRequest != NULL); }
+bool    Client::hasRequest() const { return ( ! mRequests.empty() ); }
 
-bool    Client::hasClosedTheConnection() const { return (mHasClosedTheConnection); }
 
 void Client::makeRequest() 
-{ 
+{
+    IRequest*   req;
     try
     {
-        if (mRequest == NULL)
-            mRequest = new Request(*mSocket, mIncomingIP, mIncomingPort);
-        mRequest->build();
+        std::cout << "making request\n" << std::flush;
+        
+        req = new Request(*mSocket, mIncomingIP, mIncomingPort);
+        
+        std::cout << "building\n" << std::flush;
+
+        req->build();
+        mRequests.push(req);
 
     } catch(const RequestException& e)
     {
-        if (e.error == RequestException::CONNECTION_COLOSED)
+        if (e.error == RequestException::CONNECTION_CLOSED)
         {
-            mHasClosedTheConnection = true;
+            status = Client::DISCONNECTED;
             std::cout << "client closed connection\n" << std::flush;
         }
+        else {
+            std::cout << e.what() << std::endl;
+        }
+        delete req;
     }
     catch (const SocketException &e) {
     }
@@ -61,33 +76,36 @@ void Client::makeRequest()
 
 IRequest *Client::getRequest()
 {
-  IRequest *ret = mRequest;
-  mRequest = NULL;
+  IRequest *ret = mRequests.front();
+  mRequests.pop();
   return (ret);
 }
 
 void    Client::dump()
 {
     // mSocket->dump();
-    if (!mRequest){
+    IRequest*   req;
+    if (mRequests.empty()){
         makeRequest();
 
-        if (mHasClosedTheConnection)
+        req = mRequests.front();
+        if (status == Client::DISCONNECTED)
         {
-            delete  mRequest;
-            mRequest = NULL;
+            delete  req;
+            req = NULL;
             return;
         }
 
-        mRequest->dump();
+        return ;
     }
+    req = mRequests.front();
     std::cout << "dumping...\n" << std::flush;
-    std::cout << mRequest->read() << std::flush;
-    if (mRequest->done()){
+    std::cout << req->read() << std::flush;
+    if (req->done()){
         std::cout << "request complete - content length: " 
-            << mRequest->getContentLength() << "\n" << std::flush;
-        delete mRequest;
-        mRequest = NULL;
+            << req->getContentLength() << "\n" << std::flush;
+        delete req;
+        req = NULL;
         throw 42;
     }
 }

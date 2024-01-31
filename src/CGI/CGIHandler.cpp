@@ -8,12 +8,6 @@
  */
 
 #include "CGIHandler.hpp"
-#include "DescriptorProxyRequest.hpp"
-#include "ProxyPair.hpp"
-#include "ProxyResponse.hpp"
-#include <string>
-#include <unistd.h>
-#include <vector>
 
 CGIHandler::CGIHandler()
 {}
@@ -32,23 +26,24 @@ CGIHandler&	CGIHandler::operator=( const CGIHandler& c )
 
 static char**   vectorToCStringArray(const std::vector<std::string>& vec);
 
-ProxyPair*    CGIHandler::handle(IRequest* request)
+ProxyPair    CGIHandler::handle(IRequest* request) // root
 {
+    std::string file = "./" + request->getURI().substr(request->getURI().rfind("/") + 1);
     // setting up pipes
     int input[2];
     int output[2];
 
     int err = pipe(input);
     if (err)
-        return NULL;
+        return ProxyPair();
     err = pipe(output);
     if (err)
-        return NULL;
+        return ProxyPair();
 
     // forking for cgi process
     int pid = fork();
     if (pid < 0)
-        return NULL;
+        return ProxyPair();
     
     // cgi porcess
     if (pid == 0)
@@ -67,21 +62,15 @@ ProxyPair*    CGIHandler::handle(IRequest* request)
         if (err)
             exit(1);
 
-        //build args;
-        const std::string cgi = "/goinfre/ysalmi/brew/bin/python3";
-
-        std::vector<std::string>    args;
-        args.push_back("python3");
-        args.push_back("index.py");
+        std::cout << "file: " << file << std::endl;
+        mArgs.push_back(file);
 
         // build env;
-        std::vector<std::string>    e;
-
-        e.push_back("URI=" + request->getURI());
-        e.push_back("QUERY_STRING=" + request->getQuery());
+        compileEnv(*request);
 
         // excute script;
-        execve(cgi.data(), vectorToCStringArray(args), vectorToCStringArray(e));
+        execve(file.c_str(), vectorToCStringArray(mArgs), vectorToCStringArray(mEnv));
+        perror("cgi");
         exit(1);
     }
 
@@ -91,10 +80,71 @@ ProxyPair*    CGIHandler::handle(IRequest* request)
     close(output[1]);
 
     IProxyRequest*  req = new DescriptorProxyRequest(input[1], *request);
-    IProxyResponse* res = new ProxyResponse(output[0], request->getSocket());
-    ProxyPair*      ret = new ProxyPair(pid, req, res);
+    IProxyResponse* res = new CGIResponse(output[0], request->getSocket());
+    std::cout << pid << " - " << req << " - " << res << std::endl;
+    ProxyPair      ret(pid, req, res);
     
     return (ret);
+}
+
+void    CGIHandler::compileEnv(IRequest& req)
+{
+    // GATEWAY_INTERFACE
+    mEnv.push_back("GATEWAY_INTERFACE=CGI/1.1");
+    // SERVER_SOFTWARE
+    mEnv.push_back("SERVER_SOFTWARE=webserv/1.0");
+    // SERVER_PROTOCOL
+    mEnv.push_back("SERVER_PROTOCOL=HTTP/1.1");
+    // SERVER_NAME
+    mEnv.push_back("SERVER_NAME=" + req.getHeader("host"));
+    // SERVER_PORT
+    mEnv.push_back("SERVER_PORT=" + std::to_string(req.getIncomingPort()));
+    // REQUEST_METHOD
+    mEnv.push_back("REQUEST_METHOD=" + req.getMethod());
+    // REQUEST_URI
+    mEnv.push_back("REQUEST_URI=" + req.getURI());
+    // PATH_INFO
+    mEnv.push_back("PATH_INFO=" + req.getURI());
+    // PATH_TRANSLATED
+    // mEnv.push_back("PATH_TRANSLATED=/Users/ysalmi/code/in_progress/webserv/pages/tester.py");
+    // SCRIPT_NAME
+    mEnv.push_back("SCRIPT_NAME=" + req.getURI());
+    // DOCUMENT_ROOT
+    // mEnv.push_back("DOCUMENT_ROOT=/Users/ysalmi/code/in_progress/webserv/pages");
+    // QUERY_STRING
+    if (req.getQuery().empty() == false)
+        mEnv.push_back("QUERY_STRING=" + req.getQuery());
+
+    // CONTENT_TYPE
+    const std::string& content_type = req.getHeader("content-type");
+    if (!content_type.empty())
+        mEnv.push_back("CONTENT_TYPE=" + content_type);
+
+    // CONTENT_LENGTH
+    const std::string& content_length = req.getHeader("content-length");
+    if (!content_length.empty())
+        mEnv.push_back("CONTENT_LENGTH=" + content_length);
+
+
+    // HTTP_ACCEPT
+    const std::string& accept = req.getHeader("accept");
+    if (!accept.empty())
+        mEnv.push_back("HTTP_ACCEPT=" + accept);
+
+    // HTTP_USER_AGENT
+    const std::string& user_agent = req.getHeader("user-agent");
+    if (!user_agent.empty())
+        mEnv.push_back("HTTP_USER_AGENT=" + user_agent);
+        
+    // HTTP_REFERER
+    const std::string& referer = req.getHeader("referer");
+    if (!referer.empty())
+        mEnv.push_back("HTTP_REFERER=" + referer);
+    
+    // HTTP_COOKIE
+    const std::string& cookie = req.getHeader("cookie");
+    if (!cookie.empty())
+        mEnv.push_back("HTTP_COOKIE=" + cookie);
 }
 
 static char**   vectorToCStringArray(const std::vector<std::string>& vec)

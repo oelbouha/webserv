@@ -11,6 +11,7 @@
 #ifndef DESCRIPTORPROXYREQUEST_HPP
 #define DESCRIPTORPROXYREQUEST_HPP
 
+#include <iostream>
 #include <unistd.h>
 
 #include "src/Interfaces/IRequest.hpp"
@@ -33,6 +34,7 @@ public:
     int     getOutputFd() const;
     int     getSocketFd() const;
 
+    void    read();
     void    send();
     bool    done() const;
 };

@@ -20,6 +20,7 @@
 
 #include "IClientSocket.hpp"
 #include "IResponse.hpp"
+#include "src/Socket/SocketException.hpp"
 
 class Response : public IResponse {
   const IClientSocket&                  mSocket;
@@ -51,9 +52,12 @@ public:
   Response &build();
 
   void send();
-  bool isSendingComplete() const;
+  bool done() const;
 
   void dump();
+
+  void  invalidate();
+  bool  valid() const;
 
   static const std::map<unsigned int, std::string> sStatusCodes;
   static std::map<unsigned int, std::string> initStatusCodes();

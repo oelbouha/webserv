@@ -42,196 +42,330 @@ void WebServer::start()
 
 void WebServer::loop()
 {
-  std::queue<IServerSocket *> qs;
-  std::queue<IClient *>       qc;
-  std::queue<IResponse *>     qr;
-
   while (true) 
   {
-    mMux->wait(1 * 1000000); // 10 seconds
+    mMux->wait(1 * 1000000); // 1 seconds
 
-    qs = mMux->getReadyServerSockets();
-    qc = mMux->getReadyClients();
-    qr = mMux->getReadyResponses();
-
-    if (qs.size() == 0 && qc.size() == 0 && qr.size() == 0)
+    if (!mMux->ready())
     {
         std::cout << "." << std::flush;
         continue;
     }
-
     std::cout << std::endl;
-    std::cout << "qs: " << qs.size();
-    std::cout << " qc: " << qc.size();
-    std::cout << " qr: " << qr.size() << std::endl << std::flush;
 
-    acceptNewClients(qs);
-    takeAndHandleRequests(qc);
-    sendResponses(qr);
+
+    acceptNewClients();
+    takeAndHandleRequests();
+    sendResponses();
+    readFromReadyProxyRequests();
+    sendReadyProxyRequests();
+    readFromReadyProxyResponses();
+    sendReadyProxyResponses();
+    // function that loops and close connections to clients that need the connection to be closed
   }
 }
 
 
-void    WebServer::acceptNewClients(std::queue<IServerSocket*>& qs)
+void    WebServer::acceptNewClients()
 {
-    while (qs.size()) {
-        const IServerSocket *sock = qs.front();
-        std::cout << "accepting from : " << sock->getSocketFd() << std::endl;
-        IClientSocket *clientSock = sock->accept();
-        clientSock->setNonBlocking();
-        Client* client = new Client(clientSock, sock->getIP(), sock->getPort());
-        std::cout << "accepted\n" << std::flush;
+    std::queue<IServerSocket *>   qs = mMux->getReadyServerSockets();;
+    while (qs.size())
+    {
+        const IServerSocket&  sock = *(qs.front());
 
+        IClientSocket *clientSock = sock.accept();
+
+        clientSock->setNonBlocking();
+
+        Client* client = new Client(clientSock, sock.getIP(), sock.getPort());
 
         mClients.push_back(client);
+
         mMux->add(*client);
+
         qs.pop();
     }
 }
 
-void    WebServer::takeAndHandleRequests(std::queue<IClient*>& qc)
+void    WebServer::takeAndHandleRequests()
 {
-    while (qc.size()) {
-      IClient *client = qc.front();
+    std::queue<IClient *> qc = mMux->getReadyClients();
+    while (qc.size())
+    {
+      Client *client = static_cast<Client*>(qc.front());
 
-
-      // if (client in cgi)
-      //  set request active
-      //  else
-
-  /* */     
-          try {
-            client->dump();
-            if (client->hasClosedTheConnection())
-            {
-              mMux->remove(*client);
-              std::vector<Client*>::iterator it = std::find(mClients.begin(),
-                                                        mClients.end(),
-                                                        client);
-              mClients.erase(it);
-                
-                for (std::vector<IResponse*>::iterator it = mResponses.begin();
-                        it != mResponses.end(); ++it)
-                {
-                    IResponse*  res = *it;
-                    if (res->getSocketFd() == client->getSocketFd())
-                    {
-                        mResponses.erase(it);
-                        delete res;
-                        --it;
-                    }
-                }
-
-              delete client;
-            }
-          }
-          catch(int& e){
-              IResponse*  res  = new Response(client->getSocket());
-
-              std::string resStr = "Success\n";
-              res->setStatusCode(200)
-                  .setHeader("content-length", std::to_string((int)resStr.length()))
-                  .setHeader("content-type", "text/plain")
-                  .setBody(resStr)
-                  .build();
-              mMux->add(*res);
-              mResponses.push_back(res);
-          }
-          catch(const std::exception& e)
-          {
-            mMux->remove(*client);
-            std::vector<Client*>::iterator it = std::find(mClients.begin(),
-                                                      mClients.end(),
-                                                      client);
-            mClients.erase(it);
-            delete client;
-          }
-          qc.pop();
-          continue;
-  /**/
       client->makeRequest();
-
-      if (client->hasClosedTheConnection()) {
-          mMux->remove(*client);
-          std::vector<Client*>::iterator it = std::find(mClients.begin(),
-                                                        mClients.end(),
-                                                        client);
-          mClients.erase(it);
+      if (client->status == Client::DISCONNECTED)
+      {
+          disconnectClient(*client);
           delete client;
       }
-      else if (client->hasRequest()) {
+      else if (client->hasRequest())
+      {
+        mMux->remove(*client);
         IRequest *request = client->getRequest();
-        if (false && request->getURI() == "/")
+        
+
+        /*
+        client->set();
+        */
+
+        std::string ext;
+        if (request->getURI().rfind(".") != std::string::npos)
+          ext = request->getURI().substr(request->getURI().rfind("."));
+
+        /*
+        
+        Result  result = mCluster.handle(request);
+
+        if (result.type == Result::RESPONSE){}
+        else if (result.type == Result::PROXY_PAIR){}
+
+        */
+          
+        if (ext == ".py")
         {
-            std::cout << "request to cgi\n" << std::flush;
-            IProxiedResponse*   response = mServers.handleCGI(request);
+            ProxyPair   pair = mServers.handleCGI(request);
 
-            (void)response;
+            client->status = Client::EXCHANGING;
+            client->activeProxyPair = pair;
 
-            mMux->add(*response);
+            // if (pair.request == NULL || pair.response == NULL) delete make 500 response
+            if (pair.request->getSocketFd() != -1)
+              mMux->add(pair.request, IMultiplexer::READ);
+            else
+              mMux->add(*client);
+            mMux->add(pair.request, IMultiplexer::WRITE);
+
+            mMux->add(pair.response, IMultiplexer::READ);
+            mMux->add(pair.response, IMultiplexer::WRITE);
         }
         else
         {
-            std::cout << "requesting file\n" << std::flush;
             IResponse *response = mServers.handle(request);
+
+            // client->setResponseHeaders(response);
+
             mMux->add(*response);
-            std::cout << "request handled - response ready\n" << std::flush;
+            mResponses.push_back(response);
+
+            client->status = Client::RECEIVING;
+            client->activeResponse = response;
+
+            delete request;
         }
-        std::cout << "client request has been handeled.\n" << std::flush;
       }
 
       qc.pop();
     }
 }
 
-void    WebServer::sendResponses(std::queue<IResponse*>& qr)
+
+void    WebServer::sendResponses()
 {
-    while (qr.size()) {
-      IResponse *res = qr.front();
+  std::queue<IResponse *>       qr = mMux->getReadyResponses();
+  while (qr.size()) {
+    IResponse *res = qr.front();
 
-      /*
-      for (std::vector<Client>::iterator it = mClients.begin(); it != mClients.end(); ++it)
+    res->send();
+    if (res->done())
+    {
+      mMux->remove(*res);
+      std::vector<IResponse*>::iterator   it = std::find(mResponses.begin(), mResponses.end(), res);
+      mResponses.erase(it);
+      
+      std::vector<Client*>::iterator   itc = mClients.begin();
+      while (itc != mClients.end())
       {
-          if (it->getSocketFd() == res->getSocketFd())
-          {
-              mMux->remove(*res);
-          //    delete res;
-          }
-      }*/
-
-      res->send();
-      if (res->isSendingComplete())
-      {
-        mMux->remove(*res);
-        std::vector<IResponse*>::iterator   it = std::find(mResponses.begin(),
-                mResponses.end(), res);
-        mResponses.erase(it);
-        delete res;
+        Client*  client = static_cast<Client*>(*itc);
+        if (client->getSocketFd() == res->getSocketFd()){
+          client->activeResponse = NULL;
+          mMux->add(*client);
+          break;
+        }
+        ++itc;
       }
-      qr.pop();
+
+      delete res;
     }
+    qr.pop();
+  }
  
 }
 
-void    readFromReadyProxyRequests(std::queue<ProxyPair*> qProxyPair)
+void    WebServer::readFromReadyProxyRequests()
 {
-  // loop and read
-    // if client closed connection
-      // remove proxypair from webserv loop
-}
-
-void    sendReadyProxyRequests(std::queue<ProxyPair*> qProxyPairs)
-{
-  // loop and write
-    // if cgi program exited generate an error page
-  catch (ProxyPair::Error)
+  std::queue<IProxyRequest *>   qpreqs = mMux->getReadyForReadingProxyRequests();
+  
+  while (qpreqs.size())
   {
-    pair->generateErrorResponse();
+    IProxyRequest*  req = qpreqs.front();
+
+    try
+    {
+        std::cout << "cgi request reading\n" << std::flush;
+        req->read();
+        if (req->done())
+        {
+            mMux->remove(req, IMultiplexer::WRITE);
+            if (req->getSocketFd() != -1)
+            {
+                mMux->remove(req, IMultiplexer::READ);
+
+                std::vector<Client*>::iterator   itc = mClients.begin();
+                while (itc != mClients.end())
+                {
+                    Client&  client = **itc;
+                    if (client.activeProxyPair.request == req)
+                    {
+                        client.activeProxyPair.request = NULL;
+                        mMux->add(client);
+                        break;
+                    }
+                    ++itc;
+                }
+            }
+            delete req;
+        }
+    }
+    catch (const RequestException& e)
+    {
+        std::cout << "cgi request error " << e.what() << std::endl << std::flush;
+        if (e.error == RequestException::CONNECTION_CLOSED)
+        {
+            std::vector<Client*>::iterator   itc = mClients.begin();
+            while (itc != mClients.end())
+            {
+                Client&  client = **itc;
+                if (client.activeProxyPair.request == req)
+                {
+                    disconnectClient(client);
+                    break;
+                }
+                ++itc;
+            }
+        }
+        else {
+            // bad request;
+        }
+    }
+
+    qpreqs.pop();
   }
 }
 
-void    readFromReadyProxyResponses(std::queue<ProxyPair*> qProxyPair)
+void    WebServer::sendReadyProxyRequests()
 {
+  std::queue<IProxyRequest *>   qpreqs = mMux->getReadyForWritingProxyRequests();
+
+  while (qpreqs.size())
+  {
+    IProxyRequest*  req = qpreqs.front();
+
+    try
+    {
+        std::cout << "cgi request sending\n" << std::flush;
+        req->send();
+        if (req->done())
+        {
+            mMux->remove(req, IMultiplexer::WRITE);
+            if (req->getSocketFd() != -1)
+            {
+                mMux->remove(req, IMultiplexer::READ);
+
+                std::vector<Client*>::iterator   itc = mClients.begin();
+                while (itc != mClients.end())
+                {
+                    Client&  client = **itc;
+                    if (client.activeProxyPair.request == req)
+                    {
+                        client.activeProxyPair.request = NULL;
+                        mMux->add(client);
+                        break;
+                    }
+                    ++itc;
+                }
+            }
+            delete req;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cout << "cgi sending error " << e.what() << std::endl << std::flush;
+
+        std::vector<Client*>::iterator   itc = mClients.begin();
+        while (itc != mClients.end())
+        {
+            Client&  client = **itc;
+            if (client.activeProxyPair.request == req)
+                break;
+            ++itc;
+        }
+        Client& client = **itc;
+
+        if (client.activeProxyPair.request->getSocketFd() != -1)
+            mMux->remove(client.activeProxyPair.request, IMultiplexer::READ);
+        mMux->remove(client.activeProxyPair.request, IMultiplexer::WRITE);
+        delete client.activeProxyPair.request;
+        client.activeProxyPair.request = NULL;
+
+        mMux->remove(client.activeProxyPair.response, IMultiplexer::READ);
+        mMux->remove(client.activeProxyPair.response, IMultiplexer::WRITE);
+        client.activeProxyPair.setChildFree();
+
+        if (!client.activeProxyPair.response->sent()) // if nothing is sent to the client
+        {
+            IResponse*  res = new Response(client.getSocket());
+          
+            std::string body = "<center>500</center><br><center>server error</center>";
+            res->setStatusCode(500).setHeader("Content-type", "text/html")
+                        .setBody(body)
+                        .build();
+            
+            mMux->add(*res);
+            mResponses.push_back(res);
+
+            client.status = Client::RECEIVING;
+            client.activeResponse = res;
+        }
+        delete client.activeProxyPair.response;
+        client.activeProxyPair.response = NULL;
+
+        // clean
+          // if cgi program exited generate an error page if possible
+
+          // cleaning:
+          // request
+          // generate appropriet response if possible
+    }
+
+    qpreqs.pop();
+  }
+}
+
+void    WebServer::readFromReadyProxyResponses()
+{
+  // cgi progrpams which exited could be detected here
+  // need to be handled here
+  // clening:
+    // request need to be removed
+    // generate an error response if possible
+  std::queue<IProxyResponse *>  qpres = mMux->getReadyForReadingProxyResponses();
+  while (qpres.size())
+  {
+    IProxyResponse* res = qpres.front();
+    try
+    {
+      std::cout << "cgi response reading\n" << std::flush;
+      res->read();
+    }
+    catch (const std::exception& e)
+    {
+      std::cerr << "cgi response error " << e.what() << std::endl;
+    }
+
+    qpres.pop();
+  }
   // read;
   // if return is -1
       // if already sent header
@@ -242,10 +376,102 @@ void    readFromReadyProxyResponses(std::queue<ProxyPair*> qProxyPair)
       // build response
 }
 
-void    sendReadyProxyResponses(std::queue<ProxyPair*> qProxyPair)
+void    WebServer::sendReadyProxyResponses()
 {
+  // clients who closed connections could be detected here
+  // need to be handled here
+  // cleaning:
+    // client
+    // request
+    // response
+  std::queue<IProxyResponse *>  qpres = mMux->getReadyForWritingProxyResponses();
+  while (qpres.size())
+  {
+    IProxyResponse* res = qpres.front();
+
+    try {
+      std::cout << "cgi response sending\n" << std::flush;
+      res->send();
+      if (res->done() || res->error())
+      {
+        mMux->remove(res, IMultiplexer::READ);
+        mMux->remove(res, IMultiplexer::WRITE);
+        std::vector<Client*>::iterator   itc = mClients.begin();
+        while (itc != mClients.end())
+        {
+          Client&  client = **itc;
+          if (client.getSocketFd() == res->getSocketFd()){
+            std::cout << "response setting child free" << std::endl;
+            client.activeProxyPair.setChildFree();
+            client.activeProxyPair.response = NULL;
+            mMux->add(client);
+            break;
+          }
+          ++itc;
+        }
+        if (res->error())
+        {
+          Client&  client = **itc;
+          IResponse*  res = new Response(client.getSocket());
+          
+          std::string body = "500<br><center>server error</center>";
+          res->setStatusCode(500).setHeader("Content-type", "text/html")
+                    .setBody(body)
+                    .build();
+          
+          mMux->add(*res);
+          mResponses.push_back(res);
+
+          client.status = Client::RECEIVING;
+          client.activeResponse = res;
+
+        }
+        delete res;
+      }
+    }
+    catch (const std::exception& e)
+    {
+      std::cout << "cgi response error " << e.what() << std::endl;
+    }
+
+    qpres.pop();
+  }
   // if built and buffer not empty
     // send from buffer
   // else
     // return;
+}
+
+
+
+
+void  WebServer::disconnectClient(Client& client)
+{
+  if (client.activeResponse)
+  {
+    mMux->remove(*client.activeResponse);
+    std::vector<IResponse*>::iterator   it = std::find(mResponses.begin(), mResponses.end(), client.activeResponse);
+    mResponses.erase(it);
+    delete client.activeResponse;
+  }
+
+  if (client.activeProxyPair.request)
+  {
+    mMux->remove(client.activeProxyPair.request, IMultiplexer::READ);
+    mMux->remove(client.activeProxyPair.request, IMultiplexer::WRITE);
+    delete client.activeProxyPair.request;
+  }
+
+  if (client.activeProxyPair.response)
+  {
+    mMux->remove(client.activeProxyPair.response, IMultiplexer::READ);
+    mMux->remove(client.activeProxyPair.response, IMultiplexer::WRITE);
+    client.activeProxyPair.setChildFree();
+    delete client.activeProxyPair.response;
+  }
+
+  mMux->remove(client);
+
+  std::vector<Client*>::iterator it = std::find(mClients.begin(), mClients.end(), &client);
+  mClients.erase(it);
 }

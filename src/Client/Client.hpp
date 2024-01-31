@@ -20,15 +20,32 @@
 #include "src/Socket/SocketException.hpp"
 
 #include "src/Request/Request.hpp"
+#include "src/Response/Response.hpp"
 
-class Client : public IClient {
-  int               mIncomingIP;
-  int               mIncomingPort;
-  IClientSocket*    mSocket;
-  bool              mHasClosedTheConnection;
-  IRequest*         mRequest;
+#include "src/CGI/ProxyPair.hpp"
 
-private:
+class Client : public IClient
+{
+  int                   mIncomingIP;
+  int                   mIncomingPort;
+  IClientSocket*        mSocket;
+  std::queue<IRequest*> mRequests;
+
+
+public:
+  enum  Status
+  {
+    CONNECTED,
+    EXCHANGING,
+    RECEIVING,
+    DISCONNECTED
+  };
+
+  IResponse*  activeResponse;
+  ProxyPair   activeProxyPair;
+  // active proxy pair
+  // active upload
+  Status      status;
 
 
 public:
@@ -42,9 +59,7 @@ public:
   virtual int       getIncomingPort() const;
   virtual IRequest* getRequest();
 
-  virtual bool      hasClosedTheConnection() const;
   virtual bool      hasRequest() const;
-
   virtual void      makeRequest();
 
   virtual void      dump();

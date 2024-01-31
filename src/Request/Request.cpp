@@ -13,12 +13,6 @@
 #include <cctype>
 
 /* need to somewhere else*/
-std::string&  str_to_lower(std::string& str)
-{
-    for (std::string::iterator it = str.begin(); it != str.end(); ++it)
-        *it = std::tolower(*it);
-    return (str);
-}
 
 Request::Request(IClientSocket &aSocket, int aIncomingIP, int aIncomingPort):
     mSocket(aSocket),
@@ -28,10 +22,21 @@ Request::Request(IClientSocket &aSocket, int aIncomingIP, int aIncomingPort):
 {}
 
 Request::Request(const Request &r) :
-    mSocket(r.mSocket)
+    mSocket(r.mSocket),
+    mReader(NULL),
+    mIncommingIP(r.mIncommingIP),
+    mIncommingPort(r.mIncommingPort),
+    mMethod(r.mMethod),
+    mUri(r.mUri),
+    mQuery(r.mQuery),
+    mHttpVersion(r.mHttpVersion),
+    mHeaders(r.mHeaders)
 {}
 
-Request::~Request() {}
+Request::~Request() 
+{
+    delete mReader;
+}
 
 Request &Request::operator=(const Request &r)
 {
@@ -46,6 +51,8 @@ Request &Request::operator=(const Request &r)
 }
 
 const IClientSocket &Request::getSocket() const { return mSocket; }
+
+int                 Request::getSocketFd() const { return mSocket.getSocketFd(); }
 
 int Request::getIncomingIP() const { return mIncommingIP; }
 
@@ -67,7 +74,7 @@ const std::string&  Request::getHeader(const std::string &aKey) const
     }
     catch (...)
     {
-        throw RequestException("No such header");
+        return (mNoHeader);
     }
 }
 
@@ -100,17 +107,14 @@ void Request::build()
 
             size_t  contentLength = std::stod(cl.data(), NULL);
 
-            std::cout << "content length(str): " << cl << std::endl;
-            std::cout << "content length(nbr): " << contentLength 
-                << std::endl << std::flush;
-
             mReader = new DefaultRequestReader(mSocket, contentLength);
         }
     }
     catch (const SocketException& e)
     {
         (void)e;
-        throw RequestException(RequestException::CONNECTION_COLOSED);
+        std::cout << "exception\n" << std::flush;
+        throw RequestException(RequestException::CONNECTION_CLOSED);
     }
 }
 
@@ -129,7 +133,7 @@ void Request::parse()
     std::string header = mSocket.readHeaderOnly();
 
     if (header.empty())
-        return ;
+        throw RequestException("Incomplete Header");
 
     std::istringstream ss(header);
     std::string line;
@@ -177,13 +181,11 @@ void Request::parseHeaderProperty(const std::string &aHeaderLine)
     key = aHeaderLine.substr(0, collonPos);
     value = aHeaderLine.substr(collonPos + 1);
 
-    utils::trimSpaces(key);
-    utils::trimSpaces(value);
+    utils::trim_spaces(key);
+    utils::trim_spaces(value);
 
-    str_to_lower(key);
-    str_to_lower(value);
-
-    std::cout << "|" << key << "|" << std::endl;
+    utils::str_to_lower(key);
+    utils::str_to_lower(value);
 
     if (key.empty())
         throw RequestException(aHeaderLine + "Unkown header format");
@@ -212,8 +214,8 @@ void Request::dump(bool colors) const
                 << std::endl;
     }
 
-    cout << "----- body -----\n" << flush;
-    std::string body = mReader->read();
+    // cout << "----- body -----\n" << flush;
+    // std::string body = mReader->read();
 
-    cout << body << endl << flush;
+    // cout << body << endl << flush;
 }

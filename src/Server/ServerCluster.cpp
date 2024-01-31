@@ -27,38 +27,31 @@ ServerCluster&	ServerCluster::operator=( const ServerCluster& s )
 
 IResponse*  ServerCluster::handle(IRequest* request)
 {
-    std::cout << "handling request...\n" << std::flush;
-
-    (void)request;
     std::string file = "pages/index.html";
     std::string mime = "text/html";
 
     std::cout << "req.uri: " << request->getURI() << std::endl << std::flush;
 
     if (request->getURI() != "/"){
-        std::cout << "a file\n" << std::flush;
-        file = "pages/";
+        file = "pages";
         const std::string&    uri = request->getURI();
         file += uri.substr(uri.rfind('/'));
         if (file.rfind('.') == std::string::npos)
             mime = "text/plain";
         else {
             std::string extension = file.substr(file.rfind('.') + 1);
-            std::cout << "extension: " << extension << std::endl;
             if (extension == "html")
                 mime = "text/html";
             else if (extension == "jpeg")
                 mime = "image/jpeg";
             else if (extension == "mp4")
                 mime = "video/mp4";
+            else if (extension == "ico")
+                mime = "image/png";
         }
     }
 
-    std::cout << "file: " << file << std::endl << "mime: " << mime << std::endl << std::flush;
-
     Response*   response = new Response(request->getSocket());
-
-    std::cout << "configuring response...\n" << std::flush;
 
     response->setStatusCode(200)
         .setHeader("content-type", mime)
@@ -70,9 +63,9 @@ IResponse*  ServerCluster::handle(IRequest* request)
     return (response);
 }
 
-#include "src/Server/CGIHandler.hpp"
+#include "src/CGI/CGIHandler.hpp"
 
-IProxiedResponse*   ServerCluster::handleCGI(IRequest* request)
+ProxyPair   ServerCluster::handleCGI(IRequest* request)
 {
     CGIHandler    handler;
 

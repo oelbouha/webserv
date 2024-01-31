@@ -37,7 +37,7 @@ private:
     union
     {
         IResponse*  mResponse;
-        ProxyPair*  mProxyPair;
+        ProxyPair   mProxyPair;
     };
 };
 #endif

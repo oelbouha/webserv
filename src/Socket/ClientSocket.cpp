@@ -11,14 +11,19 @@
 #include <string>
 
 ClientSocket::ClientSocket(int aFileDes):
-    mID(aFileDes)
-{}
+    mID(aFileDes),
+    mRead(-1)
+{
+    // std::cout << "client socket +++++++++++++++++++++++++++++++++ opened " << mID << std::endl;
+}
 
 ClientSocket::ClientSocket(const ClientSocket &aClientSocket):
     mID(aClientSocket.mID)
 {}
 
-ClientSocket::~ClientSocket() {
+ClientSocket::~ClientSocket()
+{
+    // std::cout << "client socket +++++++++++++++++++++++++++++++++ closing " << mID << std::endl;
     ::close(mID);
 }
 
@@ -35,8 +40,10 @@ int ClientSocket::write( const std::string& aBuffer ) const
 {
     int r = ::write(mID, aBuffer.c_str(), aBuffer.length());
 
-    if (r < 0)
+    if (r < 0){
+        perror("socket write");
         throw SocketException(std::string("Couldn't write to socket: ") + strerror(errno));
+    }
 
     return (r);
 }

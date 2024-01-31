@@ -59,12 +59,19 @@ namespace utils
 		return (std::isspace(c) == false);
 	}
 
-	std::string&	trimSpaces(std::string& s)
+	std::string&	trim_spaces(std::string& s)
 	{
 		s.erase(s.begin(), 
 			std::find_if( s.begin(), s.end(), isNotSpace ));
 		s.erase( std::find_if( s.rbegin(), s.rend(), isNotSpace ).base(), 
 			s.end());
 		return (s);
+	}
+
+	std::string&  str_to_lower(std::string& str)
+	{
+		for (std::string::iterator it = str.begin(); it != str.end(); ++it)
+			*it = std::tolower(*it);
+		return (str);
 	}
 }

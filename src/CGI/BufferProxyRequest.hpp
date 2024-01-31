@@ -34,6 +34,7 @@ public:
     int     getOutputFd() const;
     int     getSocketFd() const;
 
+    void    read();
     void    send();
     bool    done() const;
 

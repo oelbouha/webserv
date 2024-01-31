@@ -43,11 +43,14 @@ class Request : public IRequest
     std::string     mHttpVersion;
     RHeaders        mHeaders;
 
+    std::string     mNoHeader;
+
 public:
     Request(IClientSocket &mSocket, int aIncomingIP, int aIncomingPort);
     ~Request();
 
-    const IClientSocket&      getSocket() const;
+    const IClientSocket&    getSocket() const;
+    int                     getSocketFd() const;
 
     int                 getIncomingIP() const;
     int                 getIncomingPort() const;
@@ -63,8 +66,8 @@ public:
     bool                done() const;
     void                dump( bool colors = true ) const;
 
-private:
     Request(const Request &aRequest);
+private:
     Request &operator=(const Request &aRequest);
 
     void parse();

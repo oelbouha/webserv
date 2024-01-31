@@ -21,8 +21,11 @@ public:
 
     virtual void        build() = 0;
 
+    virtual void        read() = 0;
     virtual void        send() = 0;
     virtual bool        done() const = 0;
+    virtual bool        error() const = 0;
+    virtual bool        sent() const = 0;
 
 };
 #endif

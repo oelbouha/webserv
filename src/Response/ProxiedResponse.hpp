@@ -31,7 +31,7 @@ class ProxiedResponse : public IProxiedResponse
   int               mOutput;
 
   bool              mIsForwardingComplete;
-  bool              mIsSendingComplete;
+  bool              mdone;
 
   bool              mIsHeaderComplete;
 
@@ -62,7 +62,7 @@ public:
   virtual void        forward();
   virtual void        send();
 
-  virtual bool        isSendingComplete() const;
+  virtual bool        done() const;
   virtual bool        isFrowardingComplete() const;
 
 private:

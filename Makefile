@@ -22,7 +22,7 @@ INC := -I. \
 #TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
 TMP :=
 
-CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP)
+CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) #-fsanitize=address -g 
 
 LINKER := -L/goinfre/ysalmi/brew/opt/llvm/lib/c++ \
 		-Wl,-rpath,/goinfre/ysalmi/brew/opt/llvm/lib/c++
@@ -56,16 +56,22 @@ SOCKET_COMPONENT := Socket/ClientSocket.cpp \
 REQUEST_COMPONENT := Request/Request.cpp \
 	Request/DefaultRequestReader.cpp \
 	Request/ChunkedRequestReader.cpp \
+	Request/BufferRequest.cpp \
 	Request/RequestException.cpp
 
 RESPONSE_COMPONENT := Response/Response.cpp \
 	Response/ProxiedResponse.cpp \
 	Response/ResponseException.cpp 
 
+CGI_COMPONENT	:= CGI/CGIHandler.cpp \
+	CGI/ProxyPair.cpp \
+	CGI/CGIResponse.cpp \
+	CGI/DescriptorProxyRequest.cpp \
+	CGI/BufferProxyRequest.cpp
+
 MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
 
-SERVER_COMPONENT := Server/ServerCluster.cpp \
-					Server/CGIHandler.cpp
+SERVER_COMPONENT := Server/ServerCluster.cpp 
 
 CLIENT_COMPONENT := Client/Client.cpp
 
@@ -75,6 +81,7 @@ SRC := $(MAIN_COMPONENT) \
 	$(SOCKET_COMPONENT) \
 	$(REQUEST_COMPONENT) \
 	$(RESPONSE_COMPONENT) \
+	$(CGI_COMPONENT) \
 	$(MULTIPLEXER_COMPONENT) \
 	$(SERVER_COMPONENT) \
 	$(CLIENT_COMPONENT) \

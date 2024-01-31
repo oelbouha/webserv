@@ -48,15 +48,13 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"error_pages",
 			"server",
 		
-		"mime_types:",
-			"*",
-		
 		"server:",
 			"port",
 			"name",
 			"root",
 			"index",
 			"route",
+			"host",
 
 		"route:",
 			"uri",

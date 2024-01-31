@@ -8,25 +8,26 @@
  */
 
 #pragma once
-#include "IClientSocket.hpp"
 #ifndef ICLIENT_HPP
 #define ICLIENT_HPP
 
+#include "IClientSocket.hpp"
 #include "IRequest.hpp"
+#include "IResponse.hpp"
 
 class IClient {
     public:
         virtual ~IClient(){};
-        virtual void makeRequest() = 0;
-        virtual bool hasRequest() const = 0;
-        virtual bool hasClosedTheConnection() const = 0;
-        virtual IRequest *getRequest() = 0;
-        virtual int getSocketFd() const = 0;
-        virtual int getIncomingIP() const = 0;
-        virtual int getIncomingPort() const = 0;
+
+        virtual void                    makeRequest() = 0;
+        virtual bool                    hasRequest() const = 0;
+        virtual IRequest*               getRequest() = 0;
+        virtual int                     getSocketFd() const = 0;
+        virtual int                     getIncomingIP() const = 0;
+        virtual int                     getIncomingPort() const = 0;
+        virtual const IClientSocket&    getSocket() const = 0;
 
         virtual void dump() = 0;
 
-        virtual const IClientSocket&    getSocket() const = 0;
 };
 #endif

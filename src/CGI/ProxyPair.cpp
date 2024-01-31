@@ -9,46 +9,49 @@
 
 #include "ProxyPair.hpp"
 
+ProxyPair::ProxyPair():
+    request(NULL),
+    response(NULL),
+    mPID(-10)
+{}
+
 ProxyPair::ProxyPair(int pid, IProxyRequest* req, IProxyResponse* res):
-    mPID(pid),
-    mRequest(req),
-    mResponse(res)
+    request(req),
+    response(res),
+    mPID(pid)
 {}
 
 ProxyPair::ProxyPair( const ProxyPair& p ) :
-    mRequest(p.mRequest),
-    mResponse(p.mResponse)
+    request(p.request),
+    response(p.response),
+    mPID(p.mPID)
 {}
 
 ProxyPair::~ProxyPair()
-{
-    delete mRequest;
-    delete mResponse;
-    ::waitpid(mPID, NULL, 0);
-}
+{}
 
 ProxyPair&	ProxyPair::operator=( const ProxyPair& p )
 {
     if (this != &p)
     {
-        mRequest = p.mRequest;
-        mResponse = p.mResponse;
+        request = p.request;
+        response = p.response;
+        // client = p.client;
+        mPID = p.mPID;
     }
 	return (*this);
 }
 
-IProxyRequest*   ProxyPair::request()
+void    ProxyPair::setChildFree()
 {
-    return (mRequest);
+    int ret = ::waitpid(mPID, NULL, WNOHANG);
+    if (ret == -1)
+        perror("proxy pair");
+    if (ret == 0)
+    {
+        kill(mPID, SIGKILL);
+        ::waitpid(mPID, NULL, 0);
+    }
+
 }
 
-IProxyResponse*      ProxyPair::response()
-{
-    return (mResponse);
-}
-
-void            ProxyPair::destroyRequest()
-{
-    delete mRequest;
-    mRequest = NULL;
-}

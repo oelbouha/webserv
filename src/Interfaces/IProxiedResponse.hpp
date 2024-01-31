@@ -28,7 +28,7 @@ public:
     virtual void        forward() = 0;
     // virtual void        send() = 0;
 
-    // virtual bool        isSendingComplete() const = 0;
+    // virtual bool        done() const = 0;
     virtual bool        isFrowardingComplete() const = 0;
 };
 #endif

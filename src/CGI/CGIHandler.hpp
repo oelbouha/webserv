@@ -11,16 +11,25 @@
 #ifndef CGIHANDLER_HPP
 #define CGIHANDLER_HPP
 
+#include <vector>
+
+#include "DescriptorProxyRequest.hpp"
+#include "ProxyPair.hpp"
+#include <string>
+#include <unistd.h>
+
 #include "IProxyHandler.hpp"
 #include "src/Interfaces/IRequest.hpp"
 #include "src/Response/ProxiedResponse.hpp"
 
 #include "ProxyPair.hpp"
 #include "DescriptorProxyRequest.hpp"
-#include "ProxyResponse.hpp"
+#include "CGIResponse.hpp"
 
 class CGIHandler
 {
+	std::vector<std::string>	mArgs, mEnv;
+	void	compileEnv(IRequest& req);
 public:
 	CGIHandler();
 	CGIHandler( const CGIHandler& c);
@@ -28,6 +37,6 @@ public:
 
 	CGIHandler&	operator=( const CGIHandler& c );
 
-    virtual ProxyPair*   handle(IRequest* request);
+    virtual ProxyPair   handle(IRequest* request);
 };
 #endif
