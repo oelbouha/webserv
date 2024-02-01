@@ -28,7 +28,6 @@ public:
     virtual std::string read( unsigned int aMaxSize ) = 0;
 
     virtual void        setNonBlocking() = 0;
-
     virtual void        dump() = 0;
 };
 #endif

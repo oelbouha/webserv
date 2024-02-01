@@ -13,6 +13,7 @@
 
 #include "src/CGI/ProxyPair.hpp"
 #include "src/Interfaces/IResponse.hpp"
+#include "src/Route/Upload.hpp"
 
 class Result
 {
@@ -24,11 +25,13 @@ public:
 
     IResponse*  response();
     ProxyPair*  proxyPair();
+    Upload*     upload();
 
     enum    Type
     {
         RESPONSE,
-        PROXY_PAIR
+        PROXY_PAIR,
+        UPLOAD
     };
     
     const Type   type;
@@ -38,6 +41,7 @@ private:
     {
         IResponse*  mResponse;
         ProxyPair   mProxyPair;
+        Upload*     mUpload
     };
 };
 #endif

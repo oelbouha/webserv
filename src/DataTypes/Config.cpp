@@ -22,9 +22,9 @@ Config::Config( const fstream& aFileStream )
 
 Config::~Config()
 {
-	map<string, vector<Config*> >::iterator	mapIt = mBlockConfigs.begin();
+	map<string, vector<Config*> >::iterator	mapIt = mBlockConfig.begin();
 
-	while (mapIt != mBlockConfigs.end())
+	while (mapIt != mBlockConfig.end())
 	{
 		// mapIt->second is a vector of Config*
 		vector<Config*>&	vec = mapIt->second;
@@ -48,7 +48,7 @@ Config&	Config::operator=( Config& c )
 
 vector<Config*>		Config::getBlockConfig(const string& key) const
 {
-	return (mBlockConfigs.at(key));
+	return (mBlockConfig.at(key));
 }
 
 vector<string>		Config::getListConfig(const string& key) const
@@ -63,7 +63,7 @@ const string&		Config::getInlineConfig(const string& key) const
 
 void				Config::addBlock(const string& property, Config* value)
 {
-	mBlockConfigs[property].push_back(value);
+	mBlockConfig[property].push_back(value);
 }
 
 void				Config::addList(const string& property, const vector<string>& value)
@@ -76,7 +76,125 @@ void				Config::addInline(const string& property, const string& value)
 	mInlineConfig[property] = value;
 }
 
+bool		Config::hasBlock(const string& property) const
+{
+	try {
+		mBlockConfig.at(property);
+		return (true);
+	}
+	catch(...){
+		return (false);
+	}
+}
 
+bool		Config::hasList(const string& property) const 
+{
+	try {
+		mListConfig.at(property);
+		return (true);
+	}
+	catch(...){
+		return (false);
+	}
+}
+
+bool		Config::hasInline(const string& property) const
+{
+	try {
+		mInlineConfig.at(property);
+		return (true);
+	}
+	catch(...){
+		return (false);
+	}
+}
+
+
+void	Config::addInLineIfExist(Config& config, const string& prop)
+{
+	if (prop.empty())
+		return ;
+	string property;
+	if (config.hasInline(prop) == true)
+	{
+		property = config.getInlineConfig(prop);
+		addInline(prop, property);
+	}
+}
+
+
+void	Config::addInlineIfNotExist(Config& config, const string& prop){
+	if (prop.empty())
+		return ;
+	if (hasInline(prop) == false)
+		addInLineIfExist(config, prop);
+}
+
+void	Config::addBlockIfExist(Config& server, string prop)
+{
+	if (prop.empty())
+		return ;
+	if (server.hasBlock(prop) == true)
+	{
+		std::vector<Config*> error_page = server.getBlockConfig(prop);
+		std::vector<Config*>::iterator it = error_page.begin();
+		while (it != error_page.end()){
+				addBlock(prop, *it);
+			++it;
+		}
+	}
+}
+
+void	Config::addListIfExist(Config& server, const string& prop)
+{
+	if (prop.empty())
+		return ;
+	if (server.hasList(prop) == true)
+		addList(prop, server.getListConfig(prop));
+}
+
+
+vector<Config*>	Config::getBlockConfigIfExist(const string& property) const 
+{
+	vector<Config*> ret;
+	if (hasBlock(property) == true){
+		ret = getBlockConfig(property);
+	}
+	return ret;
+}
+
+vector<string>	Config::getListConfigIfExist(const string& property) const 
+{
+	vector<string> ret;
+	if (hasList(property) == true)
+		ret = getListConfig(property);
+	return ret;
+}
+
+const string 	Config::getInlineConfigIfExist(const string& property) const 
+{
+	if (hasInline(property) == true){
+		return (getInlineConfig(property));
+	}
+	return "";
+}
+
+void	Config::IsValidDirective(const std::string& property) {
+	std::string value;
+	if (property == "host")
+	{
+		value = getInlineConfigIfExist(property);
+		if (utils::isValidIp_address(value) == false)
+			throw ConfigException("Webserver: Invalid IPv4 address format.", property, value);
+		return ;
+	}
+	value = getInlineConfigIfExist(property);
+	if (utils::isValidNumber(value) == false)
+		throw ConfigException("Webserver : Not a Valid Number", property, value);
+} 
+
+
+/****************************************************************************************************/
 void				Config::dump(int indent) const
 {
 	// std::cout << "==================\n" << "|| " << indent << "\n=================\n" << std::endl;
@@ -113,9 +231,9 @@ void				Config::dump(int indent) const
 	if (mListConfig.size())
 		std::cout << std::endl;
 
-	std::map<string, vector<Config*> >::const_iterator	bit = mBlockConfigs.begin();
+	std::map<string, vector<Config*> >::const_iterator	bit = mBlockConfig.begin();
 
-	while (bit != mBlockConfigs.end())
+	while (bit != mBlockConfig.end())
 	{
 		const vector<Config*>&	v = bit->second;
 		vector<Config*>::const_iterator	it = v.begin();

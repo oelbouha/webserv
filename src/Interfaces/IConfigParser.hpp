@@ -17,8 +17,8 @@ class IConfigParser
 {
 	public:
 		virtual		~IConfigParser(){};
-		virtual const Config&	parse() = 0;
-		virtual const Config&	getConfig() = 0;
+		virtual  Config*	parse() = 0;
+		virtual  Config&	getConfig() = 0;
 
 };
 #endif

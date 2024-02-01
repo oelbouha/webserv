@@ -27,11 +27,13 @@ class ProxiedResponse : public IProxiedResponse
 {
   IRequest&         mRequest;
   const IClientSocket&    mSocket;
+
   int               mInput;
   int               mOutput;
 
   bool              mIsForwardingComplete;
   bool              mdone;
+
 
   bool              mIsHeaderComplete;
 
@@ -43,27 +45,30 @@ class ProxiedResponse : public IProxiedResponse
 
 public:
 	ProxiedResponse(IRequest& req, int inputFd, int outputFd);
+
 	~ProxiedResponse();
 
 	ProxiedResponse&	operator=( const ProxiedResponse& p );
+    
+    virtual void        setIsHeaderComplete(bool isHeaderComplete);
+    virtual bool        isHeaderComplete();
+    virtual void        completeHeader();
+
+    virtual void        forward();
+    virtual void        send();
+
+    virtual bool        isSendingComplete() const;
+    virtual bool        isFrowardingComplete() const;
 
   virtual int         getInputFd() const;
   virtual int         getOutputFd() const;
   virtual int         getSocketFd() const;
-    
-  virtual void        setIsHeaderComplete(bool isHeaderComplete);
-  virtual bool        isHeaderComplete();
-  virtual void        completeHeader();
 
   virtual IResponse&  setStatusCode( unsigned int aStatusCode );
   virtual IResponse&  setHeader( const std::string& aKey, const std::string& aValue );
   virtual IResponse&  build();
 
-  virtual void        forward();
-  virtual void        send();
-
   virtual bool        done() const;
-  virtual bool        isFrowardingComplete() const;
 
 private:
     std::string         readHeader();

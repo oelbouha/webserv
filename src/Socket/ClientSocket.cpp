@@ -36,9 +36,10 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &aClientSocket)
 
 int ClientSocket::getSocketFd() const { return mID; }
 
+
 int ClientSocket::write( const std::string& aBuffer ) const
 {
-    int r = ::write(mID, aBuffer.c_str(), aBuffer.length());
+    int r = ::write(mID, aBuffer.data(), aBuffer.length());
 
     if (r < 0){
         perror("socket write");

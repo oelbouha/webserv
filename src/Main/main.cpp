@@ -23,26 +23,19 @@ int main(int c, char *v[])
 	if (c > 1)
 		configFilePath = v[1];
 	
-	// try
-	// {
-		const Config&	config = factory::makeConfigParser(configFilePath)->parse();
 
-        // Config * cluster = config.getBlockConfig("cluster").front();
+	try
+	{
+		Config	*config = factory::makeConfigParser(configFilePath)->parse();
 
-        // cluster->dump();
-
-        // std::vector<Config*>    servers = cluster->getBlockConfig("server");
-
-        // servers.front()->dump();
-
-		WebServer		server(&config);
+		WebServer		server(config);
 
 		server.start();
 		server.loop();
-	// }
-	// catch(const std::exception& e)
-	// {
-	// 	std::cerr << e.what() << " 0 \n";
-	// }
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << " 0 \n";
+	}
 	return (0);
 }

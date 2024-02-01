@@ -65,7 +65,7 @@ Response&   Response::setBodyFile( const std::string& aFileName )
     if (mFile < 0)
     {
         mStatusCode = 404;
-        setBody("<h1 style=\"text-align: center;\">404 Not Found</h1>");
+        setBody(Helper::BuildCustumPage(mStatusCode));
         setHeader("content-type", "text/html");
         return *this;
     }
@@ -97,6 +97,10 @@ Response&   Response::setBodyFile( const std::string& aFileName )
         }
       }
     */
+    
+    const std::string& extension = utils::getExtension(aFileName);
+    setHeader("content-type", MimeTypes::getMimeType(extension));
+
     file.close();
     return *this;
 }
@@ -105,14 +109,15 @@ Response &Response::build()
 {
   mRawResponse = "HTTP/1.1 " + Response::sStatusCodes.at(mStatusCode) + "\r\n";
 
-  for (std::map<std::string, std::string>::iterator it = mHeaders.begin();
-       it != mHeaders.end(); ++it)
+  for (std::map<std::string, std::string>::iterator it = mHeaders.begin();it != mHeaders.end(); ++it)
     mRawResponse += it->first + ": " + it->second + "\r\n";
+
   mRawResponse += "\r\n";
 
   if (mFile < 0)
     mRawResponse += mBody;
 
+  std::cout << "response:\n" << mRawResponse << std::endl;
   return (*this);
 }
 

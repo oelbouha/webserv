@@ -18,9 +18,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "src/Server/MimeTypes.hpp"
+#include "src/Server/Helper.hpp"
 #include "IClientSocket.hpp"
 #include "IResponse.hpp"
 #include "src/Socket/SocketException.hpp"
+#include "Utils.hpp"
 
 class Response : public IResponse {
   const IClientSocket&                  mSocket;

@@ -1,28 +1,87 @@
 #comment;
-error_log_file   : /Users/ysalmi/webserv.error.log
+error_log_file  : /Users/ysalmi/webserv.error.log
 error_log_level : warn
 
 cluster:
-	# mime_types:
-	# 	html: text/html
-	# 	jpg: image/jpeg
-  # default_mime_type: text/plain
+  # mime_types:
+  #   default_mime: text/plain
+  #   html: text/html
+  #   jpg: image/jpeg
   keep_alive:	65
-  #keep_alive_timeout: 10
   server_props: no
+
+  error_page:
+    file: /40x.html
+    codes:
+      - 401
+      - 404
+      - 416
   server:
-    port: 8080
-    name: ysalmi.ma
+    root: /Users/ysalmi/code/in_progress/webserv
+    Default: yes
+    host: localhost
+    port: 8000
+    name: localhost
+    # index: index.html
+    error_page:
+      file: /50x.html
+      codes:
+        - 500
+        - 501
+    error_page:
+      file: /40x.html
+      codes:
+        - 418
+        - 404
+    upload: /upload
+    cgi:
+      - .py
+
     route:
-      uri: /
+      uri: /test/
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      redirect:
+        code: 301
+        location: /
       allowed_methods:
-        - GET
         - POST
         - DELETE
-  server:
-    port: 8090
-    name: ysalmi.ma
+        - GET
     route:
+      uri: /
+      root: /Users/ysalmi/code/in_progress/webserv
+      upload: /upload
+      autoindex: yes
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+    route:
+      uri: /pages/test
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      upload: /upload
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+    route:
+      uri: /pages
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      index: index.html
+      upload: /upload
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+
+  server:
+    host: 127.0.0.1
+    index: index.html
+    root: /Users/oelbouha/Desktop/web
+    port: 8058
+    name: localhost
+    route:
+      root: /Udsdsdsdsdsdsdsdsdsdsds
       uri: /
       allowed_methods:
         - GET

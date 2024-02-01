@@ -162,3 +162,14 @@ static char**   vectorToCStringArray(const std::vector<std::string>& vec)
     ret[k] = NULL;
     return (ret);
 }
+
+
+/*
+
+request_uri = /tester.py/upload/dir
+script_name = /tester.py
+path_info = /upload/dir
+path_translated = root + path_info
+document_root = root
+
+*/

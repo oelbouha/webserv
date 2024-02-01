@@ -34,7 +34,9 @@ public:
     virtual int                 getIncomingPort() const = 0;
 
     virtual void                build() = 0;
+    
     virtual std::string         read() = 0;
     virtual bool                done() const = 0;
+    
 };
 #endif

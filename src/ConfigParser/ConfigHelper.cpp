@@ -13,26 +13,44 @@ const string	ConfigHelper::sInlineConfigs[] = {
 	"port",
 	"name",
 	"root",
+	"host",
 	"index",
 	"keep_alive",
+	"keep_alive_timeout",
 	"uri",
 	"error_log_file",
 	"error_log_level",
 	"server_props",
+	"upload",
+	"extension",
+	"handler",
+	"file",
+	"Default",
+	"autoindex",
+	"code",
+	"location",
+	"default_mime",
 	LIST_END
 };
 
 const string	ConfigHelper::sListConfigs[] = {
 	"allowed_methods",
+	"codes",
+	"cgi",
 	LIST_END
 };
 
 const string    ConfigHelper::sBlockConfigs[] = {
     "cluster",
-    "server",
-    "route",
+	"redirect",
+	"server",
+	"route",
+	"error_page",
+	"mime_types",
+
     LIST_END
 };
+
 
 AllowedValues	ConfigHelper::initAllowedValues(){
 	const string				allowedValuesRaw[] = {
@@ -45,8 +63,12 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"mime_types",
 			"keep_alive",
 			"server_props",
-			"error_pages",
+			"error_page",
 			"server",
+		
+		"mime_types:",
+			"default_mime",
+			"*",
 		
 		"server:",
 			"port",
@@ -55,10 +77,35 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"index",
 			"route",
 			"host",
+			"upload",
+			"cgi",
+			"Default",
+			"index",
+			"error_page",
 
 		"route:",
 			"uri",
+			"root",
+			"upload",
 			"allowed_methods",
+			"index",
+			"autoindex",
+			"error_page",
+			"redirect",
+		"redirect:"
+			"code",
+			"location",
+		"cgi:",
+			".py",
+			".php",
+
+        "server_props:",
+            "yes", "no",
+
+
+        "allowed_methods:",
+            "GET", "POST", "DELETE",
+
 
         "server_props:",
             "yes", "no",

@@ -42,7 +42,8 @@ MAIN_COMPONENT := Main/main.cpp \
 
 UTILS_COMPONENT := Utils.cpp
 
-DATATYPES_COMPONENT := DataTypes/Config.cpp
+DATATYPES_COMPONENT := DataTypes/Config.cpp \
+						DataTypes/ConfigException.cpp
 
 CONFIG_PARSER_COMPONENT := ConfigParser/ConfigHelper.cpp \
 	ConfigParser/YmlConfigParser.cpp \
@@ -60,8 +61,8 @@ REQUEST_COMPONENT := Request/Request.cpp \
 	Request/RequestException.cpp
 
 RESPONSE_COMPONENT := Response/Response.cpp \
-	Response/ProxiedResponse.cpp \
 	Response/ResponseException.cpp 
+# Response/ProxiedResponse.cpp \
 
 CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 	CGI/ProxyPair.cpp \
@@ -71,7 +72,14 @@ CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 
 MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
 
-SERVER_COMPONENT := Server/ServerCluster.cpp 
+SERVER_COMPONENT := Server/ServerCluster.cpp \
+					Server/Server.cpp \
+					Server/ErrorPage.cpp \
+					Server/MimeTypes.cpp \
+					Server/Helper.cpp \
+					Route/Upload.cpp \
+					Route/RedirectRoute.cpp \
+					Route/Route.cpp
 
 CLIENT_COMPONENT := Client/Client.cpp
 

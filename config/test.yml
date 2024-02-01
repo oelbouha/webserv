@@ -1,0 +1,39 @@
+#comment;
+error_log_file  : /Users/ysalmi/webserv.error.log
+error_log_level : warn
+
+cluster:
+  # mime_types:
+  #   default_mime: text/plain
+  #   html: text/html
+  #   jpg: image/jpeg
+  server:
+    Default: yes
+    host: localhost
+    port: 8000
+    name: localhost
+    root: /Users/ysalmi/code/in_progress/webserv/YoupiBanane
+    cgi:
+      - .py
+
+    route:
+      uri: /
+      allowed_methods:
+        - GET
+    route:
+      uri: /directory/
+      index: youpi.bad_extention
+      allowed_methods:
+        - GET
+    route:
+      uri: \.bla$
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      upload: /upload
+      allowed_methods:
+        - POST
+    route:
+      uri: /post_body
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      upload: /upload
+      allowed_methods:
+        - POST

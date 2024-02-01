@@ -87,7 +87,6 @@ void    Client::dump()
     IRequest*   req;
     if (mRequests.empty()){
         makeRequest();
-
         req = mRequests.front();
         if (status == Client::DISCONNECTED)
         {

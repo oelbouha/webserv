@@ -11,18 +11,18 @@
 #ifndef ISERVER_HPP
 #define ISERVER_HPP
 
-#include "IRequest.hpp"
-#include "IResponse.hpp"
-
-#include "IClient.hpp"
+#include "src/Response/Response.hpp"
+#include "src/Response/ProxiedResponse.hpp"
+#include "src/Request/Request.hpp"
+#include "src/DataTypes/Config.hpp"
+#include "Utils.hpp"
 
 class IServer
 {
     public:
-        virtual	~IServer(){};
-        virtual void        listen() = 0;
-        virtual IResponse&  handle( const IRequest& req ) = 0;
-        virtual IClient*    accept() = 0;
+        IServer();
+        virtual	~IServer();
+        
 };
 
 #endif

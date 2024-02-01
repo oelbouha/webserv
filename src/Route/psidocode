@@ -1,0 +1,202 @@
+Upload
+{
+    request;
+    upload_dir;
+    isDone;
+    boundry;
+    buff;
+    body = boundry + "\r\n\r\n";
+
+    field_name;
+    file_name;
+    file_content_type;
+    file_path;
+    file_stream;
+}
+
+
+buff += req.read();
+
+if (first read)
+{
+    if not boundary
+        error;
+    skip boundary
+}
+
+if (search(buff, "\r\n\r\n"))
+{
+    if (!file)
+    {
+        if (search(buff, "boundry")){
+            content = buff.substr(0, buff.find(boundry) + boundry.length());
+            body += content
+            buff.erase(0, content.length())
+        }
+    }
+    else {
+        name = getFieldName();
+        file_name = getFileName();
+        file_content_type = getContentType();
+        file_path = upload_dir + getNextTmpName();
+        file_stream.open();
+        buff.erase(0, buff.find("\r\n\r\n") + 4);
+    }
+}
+else if (buff == "--\r\n")
+{
+    done = true;
+}
+else if (file_stream.good())
+{
+    pos = buff.find(boundary);
+    if (pos != npos)
+    {
+        file_stream << buff.substr(0, pos);
+        file_stream.close();
+        buff.erase(0, pos + boundary.length())
+
+        start = "Content-Disposition: form-data; name=\"";
+        body += start + field_name + "_name\"\r\n\r\n" + file_name + "\r\n" + boundary;
+        body += start + field_name + "_content_type\"\r\n\r\n" + file_content_type + "\r\n" + boundary;
+        body += start + field_name + "_path\"\r\n\r\n" + file_path + "\r\n" + boundary;
+    }
+    else
+    {
+        file_stream << buff;
+        buff.clear();
+    }
+}
+getNextTmpName()
+{
+    static int  n;
+
+    std::stringstream ss;
+    ss << std::setw(11) << std::setfill('0') << n;
+    n++;
+    return ss.str();
+}
+
+
+body += start + field_name + "_name\"\r\n\r\n" + file_name + "\r\n" + boundary;
+body += start + field_name + "_content_type\"\r\n\r\n" + file_content_type + "\r\n" + boundary;
+body += start + field_name + "_path\"\r\n\r\n" + file_path + "\r\n" + boundary;
+
+body += std::string("\r\n") + start + field_name + "_name\"\r\n\r\n" + file_name + "\r\n" + boundary + "\r\n";
+body += start + field_name + "_content_type\"\r\n\r\n" + file_content_type + "\r\n" + boundary + "\r\n";
+body += start + field_name + "_path\"\r\n\r\n" + file_path + "\r\n" + boundary;
+
+
+if (search(buff, "boundry")){
+  content = buff.substr(0, buff.find(boundry) + boundry.length());
+  body += content
+  buff.erase(0, content.length())
+}
+
+
+if (search(buff, "boundry")){
+  content = buff.substr(0, buff.find(boundry) + boundry.length());
+  if (body.empty() == false)
+    body += "\r\n";
+  body += content
+  buff.erase(0, content.length())
+}
+
+
+
+
+------WebKitFormBoundaryTPM4Ws2EdeG3R2li
+Content-Disposition: form-data; name="file1"; filename="example.yml"
+Content-Type: application/x-yaml
+
+#comment
+error_log_file   : /Users/ysalmi/webserv.error.log
+error_log_level : warng
+gotofg
+falseg
+falsegf
+__GCC_ATOMIC_INT_LOCK_FREEg
+f
+g
+falsegfg
+falsegfg
+hghg
+h
+gotohg
+__has_attributeg
+__has_warninghg
+__has_attributeg
+__has_warningh
+goto
+hh
+gotohgg
+
+
+------WebKitFormBoundaryTPM4Ws2EdeG3R2li
+Content-Disposition: form-data; name="file2"; filename=""
+Content-Type: application/octet-stream
+
+
+------WebKitFormBoundaryTPM4Ws2EdeG3R2li--
+
+
+
+
+
+f$SCRIPT_FILENAME /usr/local/nginx/html/upload/test.py
+QUERY_STRING
+REQUEST_METHOD POST
+CONTENT_TYPE multipart/form-data; boundary=---------------------------31386863814024933806880077037
+CONTENT_LENGTH 760
+SCRIPT_NAME /test.py
+REQUEST_URI /upload
+DOCUMENT_URI /test.py
+DOCUMENT_ROOT /usr/local/nginx/html/upload
+SERVER_PROTOCOL HTTP/1.1
+REQUEST_SCHEME http
+GATEWAY_INTERFACE CGI/1.1
+SERVER_SOFTWARE nginx/1.25.3
+REMOTE_ADDR 10.0.2.2
+REMOTE_PORT 51730
+SERVER_ADDR 10.0.2.15
+SERVER_PORT 80
+SERVER_NAME
+REDIRECT_STATUS 200
+HTTP_HOST 127.0.0.1:90
+HTTP_USER_AGENT Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0
+HTTP_ACCEPT text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+HTTP_ACCEPT_LANGUAGE en-GB,en;q=0.5
+HTTP_ACCEPT_ENCODING gzip, deflate, br
+HTTP_CONTENT_TYPE multipart/form-data; boundary=---------------------------31386863814024933806880077037
+HTTP_CONTENT_LENGTH 760
+HTTP_ORIGINhttp://127.0.0.1:90
+HTTP_CONNECTION keep-alive
+HTTP_UPGRADE_INSECURE_REQUESTS1
+HTTP_SEC_FETCH_DESTdocument
+HTTP_SEC_FETCH_MODEnavigate
+HTTP_SEC_FETCH_SITEsame-origin
+HTTP_SEC_FETCH_USER?1
+
+
+-----------------------------31386863814024933806880077037
+Content-Disposition: form-data; name="uploadfile_name"
+
+wallhaven-g7poml.png
+-----------------------------31386863814024933806880077037
+Content-Disposition: form-data; name="uploadfile_content_type"
+
+image/png
+-----------------------------31386863814024933806880077037
+Content-Disposition: form-data; name="uploadfile_path"
+
+/tmp/upload/8/0000000008
+-----------------------------31386863814024933806880077037
+Content-Disposition: form-data; name="uploadfile_md5"
+
+95e4c49d5e7fda51e88d7ac598347d89
+-----------------------------31386863814024933806880077037
+Content-Disposition: form-data; name="uploadfile_size"
+
+321873
+-----------------------------31386863814024933806880077037--
+

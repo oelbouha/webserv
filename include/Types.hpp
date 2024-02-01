@@ -18,9 +18,7 @@ typedef enum e_method
     HEAD,
     GET,
     POST,
-    PUT,
     DELETE,
-    UNDEFINED
 } method_t;
 
 #endif

@@ -7,32 +7,66 @@
  *			File: ServerCluster.hpp 
  */
 
-#pragma once
 #ifndef SERVERCLUSTER_HPP
 #define SERVERCLUSTER_HPP
 
 #include <iostream>
 
 #include "src/Response/Response.hpp"
-#include "src/Response/ProxiedResponse.hpp"
+// #include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
+
 #include "src/CGI/ProxyPair.hpp"
 
 #include "src/CGI/CGIResponse.hpp"
 #include "src/CGI/DescriptorProxyRequest.hpp"
 
-class ServerCluster
-{
-public:
-	ServerCluster();
-	ServerCluster( const ServerCluster& s );
-	~ServerCluster();
-
-	ServerCluster&	operator=( const ServerCluster& s );
-
-    IResponse*          handle(IRequest* request);
-    ProxyPair   		handleCGI(IRequest* request);
+#include "src/DataTypes/Config.hpp"
+#include "src/Server/Server.hpp"
+#include "src/Server/ErrorPage.hpp"
 
 
+class ServerCluster : public IHandler {
+	std::vector<Server *>	servers;
+	unsigned int			statusCode;
+	unsigned int			UriMaxlength;
+	public:
+		ServerCluster();
+		ServerCluster(Config *config);
+		ServerCluster( const ServerCluster& s );
+		ServerCluster&	operator=( const ServerCluster& s );
+		~ServerCluster();
+
+		bool			isServerMatched(const Server& , const  IRequest& );
+		bool			isRequestProperlyStructured(const IRequest &);
+		bool			containsValidCharacters(string uri);
+		void			SetupServers(Config* config);
+
+
+		// IResponse*          handle(IRequest* request);
+		ProxyPair   		handleCGI(IRequest* request);
+
+		string			getRoot() const ;
+		unsigned int 	getStatusCode() const ;
+		
+
+		ErrorPage& 		getErrorPage() const;
+
+		Server*			getDefaultServer();
+		Server*			getMatchedServer(const IRequest &);
+	
+		IResponse*  	handle(IRequest& request);
+
+	private:
+		Server		*server;
+		ErrorPage	*error_pages;
+		unsigned int KeepAlive;
 };
+
+
+/*
+	nc ipaddres port 
+	ipconfig getifaddr
+*/
+
 #endif
