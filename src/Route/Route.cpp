@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/30 15:05:00 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/01/30 16:52:40 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,17 +280,17 @@ IResponse*  Route::ExecuteDELETEMethod(const IRequest& request) {
 }
 
 IResponse*  Route::handle(const IRequest& request) {
+	std::string uri = URI;
+	if (uri.back() == '/')
+		uri.erase(uri.length() - 1);
+	
 	std::string tmp = request.getURI();
-	size_t pos = tmp.find(URI);
-	if (pos != std::string::npos) {
-		tmp.erase(0, URI.length());
-		if (tmp.front() != '/')
-			tmp = "/" + tmp;
-	}
+	size_t pos = tmp.find(uri);
+	if (pos != std::string::npos)
+		tmp.erase(0, uri.length());
+	
 	path = root + tmp;
-	// std::cout << "path >" << path << std::endl;
-	// std::cout << "root >" << root << std::endl;
-	// std::cout << "req uri >" << request.getURI() << std::endl;
+	std::cout << "path >" << path << std::endl;
 	if (IsMethodAllowed(request.getMethod()) == false) {
 		statusCode = 405;
 		return (Helper::BuildResponse(request, *this));

@@ -189,8 +189,12 @@ void	Config::IsValidDirective(const std::string& property) {
 		return ;
 	}
 	value = getInlineConfigIfExist(property);
-	if (utils::isValidNumber(value) == false)
-		throw ConfigException("Webserver : Not a Valid Number", property, value);
+	std::vector<string> ports = utils::SplitString(value, ' ');
+	for(size_t i = 0; i < ports.size(); ++i)
+	{
+		if (utils::isValidNumber(ports[i]) == false)
+			throw ConfigException("Webserver : Not a Valid Number", property, ports[i]);
+	}
 } 
 
 

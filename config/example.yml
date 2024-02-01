@@ -19,7 +19,7 @@ cluster:
     root: /Users/oelbouha/Desktop/web
     Default: yes
     host: localhost
-    port: 8000
+    port: 8000   8000
     name: localhost
     error_page:
       file: /50x.html
@@ -36,7 +36,7 @@ cluster:
       - .py
 
     route:
-      uri: /test/
+      uri: /test
       root: /Users/oelbouha/Desktop/web/pages
       redirect:
         code: 301
@@ -55,15 +55,16 @@ cluster:
         - DELETE
         - GET
     route:
-      uri: /pages/test
+      uri: /pages
       root: /Users/oelbouha/Desktop/web/pages
+      autoindex: yes
       upload: /upload
       allowed_methods:
         - POST
         - DELETE
         - GET
     route:
-      uri: /pages
+      uri: /pages/test
       root: /Users/oelbouha/Desktop/web/pages
       autoindex: yes
       upload: /upload

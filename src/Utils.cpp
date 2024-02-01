@@ -163,7 +163,9 @@ namespace utils
 
 		while (std::getline(ss, component, delimeter)) {
 			std::vector<string>::iterator find = std::find(vec.begin(), vec.end(), component);
-			if (!component.empty() && find == vec.end())
+			if (find != vec.end())
+				throw ConfigException("Webserver: Duplicate Number", "Value", *find);
+			if (!component.empty())
 				vec.push_back(component);
 		}
 
