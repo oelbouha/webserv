@@ -20,7 +20,7 @@ cluster:
     root: /Users/ysalmi/code/in_progress/webserv
     Default: yes
     host: localhost
-    port: 8000
+    port: 8000   8000
     name: localhost
     # index: index.html
     error_page:

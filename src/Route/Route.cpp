@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/01 15:44:36 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/01 15:49:37 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,6 +291,7 @@ IResponse*  Route::ExecuteDELETEMethod(const IRequest& request) {
 	return (Helper::BuildResponse(request, *this));
 }
 
+<<<<<<< HEAD
 IResponse*  Route::handle(IRequest& request) {
 	std::string tmp = request.getURI();
 	std::cout << "route::handle " << request.getURI() << std::endl;
@@ -306,6 +307,20 @@ IResponse*  Route::handle(IRequest& request) {
 	// std::cout << "path >" << path << std::endl;
 	// std::cout << "root >" << root << std::endl;
 	// std::cout << "req uri >" << request.getURI() << std::endl;
+=======
+IResponse*  Route::handle(const IRequest& request) {
+	std::string uri = URI;
+	if (uri.back() == '/')
+		uri.erase(uri.length() - 1);
+	
+	std::string tmp = request.getURI();
+	size_t pos = tmp.find(uri);
+	if (pos != std::string::npos)
+		tmp.erase(0, uri.length());
+	
+	path = root + tmp;
+	std::cout << "path >" << path << std::endl;
+>>>>>>> 41a28a15c2b9aca08670df0aaeee7174411cfa03
 	if (IsMethodAllowed(request.getMethod()) == false) {
 		statusCode = 405;
 		return (Helper::BuildResponse(request, *this));
