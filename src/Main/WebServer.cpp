@@ -464,7 +464,7 @@ void WebServer::sendReadyProxyResponses()
                     client.activeResponse = res;
                 }
                 delete res;
-                Client& client = **itc;
+                // Client& client = **itc;
                 // client.resetTimeout();
             }
         }

@@ -18,7 +18,7 @@ cluster:
       - 416
 
   server:
-    root: /Users/ysalmi/code/in_progress/webserv
+    root: /Users/ysalmi/code/in_progress/webserv/pages
     # default: yes
     # host: localhost
     ports:
@@ -32,7 +32,7 @@ cluster:
         - 500
         - 501
     error_page:
-      file: /40x.html
+      file: /4xx.html
       codes:
         - 418
         - 404
