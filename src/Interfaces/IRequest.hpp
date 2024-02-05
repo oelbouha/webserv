@@ -30,8 +30,8 @@ public:
     virtual const std::string&      getQuery() const = 0;
     virtual size_t                  getContentLength() const = 0;
 
-    virtual int                 getIncomingIP() const = 0;
-    virtual int                 getIncomingPort() const = 0;
+    virtual unsigned int            getIncomingIP() const = 0;
+    virtual unsigned int            getIncomingPort() const = 0;
 
     virtual void                build() = 0;
     

@@ -45,6 +45,7 @@ class Config
 		vector<Config*>		getBlockConfigIfExist(const string& prop) const;
 		vector<string>		getListConfigIfExist(const string& prop) const;
 		const string		getInlineConfigIfExist(const string& prop) const;
+		const string&		getInlineConfigOr(const string& prop, const string& default_value) const;
 
 		void				addBlock(const string& property, Config* value);
 		void				addList(const string& property, const vector<string>& value);
@@ -60,7 +61,7 @@ class Config
 		void				addBlockIfExist(Config& config, string prop);
 		void				addListIfExist(Config& server, const string& prop);
 
-		void				IsValidDirective(const std::string & property);
+		// void				IsValidDirective(const std::string & property);
 	
 		void	dump(int indent = 0) const;
 };

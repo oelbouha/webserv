@@ -14,10 +14,10 @@ class IHandler
 {
     public:
         virtual	~IHandler(){};
-        virtual IResponse*      handle(IRequest& req ) = 0;
-        virtual ErrorPage& 	    getErrorPage() const = 0;
-        virtual string          getRoot() const = 0;
-        virtual unsigned int    getStatusCode() const = 0;
+        // virtual IResponse*          handle(IRequest& req ) = 0;
+        virtual const ErrorPage& 	getErrorPage() const = 0;
+        virtual const string&       getRoot() const = 0;
+        virtual unsigned int        getStatusCode() const = 0;
 };
 
 #endif

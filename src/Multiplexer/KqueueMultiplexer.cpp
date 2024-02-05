@@ -1,14 +1,17 @@
 
 #include "KqueueMultiplexer.hpp"
 
-KqueueMultiplexer::~KqueueMultiplexer(){
-	close (Kq);
+KqueueMultiplexer::~KqueueMultiplexer()
+{
+	close(Kq);
 }
 
-KqueueMultiplexer::KqueueMultiplexer(){
+KqueueMultiplexer::KqueueMultiplexer()
+{
 	fdsChanged = true;
     Kq = kqueue();
-	if (Kq < 0){
+	if (Kq < 0)
+	{
 		perror("Kqueue");
 		// exit (EXIT_FAILURE);
 	}

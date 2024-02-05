@@ -17,7 +17,9 @@ YmlConfigParser::YmlConfigParser( const YmlConfigParser& c )
 {(void)c;}
 
 //TODO: Throw ParserException instead of std::invalid_argument.
-YmlConfigParser::YmlConfigParser( const string& aConfigFile ) : mFileName(aConfigFile)
+YmlConfigParser::YmlConfigParser( const string& aConfigFile ) :
+	mFileName(aConfigFile),
+	mLineNumber(0)
 {
 	mFileStream.open(aConfigFile.c_str());
 	mFileStream.peek();
@@ -76,7 +78,7 @@ Config*			YmlConfigParser::parseBlock_(const string& aKey, int aTabCount)
 	{
 		std::getline(mFileStream, line);
 		++mLineNumber;
-
+		
 		if (isComment_(line))
 			continue ;
 
@@ -88,6 +90,7 @@ Config*			YmlConfigParser::parseBlock_(const string& aKey, int aTabCount)
 		if (aTabCount != -1 && leading_tabs_count <= aTabCount)
         {
             mFileStream.seekg( (size_t)mFileStream.tellg() - line.length() - 1 );
+			mLineNumber--;
 			break ;
         }
 		else if (leading_tabs_count != block_tabs_count)
@@ -95,12 +98,12 @@ Config*			YmlConfigParser::parseBlock_(const string& aKey, int aTabCount)
 
 		property = extractProperty_(line);
 
-		if (!ConfigHelper::isValueAllowed(aKey, property))
+		if (!ConfigHelper::isValueAllowed(aKey, property) && !ConfigHelper::doesConfigAcceptAll(aKey))
 			throw ParserException(mFileName,
 				aKey + " does not have a `" + property + "` property",
 				mLineNumber);
 
-		else if (ConfigHelper::isInlineConfig(property))
+		else if (ConfigHelper::isInlineConfig(property) || ConfigHelper::doesConfigAcceptAll(aKey))
 		{
 			string	value = parseInline_(property, line);
             config->addInline(
@@ -109,6 +112,12 @@ Config*			YmlConfigParser::parseBlock_(const string& aKey, int aTabCount)
 			);
 		}
 		
+		else if ( line.length() != 1)
+		{
+			throw ParserException(mFileName,
+				"Bad Syntax : `" + property + line + "`",
+				mLineNumber);
+		}
 		else if (ConfigHelper::isListConfig(property))
 		{
 			vector<string>	list = parseList_(property, block_tabs_count);
@@ -152,6 +161,7 @@ vector<string>	YmlConfigParser::parseList_(const string& aKey, int aTabCount)
 		else if (tabCount <= aTabCount)
         {
             mFileStream.seekg( (size_t)mFileStream.tellg() - line.length() - 1 );
+			mLineNumber--;
 			break ;
         }
 
@@ -192,7 +202,7 @@ string			YmlConfigParser::parseInline_(const string& aKey, const string& line)
 	std::size_t last_non_space_char = utils::find_last_not_of(line, " \t");
 	
 	if (first_non_space_char == std::string::npos)
-		throw ParserException(mFileName, "Empty field", mLineNumber);
+		throw ParserException(mFileName, "Empty field " + aKey, mLineNumber);
 
 	else if (!std::isspace(line[first_non_space_char - 1]))
 		throw ParserException(mFileName, "Invalid Syntax - Missing space after collon", mLineNumber);
@@ -243,16 +253,21 @@ unsigned int	YmlConfigParser::countLeadingTabs_(const string& line) const
 	return (count);
 }
 
-bool			YmlConfigParser::isComment_(const string& line) const
+bool			YmlConfigParser::isComment_(string& line) const
 {
-	std::size_t	pos = line.find_first_not_of(" \t");
+	std::size_t	pos = line.find("#");
+
+	if (pos != std::string::npos)
+		line.erase(pos);
+
+	pos = line.find_first_not_of(" \t");
 	
 	if (pos == std::string::npos)
 		return (true);
-	return (line[pos] == '#');
+	return (false);
 }
 
-string			YmlConfigParser::extractProperty_(const string& line) const
+string			YmlConfigParser::extractProperty_(string& line) const
 {
 	std::size_t	collon_pos = line.find(':');
 	if (collon_pos == std::string::npos)
@@ -262,5 +277,10 @@ string			YmlConfigParser::extractProperty_(const string& line) const
 	std::string property = line.substr(first_non_space_letter_pos, collon_pos - first_non_space_letter_pos);
 
 	std::size_t	last_non_space_char_pos = utils::find_last_not_of(property, " \t");
-	return (property.substr(0, last_non_space_char_pos));
+	property = property.substr(0, last_non_space_char_pos);
+
+	line.erase(0, collon_pos);
+	utils::trim_spaces(line);
+
+	return (property);
 }

@@ -12,6 +12,11 @@
 
 namespace utils
 {
+	bool	is_not_space(char c)
+	{
+		return (std::isspace(c) == false);
+	}
+
 	std::string&	replace_all(std::string& str, const std::string& old_word, const std::string& new_word)
 	{
 		std::string::size_type n = 0;
@@ -35,52 +40,19 @@ namespace utils
 		return (std::string::npos);
 	}
 
-	unsigned int	ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d)
-	{
-		return (a << 24 | b << 16 | c << 8 | d);
-	}
-
-	std::string		ip(unsigned int aIP)
-	{
-		std::string		ret;
-		unsigned char	byte = aIP >> 0;
-
-		ret += std::to_string(byte) + ".";
-		byte = aIP >> 24 & 255;
-		ret += std::to_string(byte) + ".";
-		byte = aIP >> 16 & 255;
-		ret += std::to_string(byte) + ".";
-		byte = aIP >> 8 & 255;
-		ret += std::to_string(byte);
-		return (ret);
-	}
-
-	std::string		UintToIp(unsigned int ip_int) {
-		std::stringstream ip_stream;
-
-		unsigned char octet1 = (ip_int >> 24) & 0xFF;
-		unsigned char octet2 = (ip_int >> 16) & 0xFF;
-		unsigned char octet3 = (ip_int >> 8) & 0xFF;
-		unsigned char octet4 = ip_int & 0xFF;
-
-		ip_stream << static_cast<int>(octet1) << "." << static_cast<int>(octet2) << "."
-				<< static_cast<int>(octet3) << "." << static_cast<int>(octet4);
-
-		return ip_stream.str();
-	}
-
-	bool	isNotSpace(char c)
-	{
-		return (std::isspace(c) == false);
-	}
-
 	std::string&	trim_spaces(std::string& s)
 	{
 		s.erase(s.begin(), 
-			std::find_if( s.begin(), s.end(), isNotSpace ));
-		s.erase( std::find_if( s.rbegin(), s.rend(), isNotSpace ).base(), 
+			std::find_if( s.begin(), s.end(), is_not_space ));
+		s.erase( std::find_if( s.rbegin(), s.rend(), is_not_space ).base(), 
 			s.end());
 		return (s);
+	}
+	
+	std::string	trim_spaces(const std::string& str)
+	{
+		std::string	s(str);
+		return (trim_spaces(s));
 	}
 
 	std::string&  str_to_lower(std::string& str)
@@ -89,6 +61,79 @@ namespace utils
 			*it = std::tolower(*it);
 		return (str);
 	}
+
+
+	unsigned int			string_to_uint(const std::string& str)
+	{
+		std::string			trimmed = trim_spaces(str);
+		std::stringstream	ss(trimmed);
+		long unsigned int	res;
+		std::string			rest;
+
+		ss >> res;
+		ss >> rest;
+		if (! rest.empty() || trimmed[0] == '-' || res > UINT_MAX)
+			throw std::invalid_argument("argument is not an unsigned integer value");
+		return (res);
+	}
+
+
+	std::vector<string> SplitString(std::string line, char delimeter)
+	{
+		std::vector<string> vec;
+		std::stringstream ss(line);
+		std::string component;
+
+		while (std::getline(ss, component, delimeter)) {
+			std::vector<string>::iterator find = std::find(vec.begin(), vec.end(), component);
+			if (find != vec.end())
+				throw ConfigException("Webserver: Duplicate Number", "Value", *find);
+			if (!component.empty())
+				vec.push_back(component);
+		}
+
+		return vec;
+	}
+
+
+	unsigned int	ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d)
+	{
+		return (a << 24 | b << 16 | c << 8 | d);
+	}
+
+	std::string		ip(unsigned int aIP)
+	{
+		std::ostringstream	ss;
+		unsigned int		byte;
+
+		byte = (aIP >> 24) & 255;
+		ss << byte << ".";
+		byte = (aIP >> 16) & 255;
+		ss << byte << ".";
+		byte = (aIP >> 8) & 255;
+		ss << byte << ".";
+		byte = aIP & 255;
+		ss << byte;
+		return (ss.str());
+	}
+	
+	unsigned int ip(const std::string& ip_address)
+	{
+		std::istringstream	ss(ip_address);
+		std::vector<int>	components;
+		std::string			component;
+
+		while (std::getline(ss, component, '.')){
+			components.push_back(std::stod(component, NULL));
+		}
+
+		if (components.size() != 4)
+			return -1;
+
+		return ip(components[0], components[1], components[2], components[3]);
+	}
+
+	
 
 	int	get_exit_status(pid_t pid)
 	{
@@ -124,7 +169,8 @@ namespace utils
 		return (extension);	
 	}
 
-	bool isValidNumber(std::string line) {
+	bool isValidNumber(std::string line)
+	{
 		for(size_t i = 0; i < line.length(); ++i) {
 			if (std::isdigit(line[i]) == false)
 				return false;
@@ -132,7 +178,8 @@ namespace utils
 		return true;
 	}
 
-	bool isValidIp_address(std::string ip_address) {
+	bool isValidIp_address(std::string ip_address)
+	{
 		if (ip_address == "localhost")
 			return true;
 		std::istringstream ss(ip_address);
@@ -148,40 +195,39 @@ namespace utils
 		return (count == 4);
 	}
 
-	unsigned int ipToUint(const std::string& ip_address) {
-		std::vector<int> components;
-		std::istringstream ss(ip_address);
-		std::string component;
-
-		while (std::getline(ss, component, '.')) {
-			components.push_back(std::stod(component, NULL));
-		}
-
-		if (components.size() != 4) {
-			return 0;
-		}
-
-		unsigned int result = (components[0] << 24) | (components[1] << 16) | (components[2] << 8) | components[3];
-		return result;
-	}
-
-	std::vector<string> SplitString(std::string line, char delimeter) {
-		std::vector<string> vec;
-		std::stringstream ss(line);
-		std::string component;
-
-		while (std::getline(ss, component, delimeter)) {
-			std::vector<string>::iterator find = std::find(vec.begin(), vec.end(), component);
-			if (find != vec.end())
-				throw ConfigException("Webserver: Duplicate Number", "Value", *find);
-			if (!component.empty())
-				vec.push_back(component);
-		}
-
-		return vec;
-	}
-
-	int min(int a, int b) {
+	int min(int a, int b)
+	{
 		return (a < b) ? a : b;
 	}
+
+	unsigned int hostname_to_ip_v4(const std::string& hostname)
+	{
+		unsigned int		ret = -1;
+		struct addrinfo 	hints, *res, *result;
+		struct  in_addr*	ptr;
+
+		std::memset(&hints, 0, sizeof(hints));
+		hints.ai_family = PF_UNSPEC;
+		hints.ai_socktype = SOCK_STREAM;
+
+		int	err = getaddrinfo(hostname.c_str(), NULL, &hints, &result);
+		if (err != 0)
+			return (-1);
+
+		res = result;
+		while (res)
+		{
+			if (res->ai_family == AF_INET)
+			{
+				ptr = &(((struct sockaddr_in *) res->ai_addr)->sin_addr);
+				ret = ptr->s_addr;
+				break;
+			}
+			res = res->ai_next;
+		}
+		freeaddrinfo(result);
+		return ret;
+	}
 }
+
+

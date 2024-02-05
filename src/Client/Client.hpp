@@ -43,7 +43,6 @@ public:
 
   IResponse*  activeResponse;
   ProxyPair   activeProxyPair;
-  // active proxy pair
   // active upload
   Status      status;
 

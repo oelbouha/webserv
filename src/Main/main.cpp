@@ -1,11 +1,10 @@
-
 #include <iostream>
 #include <fstream>
 #include <string>
 
 #include <signal.h>
 
-#include "WebServer.hpp"
+#include "src/Main/WebServer.hpp"
 
 #include "src/Interfaces/IConfigParser.hpp"
 
@@ -35,7 +34,7 @@ int main(int c, char *v[])
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << " 0 \n";
+		std::cerr << e.what() << "\n";
 	}
 	return (0);
 }

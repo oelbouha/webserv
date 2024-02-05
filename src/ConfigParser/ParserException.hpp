@@ -15,6 +15,8 @@
 #include <string>
 #include <cstring>
 
+#include "Utils.hpp"
+
 class ParserException : public std::exception
 {
 	std::string mMessage;

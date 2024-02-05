@@ -54,9 +54,9 @@ const IClientSocket &Request::getSocket() const { return mSocket; }
 
 int                 Request::getSocketFd() const { return mSocket.getSocketFd(); }
 
-int Request::getIncomingIP() const { return mIncommingIP; }
+unsigned int Request::getIncomingIP() const { return mIncommingIP; }
 
-int Request::getIncomingPort() const { return mIncommingPort; }
+unsigned int Request::getIncomingPort() const { return mIncommingPort; }
 
 const std::string&  Request::getMethod() const { return (mMethod); }
 

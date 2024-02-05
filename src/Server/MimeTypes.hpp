@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MimeTypes.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 17:51:14 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/24 13:10:58 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/02/04 16:53:20 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,16 @@
 #include "src/DataTypes/Config.hpp"
 
 class    MimeTypes {
-    static Config*          mimeTypesConfig;
-    static std::string      defaultMimeType;
+    static Config*          mimeTypes;
+    static std::string      defaultType;
 
     MimeTypes();
-
+    static void          setupNeededTypes();
 
 public:
     static void			 setMimeTypes(Config* config);
-    static string    	 getMimeType(const std::string& extention);
+    static void			 setDefault(const std::string& default_mime_type);
+    static const string& getMimeType(const std::string& extention);
 };
 
 

@@ -98,7 +98,7 @@ void    CGIHandler::compileEnv(IRequest& req)
     // SERVER_NAME
     mEnv.push_back("SERVER_NAME=" + req.getHeader("host"));
     // SERVER_PORT
-    mEnv.push_back("SERVER_PORT=" + std::to_string(req.getIncomingPort()));
+    mEnv.push_back("SERVER_PORT=" + utils::to_string(req.getIncomingPort()));
     // REQUEST_METHOD
     mEnv.push_back("REQUEST_METHOD=" + req.getMethod());
     // REQUEST_URI

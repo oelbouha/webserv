@@ -10,8 +10,6 @@
 #include "ConfigHelper.hpp"
 
 const string	ConfigHelper::sInlineConfigs[] = {
-	"port",
-	"name",
 	"root",
 	"host",
 	"index",
@@ -25,7 +23,7 @@ const string	ConfigHelper::sInlineConfigs[] = {
 	"extension",
 	"handler",
 	"file",
-	"Default",
+	"default",
 	"autoindex",
 	"code",
 	"location",
@@ -34,6 +32,8 @@ const string	ConfigHelper::sInlineConfigs[] = {
 };
 
 const string	ConfigHelper::sListConfigs[] = {
+	"ports",
+	"names",
 	"allowed_methods",
 	"codes",
 	"cgi",
@@ -60,19 +60,19 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"error_log_level",
 		
 		"cluster:",
+			"default_mime",
 			"mime_types",
 			"keep_alive",
 			"server_props",
 			"error_page",
 			"server",
-		
+
 		"mime_types:",
-			"default_mime",
 			"*",
-		
+
 		"server:",
-			"port",
-			"name",
+			"ports",
+			"names",
 			"root",
 			"index",
 			"route",
@@ -82,6 +82,11 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"Default",
 			"index",
 			"error_page",
+			"default",
+
+		"default:",
+			"yes",
+			"no",
 
 		"route:",
 			"uri",
@@ -92,16 +97,13 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"autoindex",
 			"error_page",
 			"redirect",
+
 		"redirect:"
 			"code",
 			"location",
-		"cgi:",
-			".py",
-			".php",
 
         "server_props:",
             "yes", "no",
-
 
         "allowed_methods:",
             "GET", "POST", "DELETE",
@@ -159,6 +161,22 @@ bool	ConfigHelper::isValueAllowed(const string& aConfig, const string& aValue)
     catch (...)
     {
         return true;
+    }
+}
+
+bool	ConfigHelper::doesConfigAcceptAll(const string& aConfig)
+{
+    try {
+	    vector<string>	properties = ConfigHelper::sAllowedValues.at(aConfig); // m['server']
+		std::string		aValue = "*";
+
+	    if (std::find(properties.begin(), properties.end(), aValue) != properties.end())
+		    return true;
+        return false;
+    }
+    catch (...)
+    {
+        return false;
     }
 }
 

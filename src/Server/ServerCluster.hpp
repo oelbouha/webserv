@@ -10,10 +10,13 @@
 #ifndef SERVERCLUSTER_HPP
 #define SERVERCLUSTER_HPP
 
+
+#define CLUSTER_DEFAULT_ROOT "/tmp"
+
 #include <iostream>
+#include <utility>
 
 #include "src/Response/Response.hpp"
-// #include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
 
 #include "src/CGI/ProxyPair.hpp"
@@ -25,48 +28,35 @@
 #include "src/Server/Server.hpp"
 #include "src/Server/ErrorPage.hpp"
 
+#include "Result.hpp"
 
-class ServerCluster : public IHandler {
+#include <cstring>
+
+
+class ServerCluster
+{
 	std::vector<Server *>	servers;
-	unsigned int			statusCode;
-	unsigned int			UriMaxlength;
-	public:
-		ServerCluster();
-		ServerCluster(Config *config);
-		ServerCluster( const ServerCluster& s );
-		ServerCluster&	operator=( const ServerCluster& s );
-		~ServerCluster();
+	ErrorPage				error_pages;
+	unsigned int 			KeepAlive;
 
-		bool			isServerMatched(const Server& , const  IRequest& );
-		bool			isRequestProperlyStructured(const IRequest &);
-		bool			containsValidCharacters(string uri);
-		void			SetupServers(Config* config);
+	ServerCluster( const ServerCluster& s );
+	ServerCluster&	operator=( const ServerCluster& s );
+
+	bool			isServerMatched(const Server&, unsigned int ip, unsigned int port);
+	void			SetupServers(Config* config);
+	Server*			getMatchedServer(const IRequest &);
+
+public:
+	ServerCluster(Config *config);
+	~ServerCluster();
 
 
-		// IResponse*          handle(IRequest* request);
-		ProxyPair   		handleCGI(IRequest* request);
+	ProxyPair   		handleCGI(IRequest* request);
 
-		string			getRoot() const ;
-		unsigned int 	getStatusCode() const ;
+	Result  			handle(IRequest& request);
+
+	std::vector<std::pair<unsigned int, unsigned int> >	getServersIPPortPairs() const;
 		
-
-		ErrorPage& 		getErrorPage() const;
-
-		Server*			getDefaultServer();
-		Server*			getMatchedServer(const IRequest &);
-	
-		IResponse*  	handle(IRequest& request);
-
-	private:
-		Server		*server;
-		ErrorPage	*error_pages;
-		unsigned int KeepAlive;
 };
-
-
-/*
-	nc ipaddres port 
-	ipconfig getifaddr
-*/
 
 #endif

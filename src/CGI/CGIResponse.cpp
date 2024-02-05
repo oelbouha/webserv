@@ -110,7 +110,7 @@ void	CGIResponse::build()
 		responseHeader = "HTTP/1.1 " + it->second + "\r\n";
 		mResponseHeaders.erase(it);
 	}
-	responseHeader += "Content-Length: " + std::to_string(mBuffer.length()) + "\r\n";
+	responseHeader += "Content-Length: " + utils::to_string(mBuffer.length()) + "\r\n";
 	it = mResponseHeaders.begin();
 	while (it != mResponseHeaders.end())
 	{

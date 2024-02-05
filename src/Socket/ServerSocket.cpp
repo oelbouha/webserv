@@ -63,20 +63,21 @@ void ServerSocket::bind()
 
     bzero(&addr, addr_len);
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(mIP);
+    addr.sin_addr.s_addr = mIP;
     addr.sin_port = htons(mPort);
 
     if (::bind(mID, (struct sockaddr *)&addr, addr_len) < 0)
     {
-        throw SocketException("Can't bind socket to " + std::to_string(mIP) + ":" +
-                std::to_string(mPort) + " " + strerror(errno));
+        throw SocketException("Can't bind to " + utils::ip(ntohl(mIP)) + ":" +
+                utils::to_string(mPort) + " " + strerror(errno));
     }
 }
 
 void ServerSocket::listen()
 {
     if (::listen(mID, ServerSocket::sBackLog) < 0)
-        throw SocketException("Socket is not listenning");
+        throw SocketException("Can't listen on " + utils::ip(ntohl(mIP)) + ":" +
+                utils::to_string(mPort) + " " + strerror(errno));
 }
 
 IClientSocket *ServerSocket::accept() const

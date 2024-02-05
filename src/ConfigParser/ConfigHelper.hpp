@@ -39,6 +39,7 @@ class ConfigHelper
 		static AllowedValues	initAllowedValues();
 		static bool	isBlockConfig(const string& aConfig);
 		static bool	isValueAllowed(const string& aConfig, const string& aValue);
+		static bool	doesConfigAcceptAll(const string& aConfig);
 		static bool	isListConfig(const string& aConfig);
 		static bool	isInlineConfig(const string& aConfig);
 

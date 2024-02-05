@@ -1,0 +1,2 @@
+error_log_file  : /Users/ysalmi/webserv.error.log
+error_log_level : warn

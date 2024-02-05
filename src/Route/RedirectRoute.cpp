@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:10:43 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/01 09:32:02 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/05 12:42:43 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,17 @@ RedirectRoute::~RedirectRoute(){}
 
 unsigned int RedirectRoute::getStatusCode() const  { return statusCode; }
 
-string		RedirectRoute::getRoot() const { return route.getRoot(); }
+const string&		RedirectRoute::getRoot() const { return route.getRoot(); }
 
-ErrorPage& 	RedirectRoute::getErrorPage() const { return error_pages; }
+const ErrorPage& 	RedirectRoute::getErrorPage() const { return error_pages; }
 
-IResponse*	RedirectRoute::handle(IRequest& request) {
-	if (route.IsMethodAllowed(request.getMethod()) == false) {
+IResponse*	RedirectRoute::handle(IRequest& request)
+{
+	if (route.IsMethodAllowed(request.getMethod()) == false)
+	{
 		std::cout << "methods Not allowed " << std::endl;
 		statusCode = 405;
-		return Helper::BuildResponse(request, *this);
+		return error_pages.build(request, statusCode);
 	}
 
 	IResponse * response = new Response(request.getSocket());

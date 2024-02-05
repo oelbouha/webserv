@@ -23,6 +23,8 @@
 #include "IClientSocket.hpp"
 #include "IResponse.hpp"
 #include "src/Socket/SocketException.hpp"
+#include "src/Response/ResponseException.hpp"
+
 #include "Utils.hpp"
 
 class Response : public IResponse {

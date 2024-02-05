@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/01 09:29:18 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/05 11:46:34 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,12 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include <iostream>
+#define MAX_URI_LENGTH 48
 
+#include <iostream>
 #include <dirent.h>
+
+#include "src/Server/Result.hpp"
 #include "src/Response/Response.hpp"
 #include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
@@ -31,42 +34,44 @@
 class Route;
 class RedirectRoute;
 
-class Server : public IHandler {
-std::vector<Route*>	routes;
-std::vector<string>	ports;
-std::vector<string>	names;
+class Server : public IHandler
+{
+	std::vector<Route*>				routes;
+	std::vector<unsigned int>		ports;
+	std::vector<string>				names;
+	ErrorPage						error_pages;
+	Route*							route;
+	unsigned int					ip;
+	unsigned int					statusCode;
+	std::string						host;
+	std::string						root;
+	std::string						rootPath;
+	bool							is_default;
+	
+	bool			findBestMatch(const string& , string );
+	Route*			getMatchedRoute(const IRequest& req);
+
+	bool			isRequestProperlyStructured(const IRequest &);
+	bool			containsValidCharacters(string uri);
+
+	
 public:
-	Server(Config * config, ErrorPage& errorPage);
-	const Config*	getConfig() const;
+	Server(Config& config, ErrorPage& errorPage);
 	Server&	operator=( const Server& s );
 	~Server();
 
-	std::vector<string> getPort() const;
-	std::vector<string>	getName() const ;
+	const std::vector<unsigned int>&	getPorts() const;
+	const std::vector<string>&			getNames() const;
+	unsigned int 						getIP() const;
+	unsigned int 						getStatusCode() const ;
+	const string&						getHost() const ;
+	const string&						getRoot() const ;
+	const string&						getURI() const ;
+	bool								isDefault() const;
+	const ErrorPage& 					getErrorPage() const;
 
-	unsigned int getIp() const;
-	unsigned int getStatusCode() const ;
-
-	string	getHost() const ;
-	string	getRoot() const ;
-	string	getURI() const ;
-
-	bool	findBestMatch(const string& , string );
-	bool	isDefault() const;
 	
-	Route*		getMatchedRoute(const IRequest& req);
-	IResponse*	handle(IRequest& );
-	ErrorPage& 	getErrorPage() const;
-
-private:
-	ErrorPage		&error_pages;
-	Route			*route;
-	unsigned int	ip;
-	unsigned int	statusCode;
-	std::string		host;
-	std::string		root;
-	std::string		rootPath;
-	std::string		Default;
+	Result		handle(IRequest& );
 };
 
 #endif

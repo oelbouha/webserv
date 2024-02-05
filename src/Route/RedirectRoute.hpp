@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:11:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/01 09:29:07 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/05 11:41:09 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,10 @@ public:
 	RedirectRoute(Route & route, ErrorPage& pages);
 	~RedirectRoute();
 	
-	virtual ErrorPage& 		getErrorPage() const;
-	virtual IResponse*  	handle(IRequest&);
-	virtual string			getRoot() const;
-	unsigned int    		getStatusCode() const;
+	virtual const ErrorPage& 	getErrorPage() const;
+	virtual IResponse*  		handle(IRequest&);
+	virtual const string&		getRoot() const;
+	unsigned int    			getStatusCode() const;
 	
 
 private:

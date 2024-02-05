@@ -15,7 +15,7 @@ Result::Result(IResponse* res) :
     mResponse = res;
 }
 
-Result::Result(ProxyPair* pair):
+Result::Result(ProxyPair pair):
     type(Result::PROXY_PAIR)
 {
     mProxyPair = pair;
@@ -24,10 +24,8 @@ Result::Result(ProxyPair* pair):
 Result::Result(const Result& res):
     type(res.type)
 {
-    if (type == Result::RESPONSE)
-        mResponse = res.mResponse;
-    else
-        mProxyPair = res.mProxyPair;
+    mResponse = res.mResponse;
+    mProxyPair = res.mProxyPair;
 }
 
 Result::~Result()
@@ -38,7 +36,7 @@ IResponse*  Result::response()
     return (mResponse);
 }
 
-ProxyPair*   Result::proxyPair()
+ProxyPair   Result::proxyPair()
 {
     return (mProxyPair);
 }

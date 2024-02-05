@@ -13,19 +13,21 @@
 
 #include "src/CGI/ProxyPair.hpp"
 #include "src/Interfaces/IResponse.hpp"
-#include "src/Route/Upload.hpp"
+// #include "src/Route/Upload.hpp"
 
 class Result
 {
 public:
     Result(IResponse* res);
-    Result(ProxyPair* pair);
+    Result(ProxyPair pair);
+    // Result(ProxyPair* pair); //for upload
+    
     Result(const Result& result);
     ~Result();
 
     IResponse*  response();
-    ProxyPair*  proxyPair();
-    Upload*     upload();
+    ProxyPair   proxyPair();
+    // Upload*     upload();
 
     enum    Type
     {
@@ -37,11 +39,8 @@ public:
     const Type   type;
 
 private:
-    union
-    {
-        IResponse*  mResponse;
-        ProxyPair   mProxyPair;
-        Upload*     mUpload
-    };
+    IResponse*  mResponse;
+    ProxyPair   mProxyPair;
+    // Upload*     mUpload;
 };
 #endif

@@ -3,10 +3,10 @@ error_log_file  : /Users/ysalmi/webserv.error.log
 error_log_level : warn
 
 cluster:
-  # mime_types:
-  #   default_mime: text/plain
-  #   html: text/html
-  #   jpg: image/jpeg
+  default_mime: text/plain
+  mime_types:
+    # html: text/html
+    jpg: image/jpeg
   keep_alive:	65
   server_props: no
 
@@ -16,13 +16,16 @@ cluster:
       - 401
       - 404
       - 416
+
   server:
     root: /Users/ysalmi/code/in_progress/webserv
-    Default: yes
-    host: localhost
-    port: 8000   8000
-    name: localhost
-    # index: index.html
+    # default: yes
+    # host: localhost
+    ports:
+      - 8000
+      - 8080
+    # names:
+    #   - localhost
     error_page:
       file: /50x.html
       codes:
@@ -33,12 +36,12 @@ cluster:
       codes:
         - 418
         - 404
+        - 400
     upload: /upload
     cgi:
       - .py
-
     route:
-      uri: /test/
+      uri: /test
       root: /Users/ysalmi/code/in_progress/webserv/pages
       redirect:
         code: 301
@@ -73,15 +76,20 @@ cluster:
         - POST
         - DELETE
         - GET
-
+  
   server:
-    host: 127.0.0.1
+    host: 10.30.252.175
     index: index.html
-    root: /Users/oelbouha/Desktop/web
-    port: 8058
-    name: localhost
+    root: /Users/ysalmi/code/in_progress/webserv/pages/test_dir
+    ports:
+      - 8058
+    error_page:
+      file: /40x.html
+      codes:
+        - 418
+        - 404
+        - 400
     route:
-      root: /Udsdsdsdsdsdsdsdsdsdsds
       uri: /
       allowed_methods:
         - GET

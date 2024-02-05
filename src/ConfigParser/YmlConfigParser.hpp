@@ -40,8 +40,8 @@ class YmlConfigParser : public IConfigParser
 
 	// Class Utilities
 	unsigned int	countLeadingTabs_(const string& line) const;
-	bool			isComment_(const string& line) const;
-	string			extractProperty_(const string& line) const;
+	bool			isComment_(string& line) const;
+	string			extractProperty_(string& line) const;
 
 	// Class Parsing Units
 	Config*			parseBlock_(const string& aKey, int aTabCount = -1);

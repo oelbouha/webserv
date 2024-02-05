@@ -52,8 +52,8 @@ public:
     const IClientSocket&    getSocket() const;
     int                     getSocketFd() const;
 
-    int                 getIncomingIP() const;
-    int                 getIncomingPort() const;
+    unsigned int        getIncomingIP() const;
+    unsigned int        getIncomingPort() const;
     const std::string&  getMethod() const;
     const std::string&  getURI() const;
     const std::string&  getHttpVersion() const;

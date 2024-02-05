@@ -27,15 +27,13 @@ int main()
 
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(127 << 24 | 1);
-	addr.sin_port = htons(7000);
+	addr.sin_port = htons(8000);
 	::connect(sock.getSocketFd(), (sockaddr*)&addr, addr_len);
 
-	std::string	resp = "POST / HTTP/1.1\r\n";
-	resp += "host: localhost\r\n";
+	std::string	resp = "GET /pages HTTP/1.1\r\n";
+	resp += "host: localhost:8000\r\n";
 	// resp += "content-length: 11\r\n";
-	resp += "transfer-encoding: chunked\r\n";
 	resp += "\r\n";
-	resp += "8\r\nMozilla \r\n11\r\nDeveloper Network\r\n0\r\n\r\n";
 
     std::cout << resp;
 
@@ -43,9 +41,19 @@ int main()
 	
 	sock.write(resp);
 
-    // sleep(2);
+    sleep(1);
 
-	std::cout << sock.readAll() << std::endl;
+	std::string	s = sock.readAll();
+
+	for (int i = 0; i < s.length(); ++i)
+	{
+		if (s[i] < 32 && s[i] != 10)
+			std::cout << '[' << (int)s[i] << ']';
+		else
+			std::cout << s[i];
+	}
+	std::cout << std::endl;
+
 
 	return (0);
 }

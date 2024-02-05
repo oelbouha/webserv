@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/01 15:49:37 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/05 13:17:35 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 Route::Route(Config* config, ErrorPage& pages): error_pages(pages), config(*config) {
 	redirect = config->getBlockConfigIfExist("redirect");
 
-	if (redirect.size())
-		redirect.front()->IsValidDirective("code");
+	// if (redirect.size())
+	// 	redirect.front()->IsValidDirective("code");
 
 	autoindex = config->getInlineConfigIfExist("autoindex");
 	URI = config->getInlineConfigIfExist("uri");
@@ -25,7 +25,7 @@ Route::Route(Config* config, ErrorPage& pages): error_pages(pages), config(*conf
 	indexfile = config->getInlineConfigIfExist("index");
 	allowedMethods = config->getListConfigIfExist("allowed_methods");
 
-	error_pages.setErrorPage(*config);
+	// error_pages.setErrorPage(*config);
 }
 
 Route&	Route::operator=( const Route& s ) {
@@ -35,15 +35,15 @@ Route&	Route::operator=( const Route& s ) {
 
 Route::~Route() {}
 
-ErrorPage& 	Route::getErrorPage() const { return error_pages; }
+const ErrorPage& 	Route::getErrorPage() const { return error_pages; }
 
 std::vector<std::string>	Route::getAllowedMethods() const { return allowedMethods; }
 
 Config& Route::getConfig() const { return config; }
 
-std::string	Route::getURI() const{ return URI; }
+const std::string&	Route::getURI() const{ return URI; }
 
-std::string	Route::getRoot() const{ return root; }
+const std::string&	Route::getRoot() const{ return root; }
 
 bool	Route::hasRedirection() const { return redirect.size(); }
 
@@ -58,7 +58,10 @@ bool Route::canReadFile(const string& filePath) const {
 }
 
 bool	Route::IsResourceFileExist(const string& filePath) const {
-	return access(filePath.c_str(), F_OK) == 0;
+	std::cout << "access for " << filePath << std::endl;
+	bool	exists = access(filePath.c_str(), F_OK) == 0;
+	std::cout << "exists: " << exists << std::endl;
+	return exists;
 }
 
 bool	Route::hasCGIExtension(const string& uri) const {
@@ -158,10 +161,13 @@ IResponse*	Route::handleDirectory(const IRequest& request) {
 	{
 		const string& uri = request.getURI();
 		IResponse * response = new Response(request.getSocket());
+
+		std::cout << "request host: " << request.getHeader("host") << std::endl;
 		
 		response->setHeader("Location", "http://" + request.getHeader("host") + uri + "/")
 			.setHeader("Connection", "keep-alive")
-			.setStatusCode(308).build();
+			.setHeader("Content-Length", "0")
+			.setStatusCode(301).build();
 		return response;
 	}
 	else if (indexfile.size()){
@@ -184,7 +190,7 @@ IResponse*	Route::handleDirectory(const IRequest& request) {
 	}
 	else
 		statusCode = 403;
-	return (Helper::BuildResponse(request, *this));
+	return (error_pages.build(request, statusCode));
 }
 
 int	Route::DeleteFile() {
@@ -213,7 +219,7 @@ IResponse*	Route::deleteDirectory(const IRequest& request) {
 		else
 			statusCode = 204;
 	}
-	return (Helper::BuildResponse(request, *this));
+	return (error_pages.build(request, statusCode));
 }
 
 IResponse*	Route::handleRequestedFile(const IRequest& request) {
@@ -232,7 +238,7 @@ IResponse*	Route::handleRequestedFile(const IRequest& request) {
 	}
 	else
 		statusCode = 403; // cant read file
-	return (Helper::BuildResponse(request, *this));
+	return (error_pages.build(request, statusCode));
 }
 
 IResponse*  Route::ExecuteGETMethod(const IRequest& request) {
@@ -241,8 +247,8 @@ IResponse*  Route::ExecuteGETMethod(const IRequest& request) {
 		return (handleDirectory(request));
 	else if (IsResourceFileExist(path))
 		return (handleRequestedFile(request));
-	statusCode = 400; // not found
-	return (Helper::BuildResponse(request, *this));
+	statusCode = 404; // not found
+	return (error_pages.build(request, statusCode));
 }
 
 IResponse*  Route::ExecutePOSTMethod(IRequest& request) {
@@ -264,7 +270,7 @@ IResponse*  Route::ExecutePOSTMethod(IRequest& request) {
 	}
 	else 
 		statusCode = 400; 
-	return (Helper::BuildResponse(request, *this));
+	return (error_pages.build(request, statusCode));
 }
 
 IResponse*  Route::ExecuteDELETEMethod(const IRequest& request) {
@@ -288,13 +294,13 @@ IResponse*  Route::ExecuteDELETEMethod(const IRequest& request) {
 	}
 	else
 		statusCode = 400;
-	return (Helper::BuildResponse(request, *this));
+	return (error_pages.build(request, statusCode));
 }
 
-<<<<<<< HEAD
-IResponse*  Route::handle(IRequest& request) {
+
+Result  Route::handle(IRequest& request) {
 	std::string tmp = request.getURI();
-	std::cout << "route::handle " << request.getURI() << std::endl;
+	// std::cout << "route::handle " << request.getURI() << std::endl;
 
 	tmp.erase(0, URI.length());
 	if (!tmp.empty() && tmp.front() != '/')
@@ -302,31 +308,21 @@ IResponse*  Route::handle(IRequest& request) {
 
 	path = root + tmp;
 
-	std::cout << "route::handle " << path << " - " << tmp << std::endl;
-	std::cout << "root: " << root << std::endl;
+	// std::cout << "route::handle " << path << " - " << tmp << std::endl;
+	// std::cout << "root: " << root << std::endl;
 	// std::cout << "path >" << path << std::endl;
 	// std::cout << "root >" << root << std::endl;
 	// std::cout << "req uri >" << request.getURI() << std::endl;
-=======
-IResponse*  Route::handle(const IRequest& request) {
-	std::string uri = URI;
-	if (uri.back() == '/')
-		uri.erase(uri.length() - 1);
 	
-	std::string tmp = request.getURI();
-	size_t pos = tmp.find(uri);
-	if (pos != std::string::npos)
-		tmp.erase(0, uri.length());
 	
-	path = root + tmp;
-	std::cout << "path >" << path << std::endl;
->>>>>>> 41a28a15c2b9aca08670df0aaeee7174411cfa03
 	if (IsMethodAllowed(request.getMethod()) == false) {
 		statusCode = 405;
-		return (Helper::BuildResponse(request, *this));
+		IResponse*	res = error_pages.build(request, statusCode);
+		return (Result(res));
 	}
-	std::cout << "processRequestMethod\n" << std::endl;
-	return (ProcessRequestMethod(request));
+	// std::cout << "processRequestMethod\n" << std::endl;
+	IResponse*	res = ProcessRequestMethod(request);
+	return (Result(res));
 }
 
 

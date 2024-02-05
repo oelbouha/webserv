@@ -22,7 +22,7 @@ mLine(aLine)
 	else
 		mMessage = "\e[1m\e[31mconfig error\e[0m: "
 					+ mFileName
-					+ ":" + std::to_string(mLine) + "\n\t"
+					+ ":" + utils::to_string(mLine) + "\n\t"
 					+ mError;
 }
 

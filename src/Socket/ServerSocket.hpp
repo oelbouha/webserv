@@ -28,9 +28,9 @@
 #include "Utils.hpp"
 
 class ServerSocket : public IServerSocket {
-  int mID;
-  unsigned int mIP;
-  unsigned short mPort;
+  int             mID;
+  unsigned int    mIP;
+  unsigned short  mPort;
 
   static int sBackLog;
 
@@ -42,13 +42,13 @@ public:
 
   ServerSocket &operator=(const ServerSocket &s);
 
-  virtual void bind();
-  virtual void listen();
-  virtual IClientSocket *accept() const;
-  virtual void setNonBlocking();
+  virtual void            bind();
+  virtual void            listen();
+  virtual IClientSocket*  accept() const;
+  virtual void            setNonBlocking();
 
-  virtual int getPort() const;
-  virtual ip_t getIP() const;
-  virtual int getSocketFd() const;
+  virtual int   getPort() const;
+  virtual ip_t  getIP() const;
+  virtual int   getSocketFd() const;
 };
 #endif

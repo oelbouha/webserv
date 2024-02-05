@@ -22,7 +22,7 @@ INC := -I. \
 #TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
 TMP :=
 
-CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) #-fsanitize=address -g 
+CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) -fsanitize=address -g 
 
 LINKER := -L/goinfre/ysalmi/brew/opt/llvm/lib/c++ \
 		-Wl,-rpath,/goinfre/ysalmi/brew/opt/llvm/lib/c++
@@ -61,7 +61,7 @@ REQUEST_COMPONENT := Request/Request.cpp \
 	Request/RequestException.cpp
 
 RESPONSE_COMPONENT := Response/Response.cpp \
-	Response/ResponseException.cpp 
+	Response/ResponseException.cpp
 # Response/ProxiedResponse.cpp \
 
 CGI_COMPONENT	:= CGI/CGIHandler.cpp \
@@ -72,14 +72,14 @@ CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 
 MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
 
-SERVER_COMPONENT := Server/ServerCluster.cpp \
-					Server/Server.cpp \
-					Server/ErrorPage.cpp \
-					Server/MimeTypes.cpp \
-					Server/Helper.cpp \
-					Route/Upload.cpp \
-					Route/RedirectRoute.cpp \
-					Route/Route.cpp
+SERVER_COMPONENT := Server/Result.cpp \
+	Server/ServerCluster.cpp \
+	Server/Server.cpp \
+	Server/ErrorPage.cpp \
+	Server/MimeTypes.cpp \
+	Route/Upload.cpp \
+	Route/RedirectRoute.cpp \
+	Route/Route.cpp
 
 CLIENT_COMPONENT := Client/Client.cpp
 

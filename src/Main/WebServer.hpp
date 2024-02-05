@@ -39,11 +39,12 @@ class WebServer
   std::vector<ServerSocket>     mSockets;
   IMultiplexer*                 mMux;
   ServerCluster                 *mServers;
-  std::vector<Client*>           mClients;
+  std::vector<Client*>          mClients;
   std::vector<IResponse *>      mResponses;
-  // std::vector<ProxyPair>        mProxyPairs;
+  // unsigned int                  mAliveClientsCount;
+  // unsigned int                  mAliveClientMax;
+  // unsigned int                  mAliveTimeout;
 
-  WebServer();
 
 private:
   void  acceptNewClients();
@@ -58,7 +59,6 @@ private:
   void  disconnectClient(Client& client);
 
 public:
-  void  SetDefaultIfNotExist();
   void  InitiateServersSockets();
   WebServer(Config *aConfig);
   ~WebServer();

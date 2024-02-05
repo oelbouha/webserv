@@ -17,9 +17,7 @@ Response::Response( const IClientSocket &aSocket ) :
     mFile(-1),
     mCursor(0),
     isComplete(false)
-{
-  // std::cout << "response ++++++++++++++++++++++++++++++++ client " << mSocket.getSocketFd() << std::endl;
-}
+{}
 
 Response::Response(const Response &aResponse) :
     mSocket(aResponse.mSocket),
@@ -30,18 +28,19 @@ Response::Response(const Response &aResponse) :
 
 Response::~Response()
 {
-    // std::cout << "response ++++++++++++++++++++++++++++++++ closing " << mFile << std::endl;
     ::close(mFile);
 }
 
-Response &Response::operator=(const Response &aResponse) {
+Response &Response::operator=(const Response &aResponse)
+{
   (void)aResponse;
   return (*this);
 }
 
 int Response::getSocketFd() const { return mSocket.getSocketFd(); }
 
-Response &Response::setStatusCode(unsigned int aStatusCode) {
+Response &Response::setStatusCode(unsigned int aStatusCode)
+{
   mStatusCode = aStatusCode;
   return (*this);
 }
@@ -55,7 +54,7 @@ Response &Response::setHeader(const std::string &aHeader, const std::string &aVa
 Response &Response::setBody(const std::string &aBody)
 {
   mBody = aBody;
-  mHeaders["content-length"] = std::to_string(mBody.length());
+  mHeaders["content-length"] = utils::to_string(mBody.length());
   return (*this);
 }
 
@@ -63,40 +62,11 @@ Response&   Response::setBodyFile( const std::string& aFileName )
 {
     mFile = ::open(aFileName.data(), O_RDONLY);
     if (mFile < 0)
-    {
-        mStatusCode = 404;
-        setBody(Helper::BuildCustumPage(mStatusCode));
-        setHeader("content-type", "text/html");
-        return *this;
-    }
-    // std::cout << "response +++++++++++++++++++++++++++++++++ opened " << mFile << std::endl;
+      throw ResponseException("file " + aFileName + " could not be openned");
 
-    std::ifstream   file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
-    std::string contentLength = std::to_string(file.tellg());
+    std::ifstream file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
+    std::string   contentLength = utils::to_string(file.tellg());
     setHeader("content-length", contentLength);
-
-    /*
-      ext = getExtension(); // without .
-      setHeader("content-type", MimeTypes::get(ext));
-
-      {
-        config* c;
-        string  default;
-
-        get(key)
-        {
-          if (c->has(key))
-            return c->getInline(key);
-          return default;
-        }
-
-        setConfig(){
-
-          addIfNotExist("html")
-          addIfNotExist("html")
-        }
-      }
-    */
     
     const std::string& extension = utils::getExtension(aFileName);
     setHeader("content-type", MimeTypes::getMimeType(extension));
@@ -117,7 +87,6 @@ Response &Response::build()
   if (mFile < 0)
     mRawResponse += mBody;
 
-  std::cout << "response:\n" << mRawResponse << std::endl;
   return (*this);
 }
 

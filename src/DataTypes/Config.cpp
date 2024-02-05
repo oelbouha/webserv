@@ -114,19 +114,18 @@ void	Config::addInLineIfExist(Config& config, const string& prop)
 {
 	if (prop.empty())
 		return ;
-	string property;
+
 	if (config.hasInline(prop) == true)
-	{
-		property = config.getInlineConfig(prop);
-		addInline(prop, property);
-	}
+		addInline(prop, config.getInlineConfig(prop));
 }
 
 
-void	Config::addInlineIfNotExist(Config& config, const string& prop){
+void	Config::addInlineIfNotExist(Config& config, const string& prop)
+{
 	if (prop.empty())
 		return ;
-	if (hasInline(prop) == false)
+
+	if ( ! hasInline(prop) )
 		addInLineIfExist(config, prop);
 }
 
@@ -179,23 +178,31 @@ const string 	Config::getInlineConfigIfExist(const string& property) const
 	return "";
 }
 
-void	Config::IsValidDirective(const std::string& property) {
-	std::string value;
-	if (property == "host")
-	{
-		value = getInlineConfigIfExist(property);
-		if (utils::isValidIp_address(value) == false)
-			throw ConfigException("Webserver: Invalid IPv4 address format.", property, value);
-		return ;
+const string& 	Config::getInlineConfigOr(const string& property, const string& default_value) const 
+{
+	if (hasInline(property) == true){
+		return (getInlineConfig(property));
 	}
-	value = getInlineConfigIfExist(property);
-	std::vector<string> ports = utils::SplitString(value, ' ');
-	for(size_t i = 0; i < ports.size(); ++i)
-	{
-		if (utils::isValidNumber(ports[i]) == false)
-			throw ConfigException("Webserver : Not a Valid Number", property, ports[i]);
-	}
-} 
+	return default_value;
+}
+
+// void	Config::IsValidDirective(const std::string& property) {
+// 	std::string value;
+// 	if (property == "host")
+// 	{
+// 		value = getInlineConfigIfExist(property);
+// 		if (utils::isValidIp_address(value) == false)
+// 			throw ConfigException("Webserver: Invalid IPv4 address format.", property, value);
+// 		return ;
+// 	}
+// 	value = getInlineConfigIfExist(property);
+// 	std::vector<string> ports = utils::SplitString(value, ' ');
+// 	for(size_t i = 0; i < ports.size(); ++i)
+// 	{
+// 		if (utils::isValidNumber(ports[i]) == false)
+// 			throw ConfigException("Webserver : Not a Valid Number", property, ports[i]);
+// 	}
+// } 
 
 
 /****************************************************************************************************/
