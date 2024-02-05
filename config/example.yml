@@ -60,7 +60,7 @@ cluster:
         - DELETE
         - GET
     route:
-      uri: /pages/test
+      uri: /pages/
       root: /Users/ysalmi/code/in_progress/webserv/pages
       upload: /upload
       allowed_methods:

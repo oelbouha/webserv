@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/05 13:17:35 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/05 16:59:30 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,8 +157,10 @@ string	Route::BuildDirectoryListingHtmlPage() {
 }
 
 IResponse*	Route::handleDirectory(const IRequest& request) {
+	std::cout << "handling dir: " << path << std::endl;
 	if (path.back() != '/')
 	{
+		std::cout << "redir" << std::endl;
 		const string& uri = request.getURI();
 		IResponse * response = new Response(request.getSocket());
 
@@ -298,21 +300,28 @@ IResponse*  Route::ExecuteDELETEMethod(const IRequest& request) {
 }
 
 
-Result  Route::handle(IRequest& request) {
+Result  Route::handle(IRequest& request)
+{
 	std::string tmp = request.getURI();
 	// std::cout << "route::handle " << request.getURI() << std::endl;
 
-	tmp.erase(0, URI.length());
+	std::string uri = URI;
+	if (uri.back() == '/')
+		uri.erase(uri.length() - 1);
+
+	std::cout << "route::uri: " << uri << std::endl;
+	tmp.erase(0, uri.length());
+	std::cout << "tmp " << tmp << std::endl;
 	if (!tmp.empty() && tmp.front() != '/')
 		tmp = "/" + tmp;
 
+	
 	path = root + tmp;
 
-	// std::cout << "route::handle " << path << " - " << tmp << std::endl;
-	// std::cout << "root: " << root << std::endl;
-	// std::cout << "path >" << path << std::endl;
-	// std::cout << "root >" << root << std::endl;
-	// std::cout << "req uri >" << request.getURI() << std::endl;
+	std::cout << "tmp " << tmp << std::endl;
+	std::cout << "path >" << path << std::endl;
+	std::cout << "root >" << root << std::endl;
+	std::cout << "req uri >" << request.getURI() << std::endl;
 	
 	
 	if (IsMethodAllowed(request.getMethod()) == false) {
