@@ -10,12 +10,12 @@
 #include "BufferResponse.hpp"
 
 BufferResponse::BufferResponse(const IClientSocket &aSocket) :
-	mSocket(aSocket),
+	AResponse(aSocket),
 	mCursor(0)
 {}
 
 BufferResponse::BufferResponse(const BufferResponse&	aBufferResponse) :
-	mSocket(aBufferResponse.mSocket),
+	AResponse(aBufferResponse.mSocket),
 	mCursor(0)
 {}
 
@@ -27,20 +27,6 @@ BufferResponse&	BufferResponse::operator=(const BufferResponse&	aBufferResponse)
 	{
 
 	}
-	return (*this);
-}
-
-int BufferResponse::getSocketFd() const { return mSocket.getSocketFd(); }
-
-BufferResponse&	BufferResponse::setStatusCode(unsigned int aStatusCode)
-{
-	mStatusCode = aStatusCode;
-	return (*this);
-}
-
-BufferResponse&	BufferResponse::setHeader(const_string &key, const_string &val)
-{
-	mHeaders[key] = val;
 	return (*this);
 }
 
@@ -59,7 +45,7 @@ BufferResponse&	BufferResponse::setBodyFile(const std::string &aFileName)
 
 BufferResponse&	BufferResponse::build()
 {
-	mRawResponse = "HTTP/1.1 " + Response::StatusCodes.at(mStatusCode) + "\r\n";
+	mRawResponse = "HTTP/1.1 " + AResponse::StatusCodes.at(mStatusCode) + "\r\n";
 
 	for (string_string_map::iterator it = mHeaders.begin(); it != mHeaders.end(); ++it)
 		mRawResponse += it->first + ": " + it->second + "\r\n";
@@ -88,9 +74,4 @@ void BufferResponse::send()
 bool BufferResponse::done() const
 {
 	return (mRawResponse.empty());
-}
-
-void BufferResponse::dump()
-{
-	std::cout << mRawResponse << std::endl << std::flush;
 }

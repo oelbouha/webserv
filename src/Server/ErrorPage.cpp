@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:39:26 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 09:02:15 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/06 10:21:52 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,14 +75,22 @@ std::string   	ErrorPage::getErrorPagePath(unsigned int stsCode) const
 
 IResponse*      ErrorPage::build(const IRequest& request, unsigned int status_code) const
 {
-	IResponse*	response = new Response(request.getSocket());
-	response->setStatusCode(status_code);
 	try {
+		IResponse*	response = new FileResponse(request.getSocket());
+		response->setStatusCode(status_code);
+		
 		std::string	error_page_path = error_pages.at(utils::to_string(status_code));
-		response->setBodyFile(error_page_path)
+		response->setBody(error_page_path)
 			.build();
+		
+		return (response);
 	} catch (const std::exception& e)
 	{
+		IResponse*	response = new BufferResponse(request.getSocket());
+		response->setStatusCode(status_code);
+
+		// Logger::Error( )
+		
 		std::string	body = CUSTOM_PAGE_BODY;
 		
 		utils::replace(body, "::title::", Response::StatusCodes.at(status_code));
@@ -91,8 +99,9 @@ IResponse*      ErrorPage::build(const IRequest& request, unsigned int status_co
 		
 		response->setBody(body)
 			.build();
+			
+		return (response);
 	}
-	return (response);
 }
 
 void	ErrorPage::dump()

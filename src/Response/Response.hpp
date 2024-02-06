@@ -11,7 +11,6 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
-
 #include <iostream>
 #include <fstream>
 #include <cstddef>
@@ -33,40 +32,40 @@
 
 class Response : public IResponse
 {
-  const IClientSocket& mSocket;
-  unsigned int         mStatusCode;
-  string_string_map    mHeaders;
+    const IClientSocket &mSocket;
+    unsigned int mStatusCode;
+    string_string_map mHeaders;
 
-  std::string   mBody;
-  int           mFile;
+    std::string mBody;
+    int mFile;
 
-  std::string mRawResponse;
+    std::string mRawResponse;
 
-  size_t    mCursor;
-  bool      isComplete;
+    size_t mCursor;
+    bool isComplete;
 
-  Response(const Response &aResponse);
-  Response &operator=(const Response &aResponse);
+    Response(const Response &aResponse);
+    Response &operator=(const Response &aResponse);
 
 public:
-  Response(const IClientSocket &aSocket);
-  ~Response();
+    Response(const IClientSocket &aSocket);
+    ~Response();
 
-  virtual int getSocketFd() const;
+    virtual int getSocketFd() const;
 
-  Response &setStatusCode(unsigned int aStatusCode);
-  Response &setHeader(const std::string &aHeader, const std::string &aValue);
-  Response &setBody(const std::string &aBody);
-  Response &setBodyFile(const std::string &aFileName);
+    Response &setStatusCode(unsigned int aStatusCode);
+    Response &setHeader(const std::string &aHeader, const std::string &aValue);
+    Response &setBody(const std::string &aBody);
+    Response &setBodyFile(const std::string &aFileName);
 
-  Response &build();
+    Response &build();
 
-  void send();
-  bool done() const;
+    void send();
+    bool done() const;
 
-  void dump();
+    void dump();
 
-  static const uint_string_map  StatusCodes;
-  static uint_string_map        initStatusCodes();
+    static const uint_string_map StatusCodes;
+    static uint_string_map initStatusCodes();
 };
 #endif
