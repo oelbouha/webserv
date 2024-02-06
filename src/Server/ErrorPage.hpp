@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:36:00 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/05 14:53:43 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/06 09:02:04 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,13 @@
 #include "src/Response/Response.hpp"
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
+
 #include "Utils.hpp"
+#include "Types.hpp"
 
 class    ErrorPage
 {
-    // std::vector<string>         paths;
-    std::map<string, string>    error_pages;
+    string_string_map    error_pages;
 
 public:
     ErrorPage();

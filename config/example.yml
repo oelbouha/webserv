@@ -20,7 +20,7 @@ cluster:
   server:
     root: /Users/ysalmi/code/in_progress/webserv/pages
     # default: yes
-    # host: localhost
+    host: localhost
     ports:
       - 8000
       - 8080
@@ -60,7 +60,8 @@ cluster:
         - DELETE
         - GET
     route:
-      uri: /pages/
+      uri: /pages
+      autoindex: yes
       root: /Users/ysalmi/code/in_progress/webserv/pages
       upload: /upload
       allowed_methods:
@@ -87,7 +88,7 @@ cluster:
       file: /40x.html
       codes:
         - 418
-        - 404
+        # - 404
         - 400
     route:
       uri: /

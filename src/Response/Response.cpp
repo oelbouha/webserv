@@ -12,6 +12,8 @@
 #include <fstream>
 #include <string>
 
+
+
 Response::Response( const IClientSocket &aSocket ) :
     mSocket(aSocket),
     mFile(-1),
@@ -77,9 +79,9 @@ Response&   Response::setBodyFile( const std::string& aFileName )
 
 Response &Response::build()
 {
-  mRawResponse = "HTTP/1.1 " + Response::sStatusCodes.at(mStatusCode) + "\r\n";
+  mRawResponse = "HTTP/1.1 " + Response::StatusCodes.at(mStatusCode) + "\r\n";
 
-  for (std::map<std::string, std::string>::iterator it = mHeaders.begin();it != mHeaders.end(); ++it)
+  for (string_string_map::iterator it = mHeaders.begin();it != mHeaders.end(); ++it)
     mRawResponse += it->first + ": " + it->second + "\r\n";
 
   mRawResponse += "\r\n";
@@ -90,7 +92,8 @@ Response &Response::build()
   return (*this);
 }
 
-void Response::send() {
+void Response::send()
+{
   try {
     if (mFile < 0)
     {
@@ -130,12 +133,11 @@ bool Response::done() const
 
 void Response::dump() { std::cout << mRawResponse << std::endl << std::flush; }
 
-const std::map<unsigned int, std::string> Response::sStatusCodes =
-    Response::initStatusCodes();
+const uint_string_map Response::StatusCodes = Response::initStatusCodes();
 
-std::map<unsigned int, std::string> Response::initStatusCodes()
+uint_string_map Response::initStatusCodes()
 {
-  std::map<unsigned int, std::string> statusMap;
+  uint_string_map statusMap;
 
   { // status codes 1xx
     statusMap[100] = "100 Continue";

@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/05 16:28:34 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/05 17:53:53 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 
 #include "src/Server/Result.hpp"
 #include "src/Response/Response.hpp"
-#include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
 #include "src/Route/Route.hpp"

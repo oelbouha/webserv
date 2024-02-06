@@ -2,7 +2,6 @@
 #ifndef IHANDLER_HPP
 #define IHANDLER_HPP
 
-#include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
 #include "src/Server/ErrorPage.hpp"
 #include "Utils.hpp"

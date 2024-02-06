@@ -11,25 +11,31 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
+
 #include <iostream>
-#include <map>
 #include <fstream>
+#include <cstddef>
+#include <string>
+#include <map>
 
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "src/Server/MimeTypes.hpp"
 #include "IClientSocket.hpp"
 #include "IResponse.hpp"
+
+#include "src/Server/MimeTypes.hpp"
 #include "src/Socket/SocketException.hpp"
 #include "src/Response/ResponseException.hpp"
 
 #include "Utils.hpp"
+#include "Types.hpp"
 
-class Response : public IResponse {
-  const IClientSocket&                  mSocket;
-  unsigned int                          mStatusCode;
-  std::map<std::string, std::string>    mHeaders;
+class Response : public IResponse
+{
+  const IClientSocket& mSocket;
+  unsigned int         mStatusCode;
+  string_string_map    mHeaders;
 
   std::string   mBody;
   int           mFile;
@@ -60,10 +66,7 @@ public:
 
   void dump();
 
-  void  invalidate();
-  bool  valid() const;
-
-  static const std::map<unsigned int, std::string> sStatusCodes;
-  static std::map<unsigned int, std::string> initStatusCodes();
+  static const uint_string_map  StatusCodes;
+  static uint_string_map        initStatusCodes();
 };
 #endif

@@ -20,7 +20,6 @@
 
 #include "IProxyHandler.hpp"
 #include "src/Interfaces/IRequest.hpp"
-#include "src/Response/ProxiedResponse.hpp"
 
 #include "ProxyPair.hpp"
 #include "DescriptorProxyRequest.hpp"

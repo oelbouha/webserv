@@ -37,6 +37,7 @@ using std::endl;
 namespace utils
 {
 	//	strings
+	std::string&			replace(std::string& str, const std::string& old_word, const std::string& new_word);
 	std::string&			replace_all(std::string& str, const std::string& old_word, const std::string& new_word);
 
 	std::size_t				find_last_not_of(const std::string& s, const std::string& set, std::size_t start = 0);

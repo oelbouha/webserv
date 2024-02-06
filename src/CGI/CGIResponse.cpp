@@ -98,7 +98,7 @@ void	CGIResponse::build()
 	// if location
 
 	// else if no content type supplied
-	std::map<std::string, std::string>::iterator it = mResponseHeaders.find("content-type");
+	string_string_map::iterator it = mResponseHeaders.find("content-type");
 	if (it != mResponseHeaders.end())
 	{
 		// error

@@ -11,14 +11,15 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
+#include <map>
+#include <string>
+
 typedef unsigned int ip_t;
 
-typedef enum e_method
-{
-    HEAD,
-    GET,
-    POST,
-    DELETE,
-} method_t;
+typedef const std::string const_string;
+
+typedef std::map<unsigned int, std::string> uint_string_map;
+typedef std::map<std::string, std::string>  string_string_map;
+
 
 #endif
