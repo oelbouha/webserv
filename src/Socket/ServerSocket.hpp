@@ -11,18 +11,20 @@
 #ifndef SERVERSOCKET_HPP
 #define SERVERSOCKET_HPP
 
+#include <iostream>
+#include <cstring>
+
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <iostream>
 #include <netinet/in.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "IServerSocket.hpp"
-#include "SocketException.hpp"
 
+#include "SocketException.hpp"
 #include "ClientSocket.hpp"
 
 #include "Utils.hpp"

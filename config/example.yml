@@ -21,7 +21,7 @@ cluster:
     root: /Users/oelbouha/Desktop/In_Progres/pages
     upload: /Users/oelbouha/Desktop/In_Progres/upload
     # default: yes
-    # host: localhost
+    host: localhost
     ports:
       - 8000
       - 8080
@@ -90,7 +90,7 @@ cluster:
       file: /40x.html
       codes:
         - 418
-        - 404
+        # - 404
         - 400
     route:
       uri: /

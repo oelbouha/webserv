@@ -391,7 +391,7 @@ void WebServer::sendReadyProxyRequests()
 
             if (!client.activeProxyPair.response->sent()) // if nothing is sent to the client
             {
-                IResponse *res = new Response(client.getSocket());
+                IResponse *res = new BufferResponse(client.getSocket());
 
                 std::string body = "<center>500</center><br><center>server error</center>";
                 res->setStatusCode(500).setHeader("Content-type", "text/html").setBody(body).build();
@@ -490,7 +490,7 @@ void WebServer::sendReadyProxyResponses()
                 if (res->error())
                 {
                     Client &client = **itc;
-                    IResponse *res = new Response(client.getSocket());
+                    IResponse *res = new BufferResponse(client.getSocket());
 
                     std::string body = "500<br><center>server error</center>";
                     res->setStatusCode(500).setHeader("Content-type", "text/html").setBody(body).build();

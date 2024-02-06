@@ -61,8 +61,10 @@ REQUEST_COMPONENT := Request/Request.cpp \
 	Request/RequestException.cpp
 
 RESPONSE_COMPONENT := Response/Response.cpp \
+	Response/AResponse.cpp \
+	Response/FileResponse.cpp \
+	Response/BufferResponse.cpp \
 	Response/ResponseException.cpp
-# Response/ProxiedResponse.cpp \
 
 CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 	CGI/ProxyPair.cpp \

@@ -25,6 +25,7 @@
 #include "src/Socket/SocketException.hpp"
 
 #include "Utils.hpp"
+#include "Types.hpp"
 
 class CGIResponse : public IProxyResponse
 {
@@ -36,8 +37,7 @@ class CGIResponse : public IProxyResponse
     int                     mFile;
     bool                    mHeaderComplete;
     int                     mSent;
-
-    std::map<std::string, std::string>  mResponseHeaders;
+    string_string_map       mResponseHeaders;
 
 
 	CGIResponse( const CGIResponse& p);

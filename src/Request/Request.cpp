@@ -208,7 +208,7 @@ void Request::dump(bool colors) const
         cout << mQuery << " ";
         cout << "HTTP/" << mHttpVersion << "\e[0m\n";
 
-        std::map<std::string, std::string>::const_iterator it = mHeaders.begin();
+        string_string_map::const_iterator it = mHeaders.begin();
         for (; it != mHeaders.end(); ++it)
             std::cout << std::left << std::setw(20) << it->first << ": " << it->second
                 << std::endl;

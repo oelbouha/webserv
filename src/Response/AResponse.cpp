@@ -1,144 +1,49 @@
 /*	                     __          _
  *	   __  ___________ _/ /___ ___  (_)
  *	  / / / / ___/ __ `/ / __ `__ \/ /
- *	 / /_/ (__  ) /_/ / / / / / / / /
- *	 \__, /____/\__,_/_/_/ /_/ /_/_/
+ *	 / /_/ (__  ) /_/ / / / / / / / / 
+ *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: Response.cpp
+ *			File: AResponse.cpp 
  */
 
-#include "Response.hpp"
-#include <cstddef>
-#include <fstream>
-#include <string>
+#include "AResponse.hpp"
 
 
-
-Response::Response( const IClientSocket &aSocket ) :
-    mSocket(aSocket),
-    mFile(-1),
-    mCursor(0),
-    isComplete(false)
+AResponse::AResponse( const IClientSocket &aSocket ) :
+    mSocket(aSocket)
 {}
 
-Response::Response(const Response &aResponse) :
-    mSocket(aResponse.mSocket),
-    mFile(aResponse.mFile),
-    mCursor(0),
-    isComplete(aResponse.isComplete)
+AResponse::AResponse(const AResponse &AResponse) :
+    mSocket(AResponse.mSocket)
 {}
 
-Response::~Response()
-{
-    ::close(mFile);
-}
+AResponse::~AResponse()
+{}
 
-Response &Response::operator=(const Response &aResponse)
+AResponse &AResponse::operator=(const AResponse &AResponse)
 {
-  (void)aResponse;
+  (void)AResponse;
   return (*this);
 }
 
-int Response::getSocketFd() const { return mSocket.getSocketFd(); }
+int AResponse::getSocketFd() const { return mSocket.getSocketFd(); }
 
-Response &Response::setStatusCode(unsigned int aStatusCode)
+AResponse &AResponse::setStatusCode(unsigned int aStatusCode)
 {
   mStatusCode = aStatusCode;
   return (*this);
 }
 
-Response &Response::setHeader(const std::string &aHeader, const std::string &aValue)
+AResponse &AResponse::setHeader(const std::string &aHeader, const std::string &aValue)
 {
   mHeaders[aHeader] = aValue;
   return (*this);
 }
 
-Response &Response::setBody(const std::string &aBody)
-{
-  mBody = aBody;
-  mHeaders["content-length"] = utils::to_string(mBody.length());
-  return (*this);
-}
+const uint_string_map AResponse::StatusCodes = AResponse::initStatusCodes();
 
-Response&   Response::setBodyFile( const std::string& aFileName )
-{
-    mFile = ::open(aFileName.data(), O_RDONLY);
-    if (mFile < 0){
-      std::cout << "errno: " << errno << std::endl;
-      perror("Response::setBodyFile: ");
-      throw ResponseException("file " + aFileName + " could not be openned");
-    }
-
-    std::ifstream file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
-    std::string   contentLength = utils::to_string(file.tellg());
-    setHeader("content-length", contentLength);
-    
-    const std::string& extension = utils::getExtension(aFileName);
-    setHeader("content-type", MimeTypes::getMimeType(extension));
-
-    file.close();
-    return *this;
-}
-
-Response &Response::build()
-{
-  mRawResponse = "HTTP/1.1 " + Response::StatusCodes.at(mStatusCode) + "\r\n";
-
-  for (string_string_map::iterator it = mHeaders.begin();it != mHeaders.end(); ++it)
-    mRawResponse += it->first + ": " + it->second + "\r\n";
-
-  mRawResponse += "\r\n";
-
-  if (mFile < 0)
-    mRawResponse += mBody;
-
-  return (*this);
-}
-
-void Response::send()
-{
-  try {
-    if (mFile < 0)
-    {
-        mCursor = mSocket.write(mRawResponse);
-        mRawResponse.erase(0, mCursor);
-        if (mRawResponse.empty())
-            isComplete = true;
-    }
-    else
-    {
-        size_t  bufferSize = 250000;
-        int r = 0;
-        if (mRawResponse.length() < bufferSize)
-        {
-            char readBuffer[bufferSize];
-            r = ::read(mFile, readBuffer, bufferSize - 1);
-            readBuffer[r] = 0;
-            mRawResponse += std::string(readBuffer, r);
-        }
-
-        mCursor = mSocket.write(mRawResponse);
-        mRawResponse.erase(0, mCursor);
-        if (static_cast<size_t>(r) < bufferSize - 1 && mRawResponse.empty())
-            isComplete = true;
-    }
-  } catch (const SocketException& e)
-  {
-    std::cerr << e.what() << std::endl;
-    isComplete = true;
-  }
-}
-
-bool Response::done() const
-{
-  return (isComplete);
-}
-
-void Response::dump() { std::cout << mRawResponse << std::endl << std::flush; }
-
-const uint_string_map Response::StatusCodes = Response::initStatusCodes();
-
-uint_string_map Response::initStatusCodes()
+uint_string_map AResponse::initStatusCodes()
 {
   uint_string_map statusMap;
 

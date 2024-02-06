@@ -27,7 +27,7 @@
 
 #include "src/Socket/SocketException.hpp"
 
-typedef std::map<std::string, std::string> RHeaders;
+#include "Types.hpp"
 
 class Request : public IRequest
 {
@@ -37,13 +37,13 @@ class Request : public IRequest
     int             mIncommingIP;
     int             mIncommingPort;
 
-    std::string     mMethod;
-    std::string     mUri;
-    std::string     mQuery;
-    std::string     mHttpVersion;
-    RHeaders        mHeaders;
+    std::string         mMethod;
+    std::string         mUri;
+    std::string         mQuery;
+    std::string         mHttpVersion;
+    string_string_map   mHeaders;
 
-    std::string     mNoHeader;
+    std::string         mNoHeader;
 
 public:
     Request(IClientSocket &mSocket, int aIncomingIP, int aIncomingPort);

@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:39:26 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/05 14:54:47 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/06 10:21:52 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,31 +75,38 @@ std::string   	ErrorPage::getErrorPagePath(unsigned int stsCode) const
 
 IResponse*      ErrorPage::build(const IRequest& request, unsigned int status_code) const
 {
-	IResponse*	response = new Response(request.getSocket());
-	response->setStatusCode(status_code);
 	try {
+		IResponse*	response = new FileResponse(request.getSocket());
+		response->setStatusCode(status_code);
+		
 		std::string	error_page_path = error_pages.at(utils::to_string(status_code));
-		response->setBodyFile(error_page_path)
+		response->setBody(error_page_path)
 			.build();
+		
+		return (response);
 	} catch (const std::exception& e)
 	{
+		IResponse*	response = new BufferResponse(request.getSocket());
+		response->setStatusCode(status_code);
+
+		// Logger::Error( )
+		
 		std::string	body = CUSTOM_PAGE_BODY;
 		
-		body.replace(body.find("::title::"), 9, Response::sStatusCodes.at(status_code));
-		body.replace(body.find("::code::"), 8, utils::to_string(status_code));
-		body.replace(body.find("::message::"), 11, Response::sStatusCodes.at(status_code));
+		utils::replace(body, "::title::", Response::StatusCodes.at(status_code));
+		utils::replace(body, "::code::", utils::to_string(status_code));
+		utils::replace(body, "::message::", Response::StatusCodes.at(status_code));
 		
 		response->setBody(body)
 			.build();
+			
+		return (response);
 	}
-	std::cout << "************** Built **************\n";
-	std::cout << "          ***************" << std::endl;
-	return (response);
 }
 
 void	ErrorPage::dump()
 {
-	std::map<string, string>::iterator	it = error_pages.begin();
+	string_string_map::iterator	it = error_pages.begin();
 	
 	while (it != error_pages.end())
 	{

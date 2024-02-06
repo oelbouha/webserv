@@ -12,7 +12,7 @@
 
 int ServerSocket::sBackLog = 5;
 
-ServerSocket::ServerSocket() : 
+ServerSocket::ServerSocket() :
     mIP(utils::ip(0, 0, 0, 0)),
     mPort(8080)
 {
@@ -35,13 +35,14 @@ ServerSocket::ServerSocket(const ServerSocket &s) :
 {}
 
 ServerSocket::~ServerSocket() 
-{
-    //close(mID);
-}
+{}
 
 ServerSocket &ServerSocket::operator=(const ServerSocket &aServerSocket)
 {
     if (this != &aServerSocket) {
+        mID = aServerSocket.mID;
+        mIP = aServerSocket.mIP;
+        mPort = aServerSocket.mPort;
     }
     return (*this);
 }
@@ -50,8 +51,8 @@ int ServerSocket::getSocketFd() const { return mID; }
 
 void ServerSocket::bind()
 {
-    struct sockaddr_in addr;
-    std::size_t addr_len = sizeof(addr);
+    struct sockaddr_in  addr;
+    std::size_t         addr_len = sizeof(addr);
 
     int opt = 1;
     if (::setsockopt(mID, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
@@ -61,7 +62,7 @@ void ServerSocket::bind()
         throw SocketException(std::string("Can't reuse addr/port ") +
                 strerror(errno));
 
-    bzero(&addr, addr_len);
+    std::memset(&addr, 0, addr_len);
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = mIP;
     addr.sin_port = htons(mPort);

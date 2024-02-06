@@ -6,7 +6,11 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2024/02/06 18:56:50 by oelbouha         ###   ########.fr       */
+=======
+/*   Updated: 2024/02/05 17:54:01 by ysalmi           ###   ########.fr       */
+>>>>>>> 8a2965b142e51683d269029664b9d872939921bb
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +22,12 @@
 #include "src/Server/Result.hpp"
 
 #include "src/Response/Response.hpp"
-#include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
+<<<<<<< HEAD
+=======
+#include "src/Server/Server.hpp"
+>>>>>>> 8a2965b142e51683d269029664b9d872939921bb
 #include "src/Server/ErrorPage.hpp"
 #include "src/Route/Upload.hpp"
 #include "src/Interfaces/IHandler.hpp"

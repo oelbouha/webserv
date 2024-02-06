@@ -17,9 +17,17 @@ namespace utils
 		return (std::isspace(c) == false);
 	}
 
+	std::string&	replace(std::string& str, const std::string& old_word, const std::string& new_word)
+	{
+		std::size_t n = str.find(old_word);
+		if (n != std::string::npos)
+			str.replace( n, old_word.length(), new_word );
+		return (str);
+	}
+
 	std::string&	replace_all(std::string& str, const std::string& old_word, const std::string& new_word)
 	{
-		std::string::size_type n = 0;
+		std::size_t n = 0;
 		while ( ( n = str.find( old_word, n ) ) != std::string::npos )
 		{
 			str.replace( n, old_word.length(), new_word );
@@ -203,27 +211,20 @@ namespace utils
 	unsigned int hostname_to_ip_v4(const std::string& hostname)
 	{
 		unsigned int		ret = -1;
-		struct addrinfo 	hints, *res, *result;
-		struct  in_addr*	ptr;
+		addrinfo 	        hints, *result;
 
 		std::memset(&hints, 0, sizeof(hints));
-		hints.ai_family = PF_UNSPEC;
+		hints.ai_family = AF_INET;
 		hints.ai_socktype = SOCK_STREAM;
 
 		int	err = getaddrinfo(hostname.c_str(), NULL, &hints, &result);
 		if (err != 0)
 			return (-1);
 
-		res = result;
-		while (res)
+		if (result)
 		{
-			if (res->ai_family == AF_INET)
-			{
-				ptr = &(((struct sockaddr_in *) res->ai_addr)->sin_addr);
-				ret = ptr->s_addr;
-				break;
-			}
-			res = res->ai_next;
+			sockaddr_in& addr_in = *reinterpret_cast<sockaddr_in *>(result->ai_addr);
+			ret = addr_in.sin_addr.s_addr;
 		}
 		freeaddrinfo(result);
 		return ret;
