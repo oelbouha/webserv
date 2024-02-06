@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/05 15:11:17 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/06 13:23:32 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ Server::Server(Config& serverConfig, ErrorPage& pages) :
 		routeConfig->addInlineIfNotExist(serverConfig, "upload");
 
 		routeConfig->addBlockIfExist(serverConfig, "error_page");
-		routeConfig->addBlockIfExist(serverConfig, "cgi");
+		routeConfig->addListIfExist(serverConfig, "cgi");
 
 		Route *route = new Route(routeConfig, error_pages);
 		routes.push_back(route);
@@ -103,11 +103,11 @@ Server&	Server::operator=( const Server& s )
 
 bool	Server::findBestMatch(const string& reqURI, string routeURI)
 {
-	int length = utils::min(reqURI.length(), routeURI.length());
-	if (strncmp(routeURI.c_str(), reqURI.c_str(), length) == 0) {
-		if (routeURI[length] == 0)
+	// if (reqURI == routeURI)
+	// 	return true;
+	if (strncmp(routeURI.c_str(), reqURI.c_str(), routeURI.length()) == 0)
+		if (reqURI[routeURI.length()] == '/' || reqURI.length() == routeURI.length())
 			return true;
-	}
     return (false);
 }
 
@@ -146,12 +146,12 @@ Result  Server::handle(IRequest& request)
 		IResponse*	res = error_pages.build(request, statusCode);
 		return (Result(res));
 	}
-	else if (route->hasRedirection())
-	{
-		RedirectRoute redirect(*route, error_pages);
-		IResponse*	res = redirect.handle(request);
-		return (Result(res));
-	}
+	// else if (route->hasRedirection())
+	// {
+	// 	RedirectRoute redirect(*route, error_pages);
+	// 	IResponse*	res = redirect.handle(request);
+	// 	return (Result(res));
+	// }
 	return (route->handle(request));
 }
 

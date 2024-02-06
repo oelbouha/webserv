@@ -19,6 +19,7 @@
 #include "IServerSocket.hpp"
 #include "IProxyRequest.hpp"
 #include "IProxyResponse.hpp"
+#include "IUpload.hpp"
 
 // implement with time efficiency in mind
 // we are only using one thread of execution
@@ -46,6 +47,12 @@ public:
   // response socket used only to listen if the client is ready to receive data
   virtual void add(IResponse &aResponse) = 0;
   virtual void remove(IResponse &aResponse) = 0;
+
+  // upload 
+  virtual void add(IUpload *upload) = 0;
+  virtual void remove(IUpload *upload) = 0;
+
+  virtual std::queue<IUpload *> getReadyUploads() const = 0;
 
   virtual std::queue<IServerSocket *> getReadyServerSockets() const = 0;
   virtual std::queue<IClient *> getReadyClients() const = 0;

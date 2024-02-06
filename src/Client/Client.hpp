@@ -21,6 +21,7 @@
 
 #include "src/Request/Request.hpp"
 #include "src/Response/Response.hpp"
+#include "src/Route/Upload.hpp"
 
 #include "src/CGI/ProxyPair.hpp"
 
@@ -43,6 +44,7 @@ public:
 
   IResponse*  activeResponse;
   ProxyPair   activeProxyPair;
+  Upload      *activeUpload;
   // active upload
   Status      status;
 

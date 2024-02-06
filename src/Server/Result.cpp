@@ -21,6 +21,12 @@ Result::Result(ProxyPair pair):
     mProxyPair = pair;
 }
 
+Result::Result(Upload *upload):
+    type(Result::UPLOAD)
+{
+    mUpload = upload;
+}
+
 Result::Result(const Result& res):
     type(res.type)
 {
@@ -34,6 +40,11 @@ Result::~Result()
 IResponse*  Result::response()
 {
     return (mResponse);
+}
+
+Upload*  Result::upload()
+{
+    return (mUpload);
 }
 
 ProxyPair   Result::proxyPair()

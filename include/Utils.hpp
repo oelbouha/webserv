@@ -83,10 +83,16 @@ namespace utils
 template<typename T>
 std::ostream&	operator<<(std::ostream& o, const std::vector<T>& v)
 {
-	o << "[ " << v[0];
-	for (unsigned int i = 1; i < v.size(); ++i)
-		o << ", "<< v[i] ;
-	o << " ]";
+	if (v.size())
+	{
+		o << "[ " << v[0];
+		for (unsigned int i = 1; i < v.size(); ++i)
+			o << ", "<< v[i] ;
+		o << " ]";
+	}
+	else {
+		std::cout << "[[ empty ]]" << std::endl;
+	}
 	return (o);
 }
 

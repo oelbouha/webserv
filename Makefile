@@ -78,7 +78,6 @@ SERVER_COMPONENT := Server/Result.cpp \
 	Server/ErrorPage.cpp \
 	Server/MimeTypes.cpp \
 	Route/Upload.cpp \
-	Route/RedirectRoute.cpp \
 	Route/Route.cpp
 
 CLIENT_COMPONENT := Client/Client.cpp

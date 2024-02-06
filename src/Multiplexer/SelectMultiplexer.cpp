@@ -112,7 +112,6 @@ std::queue<IClient *> SelectMultiplexer::getReadyClients() const {
 ******************************************************************************/
 
 void SelectMultiplexer::add(IResponse &res) {
-  // std::cout << "response ------------------------------------ adding " << res.getSocketFd() << std::endl;
   responses[res.getSocketFd()] = &res;
   FD_SET(res.getSocketFd(), &mWritefds);
   mMaxfd = mMaxfd > res.getSocketFd() ? mMaxfd : res.getSocketFd() + 1;
@@ -124,7 +123,6 @@ void SelectMultiplexer::remove(IResponse &res) {
   if (it != responses.end())
   {
     responses.erase(it);
-    // std::cout << "response ------------------------------------ removiing " << res.getSocketFd() << std::endl;
     FD_CLR(res.getSocketFd(), &mWritefds);
 
      if (res.getSocketFd() == mMaxfd - 1)
@@ -148,6 +146,51 @@ std::queue<IResponse *> SelectMultiplexer::getReadyResponses() const
   }
   return (ret);
 }
+
+/******************************************************************************
+         UPLOAD
+******************************************************************************/
+
+void  SelectMultiplexer::add(IUpload *upload)
+{
+  uploads[upload->getSocketFd()] = upload;
+  FD_SET(upload->getSocketFd(), &mReadfds);
+  mMaxfd = mMaxfd > upload->getSocketFd() ? mMaxfd : upload->getSocketFd() + 1;
+}
+
+void  SelectMultiplexer::remove(IUpload *upload)
+{
+  Uploads::iterator it = uploads.find(upload->getSocketFd());
+
+  if (it != uploads.end())
+  {
+    uploads.erase(it);
+    FD_CLR(upload->getSocketFd(), &mWritefds);
+
+     if (upload->getSocketFd() == mMaxfd - 1)
+      updateMaxFd();
+  }
+}
+
+std::queue<IUpload *>   SelectMultiplexer::getReadyUploads() const 
+{
+  std::queue<IUpload *> ret;
+
+  if (mReadyfdsCount == 0)
+    return (ret);
+
+  Uploads::const_iterator itu = uploads.begin();
+
+  while (itu != uploads.end()) {
+    if (FD_ISSET(itu->first, &mReadfdsTmp))
+      ret.push(itu->second);
+    ++itu;
+  }
+  return (ret);
+}
+
+
+
 
 /******************************************************************************
          CGI

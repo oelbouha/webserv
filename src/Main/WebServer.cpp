@@ -88,6 +88,7 @@ void WebServer::loop()
         sendReadyProxyRequests();
         readFromReadyProxyResponses();
         sendReadyProxyResponses();
+        handleUploads();
         // function that loops and close connections to clients that need the connection to be closed (ex: timedout)
     }
 }
@@ -133,32 +134,29 @@ void WebServer::takeAndHandleRequests()
             mMux->remove(*client);
             IRequest *request = client->getRequest();
 
-            /*
-            client->set();
-            */
+            Result result = mServers->handle(*request);
 
-            std::string ext;
-            if (request->getURI().rfind(".") != std::string::npos)
-                ext = request->getURI().substr(request->getURI().rfind("."));
-
-            /*
-
-            Result  result = mCluster.handle(request);
-
-            if (result.type == Result::RESPONSE){}
-            else if (result.type == Result::PROXY_PAIR){}
-
-            */
-
-            if (ext == ".py")
+            if (result.type == Result::RESPONSE)
             {
-                ProxyPair pair = mServers->handleCGI(request);
+                IResponse *response = result.response();
+                // client->setResponseHeaders(response);
+                mMux->add(*response);
+                mResponses.push_back(response);
+
+                client->status = Client::RECEIVING;
+                client->activeResponse = response;
+
+                delete request;
+            }
+            else if (result.type == Result::PROXY_PAIR)
+            {
+                ProxyPair pair = result.proxyPair();
 
                 client->status = Client::EXCHANGING;
                 client->activeProxyPair = pair;
 
                 // if (pair.request == NULL || pair.response == NULL) delete make 500 response
-                if (pair.request->getSocketFd() != -1)
+                if (pair.request->getSocketFd() != -1 && request->getMethod() != "GET")
                     mMux->add(pair.request, IMultiplexer::READ);
                 else
                     mMux->add(*client);
@@ -167,26 +165,15 @@ void WebServer::takeAndHandleRequests()
                 mMux->add(pair.response, IMultiplexer::READ);
                 mMux->add(pair.response, IMultiplexer::WRITE);
             }
-            else
+            else if (result.type == Result::UPLOAD)
             {
-                std::cout << "servers->handle()\n"
-                          << std::endl;
-                Result result = mServers->handle(*request);
-                // if iresponse
-                // else if proxypari
-                // else if upload
+                Upload* upload = result.upload();
 
-                IResponse *response = result.response();
-
-                // client->setResponseHeaders(response);
-
-                mMux->add(*response);
-                mResponses.push_back(response);
+                mMux->add(upload);
+                std::cout << "Upload add\n" << std::endl;
 
                 client->status = Client::RECEIVING;
-                client->activeResponse = response;
-
-                delete request;
+                client->activeUpload = upload;
             }
         }
         qc.pop();
@@ -223,6 +210,57 @@ void WebServer::sendResponses()
             delete res;
         }
         qr.pop();
+    }
+}
+
+void  WebServer::handleUploads()
+{
+    std::queue<IUpload *> qu = mMux->getReadyUploads();
+    while (qu.size())
+    {
+        IUpload *upload = qu.front();
+        try
+        {
+            upload->handle();
+            if (upload->done())
+            {
+                mMux->remove(upload);
+                IRequest *request = upload->getRequest();
+
+                IResponse *response = new Response(request->getSocket());
+                response->setStatusCode(201)
+                    .setBody("upload")
+                    .build();
+                
+                mMux->add(*response);
+                mResponses.push_back(response);
+
+                std::vector<Client *>::iterator itc = mClients.begin();
+                while (itc != mClients.end())
+                {
+                    Client &client = **itc;
+                    if (client.activeUpload == upload)
+                    {
+                        client.activeUpload = NULL;
+                        mMux->add(client);
+                        break;
+                    }
+                    ++itc;
+                }
+
+                Client *client = *itc;
+                client->status = Client::RECEIVING;
+                client->activeResponse = response;
+
+                delete upload;
+            }
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
+        qu.pop();
     }
 }
 

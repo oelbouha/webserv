@@ -51,6 +51,8 @@ private:
   void  takeAndHandleRequests();
   void  sendResponses();
 
+  void  handleUploads();
+
   void  readFromReadyProxyRequests();
   void  sendReadyProxyRequests();
   void  readFromReadyProxyResponses();

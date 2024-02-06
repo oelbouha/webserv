@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:19 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/01/30 15:08:12 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/02/06 19:04:40 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,43 +14,51 @@
 #define UPLOAD_HPP
 
 #include <iostream>
-#include "src/Response/Response.hpp"
-#include "src/Response/ProxiedResponse.hpp"
+
+#include "src/Interfaces/IUpload.hpp"
+
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
-#include "src/Server/Server.hpp"
+
+
 #include "Utils.hpp"
 
 
-class Upload{
-		bool		done;
-		bool		firstRead;
-	public:
-		Upload(const IRequest& request);
-		Upload&	operator=( const Upload& s );
-		Upload( const Upload& s );
-		~Upload();
+class Upload : public IUpload {
+	IRequest 		*request;
+	std::string 	upload_dir;
+	bool			firstRead;
+	bool			is_done;
+	std::string		body;
 
-		std::string 	handle(const IRequest& request);
-		bool			search(const string& buff, const string & line);
-		bool			IsDone() const;
+public:
+	Upload(IRequest *request, const string& upload_path);
+	~Upload();
+
+	int				getSocketFd() const;
+
+	std::string 	handle();
+	IRequest*		getRequest();
+	bool			done() const;
+
+private:
+	std::ofstream	file_stream;
+	std::string		start;
+	std::string		buff;
+	std::string		name;
+	std::string		boundry;
+	std::string 	field_name;
+	std::string 	file_name;
+	std::string 	file_content_type;
+	std::string 	file_path;
+
+private:
+	Upload&	operator=( const Upload& s );
+	Upload( const Upload& s );
 	
-		std::string 	getFieldName();
-		std::string 	getFileName();
-		std::string 	getContentType();
-
-		std::string		buff;
-	private:
-    	std::ofstream	file_stream;
-		std::string		body;
-		std::string		start;
-		std::string		name;
-		std::string		boundry;
-		std::string 	field_name;
-    	std::string 	file_name;
-    	std::string 	file_content_type;
-    	std::string 	file_path;
-    	std::string 	upload_dir;
+	bool			search(const string& buff, const string & line);
+	void			SetupBoundry(const std::string& type);
+	std::string 	getFieldName(std::string name, std::string end);
 };
 
 

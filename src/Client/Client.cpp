@@ -16,6 +16,7 @@ Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort) :
     mIncomingPort(aIncomingPort),
     mSocket(aSocket),
     activeResponse(NULL),
+    activeUpload(NULL),
     status(Client::CONNECTED)
 {}
 

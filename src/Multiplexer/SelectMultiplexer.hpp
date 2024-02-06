@@ -28,6 +28,7 @@ class SelectMultiplexer : public IMultiplexer {
   std::map<int, IServerSocket *>  serverSockets;
   std::map<int, IClient *>        clients;
   std::map<int, IResponse *>      responses;
+  std::map<int, IUpload *>        uploads;
   std::map<int, IProxyRequest *>  proxyRequests;
   std::map<int, IProxyResponse *> proxyResponses;
 
@@ -38,6 +39,7 @@ public:
   typedef std::map<int, IServerSocket *>  ServerSockets;
   typedef std::map<int, IClient *>        Clients;
   typedef std::map<int, IResponse *>      Responses;
+  typedef std::map<int, IUpload *>      Uploads;
   typedef std::map<int, IProxyRequest *>  ProxyRequests;
   typedef std::map<int, IProxyResponse *> ProxyResponses;
 
@@ -62,15 +64,20 @@ public:
   void remove(IResponse &res);
   std::queue<IResponse *> getReadyResponses() const;
 
-  virtual void  add(IProxyRequest*  aRequest, mod_t mod);
-  virtual void  add(IProxyResponse*  aResponse, mod_t mod);
-  virtual void  remove(IProxyRequest*  aRequest, mod_t mod);
-  virtual void  remove(IProxyResponse*  aResponse, mod_t mod);
+  void                    add(IUpload *upload);
+  void                    remove(IUpload *upload);
+  std::queue<IUpload *>   getReadyUploads() const;
 
-  virtual std::queue<IProxyRequest*>  getReadyForReadingProxyRequests() const;
-  virtual std::queue<IProxyRequest*>  getReadyForWritingProxyRequests() const;
-  virtual std::queue<IProxyResponse*>  getReadyForReadingProxyResponses() const;
-  virtual std::queue<IProxyResponse*>  getReadyForWritingProxyResponses() const;
+  void  add(IProxyRequest*  aRequest, mod_t mod);
+  void  add(IProxyResponse*  aResponse, mod_t mod);
+  void  remove(IProxyRequest*  aRequest, mod_t mod);
+  void  remove(IProxyResponse*  aResponse, mod_t mod);
+
+
+  std::queue<IProxyRequest*>  getReadyForReadingProxyRequests() const;
+  std::queue<IProxyRequest*>  getReadyForWritingProxyRequests() const;
+  std::queue<IProxyResponse*>  getReadyForReadingProxyResponses() const;
+  std::queue<IProxyResponse*>  getReadyForWritingProxyResponses() const;
 
   void wait(std::size_t timeout);
   bool ready() const;

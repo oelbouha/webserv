@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Route.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/05 11:42:36 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/06 18:56:50 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@
 #include "src/Response/ProxiedResponse.hpp"
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
-#include "src/Methods/Method.hpp"
-#include "src/Server/Server.hpp"
 #include "src/Server/ErrorPage.hpp"
 #include "src/Route/Upload.hpp"
 #include "src/Interfaces/IHandler.hpp"
@@ -30,59 +28,42 @@
 
 class Upload;
 
-class Route : public IHandler {
+class Route {
 	std::vector<string> 	allowedMethods;
 	std::vector<string> 	CGIExtensions;
 	std::vector<Config*> 	redirect;
 	ErrorPage&				error_pages;
-	Config&					config;
-	string					autoindex;
-	string					URI;
-	string					path;
+	bool					autoindex;
+	string					uri;
+	string					location;
 	string					root;
 	string					indexfile;
 	string  				uploadPath;
-	unsigned int			statusCode;
+	unsigned int			code;
 
 public:
 	Route(Config * config, ErrorPage& pages);
 	Route&	operator=( const Route& s );
 	~Route();
 
-	Config& getConfig() const;
-	std::vector<string>	getAllowedMethods() const;
-	const string&	getURI() const;
-	const string&	getRoot() const;
-
-	unsigned int getStatusCode() const ;
+	const string&			getURI() const;
 	
+	std::string 			getAbsolutePath(std::string requri);
 	const ErrorPage& 		getErrorPage() const;
-	const string	setMethod(const std::string& method);
-	string			BuildDirectoryListingHtmlPage();
-	
-	bool		hasRedirection() const;
-	bool		IsResourceFileExist(const string& uri) const;
-	bool		hasCGIExtension(const string& uri) const;
-	bool		IsMethodAllowed(const std::string& method);
-	bool 		canDeleteFile(const string& filePath) const;
-	bool 		canReadFile(const string& filePath) const ;
 
-	int 		DeleteFile();
-	std::vector<string> ReadDirectory();
+	bool					IsMethodAllowed(const std::string& method);
+
 	
-	IResponse*	handleDirectory(const IRequest&);
-	IResponse*	deleteDirectory(const IRequest&);
-	IResponse*	handleRequestedFile(const IRequest&);
-	IResponse*	ProcessRequestMethod(IRequest& );
-	IResponse*	ExecuteGETMethod(const IRequest&);
-	IResponse*	ExecutePOSTMethod(IRequest&);
-	IResponse*	ExecuteDELETEMethod(const IRequest&);
-	IResponse*	ExecuteHEADMethod(const IRequest&);
 	
-	Result  handle(IRequest&);
+	Result  	handle(IRequest&);
 
 private:
-	
+	IResponse*  			makeFileResponseFromPath(const IRequest& request, const std::string& path);
+	IResponse*				handleRequestToFile(const IRequest&);
+	Result					handleRequestToCgi(IRequest&);
+	IResponse*				makeDirectoryListingResponse(const IRequest& request, const std::string& path);
+	std::vector<string> 	ReadDirectory(const std::string& path);
+	bool					isRequestToCgi(const std::string & );
 };
 
 #endif

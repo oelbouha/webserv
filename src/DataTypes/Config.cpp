@@ -148,8 +148,11 @@ void	Config::addListIfExist(Config& server, const string& prop)
 {
 	if (prop.empty())
 		return ;
-	if (server.hasList(prop) == true)
-		addList(prop, server.getListConfig(prop));
+	if (server.hasList(prop) == true) {
+		std::vector<string>& list = mListConfig[prop];
+		std::vector<string> serverlist = server.getListConfig(prop);
+		list.insert(list.end(), serverlist.begin(), serverlist.end());
+	}
 }
 
 

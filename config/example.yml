@@ -18,7 +18,8 @@ cluster:
       - 416
 
   server:
-    root: /Users/ysalmi/code/in_progress/webserv/pages
+    root: /Users/oelbouha/Desktop/In_Progres/pages
+    upload: /Users/oelbouha/Desktop/In_Progres/upload
     # default: yes
     # host: localhost
     ports:
@@ -37,12 +38,11 @@ cluster:
         - 418
         - 404
         - 400
-    upload: /upload
     cgi:
-      - .py
+      - .h
     route:
       uri: /test
-      root: /Users/ysalmi/code/in_progress/webserv/pages
+      root: /Users/oelbouha/Desktop/In_Progres/pages
       redirect:
         code: 301
         location: /
@@ -52,8 +52,12 @@ cluster:
         - GET
     route:
       uri: /
-      root: /Users/ysalmi/code/in_progress/webserv
-      upload: /upload
+      cgi:
+        - .ph
+        - .p
+        - .phg
+        - .gf
+      root: /Users/oelbouha/Desktop/In_Progres/pages
       autoindex: yes
       allowed_methods:
         - POST
@@ -61,17 +65,15 @@ cluster:
         - GET
     route:
       uri: /pages/
-      root: /Users/ysalmi/code/in_progress/webserv/pages
-      upload: /upload
+      root: /Users/oelbouha/Desktop/In_Progres/pages
       allowed_methods:
         - POST
         - DELETE
         - GET
     route:
       uri: /pages
-      root: /Users/ysalmi/code/in_progress/webserv/pages
+      root: /Users/oelbouha/Desktop/In_Progres/pages
       index: index.html
-      upload: /upload
       allowed_methods:
         - POST
         - DELETE
@@ -80,7 +82,8 @@ cluster:
   server:
     host: 10.30.252.175
     index: index.html
-    root: /Users/ysalmi/code/in_progress/webserv/pages/test_dir
+    root: /Users/oelbouha/Desktop/In_Progres/pages
+    upload: /Users/oelbouha/Desktop/In_Progres/upload
     ports:
       - 8058
     error_page:

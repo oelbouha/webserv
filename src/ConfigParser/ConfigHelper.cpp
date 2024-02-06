@@ -97,6 +97,7 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"autoindex",
 			"error_page",
 			"redirect",
+			"cgi",
 
 		"redirect:"
 			"code",

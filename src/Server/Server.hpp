@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/05 16:28:34 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/06 18:53:42 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@
 #include "src/DataTypes/Config.hpp"
 #include "src/Route/Route.hpp"
 #include "src/Server/ErrorPage.hpp"
-#include "src/Route/RedirectRoute.hpp"
 #include "src/Interfaces/IServer.hpp"
 #include "src/Interfaces/IHandler.hpp"
 #include "Utils.hpp"

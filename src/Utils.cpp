@@ -72,7 +72,7 @@ namespace utils
 
 		ss >> res;
 		ss >> rest;
-		if (! rest.empty() || trimmed[0] == '-' || res > UINT_MAX)
+		if (! rest.empty() || !std::isdigit(trimmed[0]) || res > UINT_MAX)
 			throw std::invalid_argument("argument is not an unsigned integer value");
 		return (res);
 	}
