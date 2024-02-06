@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 19:00:05 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/02/06 22:16:24 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Route::Route(Config* config, ErrorPage& pages): error_pages(pages)
 			code = utils::string_to_uint(prop);
 			if (code < 300 || code >= 400)
 				throw std::invalid_argument("Invalid code");
-			Response::sStatusCodes.at(code);
+			Response::StatusCodes.at(code);
 		}
 		catch(const std::exception& e) {
 			throw ConfigException("Not a Valid Redirect Code Number", "code", prop);

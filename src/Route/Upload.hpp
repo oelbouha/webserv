@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:19 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 22:07:04 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/02/06 22:32:24 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ public:
 
 	int				getSocketFd() const;
 
-	std::string 	handle();
 	IRequest*		getRequest();
+	void 			handle();
 	bool			done() const;
 
 private:
@@ -56,9 +56,10 @@ private:
 	Upload&	operator=( const Upload& s );
 	Upload( const Upload& s );
 	
+	void			createTmpFile();
+	void			buildUploadRequest();
 	bool			search(const string& buff, const string & line);
-	void			SetupBoundry(const std::string& type);
-	std::string 	getFieldName(std::string name, std::string end);
+	string 			getFieldName(const std::string& name, const std::string& del);
 };
 
 

@@ -6,11 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/02/06 18:53:42 by oelbouha         ###   ########.fr       */
-=======
-/*   Updated: 2024/02/05 17:53:53 by ysalmi           ###   ########.fr       */
->>>>>>> 8a2965b142e51683d269029664b9d872939921bb
+/*   Updated: 2024/02/06 22:14:20 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +30,8 @@
 #include "Utils.hpp"
 
 class Route;
-class RedirectRoute;
 
-class Server : public IHandler
+class Server
 {
 	std::vector<Route*>				routes;
 	std::vector<unsigned int>		ports;
