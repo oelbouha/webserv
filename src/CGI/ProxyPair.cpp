@@ -12,7 +12,7 @@
 ProxyPair::ProxyPair():
     request(NULL),
     response(NULL),
-    mPID(-10)
+    mPID(-1)
 {}
 
 ProxyPair::ProxyPair(int pid, IProxyRequest* req, IProxyResponse* res):

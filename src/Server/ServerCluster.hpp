@@ -50,13 +50,9 @@ public:
 	ServerCluster(Config *config);
 	~ServerCluster();
 
-
-	ProxyPair   		handleCGI(IRequest* request);
-
 	Result  			handle(IRequest& request);
 
 	std::vector<std::pair<unsigned int, unsigned int> >	getServersIPPortPairs() const;
-		
 };
 
 #endif

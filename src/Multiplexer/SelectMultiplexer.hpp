@@ -39,40 +39,36 @@ public:
   typedef std::map<int, IServerSocket *>  ServerSockets;
   typedef std::map<int, IClient *>        Clients;
   typedef std::map<int, IResponse *>      Responses;
-  typedef std::map<int, IUpload *>      Uploads;
+  typedef std::map<int, IUpload *>        Uploads;
   typedef std::map<int, IProxyRequest *>  ProxyRequests;
   typedef std::map<int, IProxyResponse *> ProxyResponses;
 
 public:
   SelectMultiplexer();
-  SelectMultiplexer(const SelectMultiplexer &s);
   ~SelectMultiplexer();
 
-public:
-  SelectMultiplexer &operator=(const SelectMultiplexer &s);
+  void  add(IServerSocket *sock);
+  void  remove(IServerSocket *sock);
 
-public:
-  void add(IServerSocket &sock);
-  void remove(IServerSocket &sock);
+  void  add(IClient *client);
+  void  remove(IClient *client);
+
+  void  add(IResponse *res);
+  void  remove(IResponse *res);
+
+  void  add(IUpload *upload);
+  void  remove(IUpload *upload);
+
   std::queue<IServerSocket *> getReadyServerSockets() const;
+  std::queue<IClient *>       getReadyClients() const;
+  std::queue<IResponse *>     getReadyResponses() const;
+  std::queue<IUpload *>       getReadyUploads() const;
 
-  void add(IClient &client);
-  void remove(IClient &client);
-  std::queue<IClient *> getReadyClients() const;
-
-  void add(IResponse &res);
-  void remove(IResponse &res);
-  std::queue<IResponse *> getReadyResponses() const;
-
-  void                    add(IUpload *upload);
-  void                    remove(IUpload *upload);
-  std::queue<IUpload *>   getReadyUploads() const;
-
+  // CGI
   void  add(IProxyRequest*  aRequest, mod_t mod);
   void  add(IProxyResponse*  aResponse, mod_t mod);
   void  remove(IProxyRequest*  aRequest, mod_t mod);
   void  remove(IProxyResponse*  aResponse, mod_t mod);
-
 
   std::queue<IProxyRequest*>  getReadyForReadingProxyRequests() const;
   std::queue<IProxyRequest*>  getReadyForWritingProxyRequests() const;
@@ -83,6 +79,9 @@ public:
   bool ready() const;
 
 private:
+  SelectMultiplexer(const SelectMultiplexer &s);
+  SelectMultiplexer &operator=(const SelectMultiplexer &s);
+
   void  updateMaxFd();
 };
 #endif

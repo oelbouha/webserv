@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/07 12:42:47 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/07 13:12:08 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,7 +182,10 @@ Result  			Route::handleRequestToCgi(IRequest& request)
 	)
 		return (Result(new Upload(&request, uploadPath)));
 
+	ProxyPair	pair = CGIHandler::handle(&request, path);
 	
+	if (pair.request != NULL)
+		return (Result(pair));
 		
 	return (Result(error_pages.build(request, 400)));
 }

@@ -78,6 +78,25 @@ std::string ClientSocket::read(unsigned int aMaxSize)
     return (ret);
 }
 
+std::string ClientSocket::readTo(const std::string& s) 
+{
+    mBuffer = readAll();
+
+    std::size_t pos = mBuffer.find(s);
+
+    if (pos == std::string::npos)
+    {
+        std::string ret = mBuffer;
+        mBuffer.clear();
+        return (ret);
+    }
+
+    std::string ret = mBuffer.substr(0, pos + s.length());
+    mBuffer.erase(0, pos + s.length());
+
+    return (ret);
+}
+
 std::string ClientSocket::readHeaderOnly() 
 {
     mBuffer = readAll();

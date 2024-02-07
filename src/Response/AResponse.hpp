@@ -21,6 +21,7 @@
 #include <fcntl.h>
 
 #include "IClientSocket.hpp"
+#include "IClient.hpp"
 #include "IResponse.hpp"
 
 #include "src/Server/MimeTypes.hpp"
@@ -37,20 +38,23 @@ protected:
 	unsigned int 			mStatusCode;
 	string_string_map		mHeaders;
 
-	AResponse(const AResponse& aResponse);
-	AResponse&	operator=(const AResponse& aResponse);
+public:
+	IClient* client;
 
 public:
 	AResponse(const IClientSocket &aSocket);
 	~AResponse();
 
 	virtual int getSocketFd() const;
-
 	AResponse&	setStatusCode(unsigned int aStatusCode);
 	AResponse&	setHeader(const std::string &aHeader, const std::string &aValue);
 
 	static const uint_string_map	StatusCodes;
 	static uint_string_map 			initStatusCodes();
+
+private:
+	AResponse(const AResponse& aResponse);
+	AResponse&	operator=(const AResponse& aResponse);
 };
 
 #endif

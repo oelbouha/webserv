@@ -37,16 +37,16 @@ public:
   virtual bool ready() const = 0;
 
   // server sockets used only to listen for new Clients
-  virtual void add(IServerSocket &aServer) = 0;
-  virtual void remove(IServerSocket &aServer) = 0;
+  virtual void add(IServerSocket *aServer) = 0;
+  virtual void remove(IServerSocket *aServer) = 0;
 
   // client sockets used only to listen for new Requests
-  virtual void add(IClient &aClient) = 0;
-  virtual void remove(IClient &aClient) = 0;
+  virtual void add(IClient *aClient) = 0;
+  virtual void remove(IClient *aClient) = 0;
 
   // response socket used only to listen if the client is ready to receive data
-  virtual void add(IResponse &aResponse) = 0;
-  virtual void remove(IResponse &aResponse) = 0;
+  virtual void add(IResponse *aResponse) = 0;
+  virtual void remove(IResponse *aResponse) = 0;
 
   // upload 
   virtual void add(IUpload *upload) = 0;

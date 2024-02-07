@@ -47,6 +47,11 @@ ServerSocket &ServerSocket::operator=(const ServerSocket &aServerSocket)
     return (*this);
 }
 
+void    ServerSocket::close()
+{
+    ::close(mID);
+}
+
 int ServerSocket::getSocketFd() const { return mID; }
 
 void ServerSocket::bind()

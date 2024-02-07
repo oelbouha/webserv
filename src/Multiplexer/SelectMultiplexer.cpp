@@ -28,29 +28,29 @@ SelectMultiplexer &SelectMultiplexer::operator=(const SelectMultiplexer &s) {
          Listening Sockets
 ******************************************************************************/
 
-void SelectMultiplexer::add(IServerSocket &sock) {
-  // std::cout << "sock ------------------------------------ adding " << sock.getSocketFd() << std::endl;
-  serverSockets[sock.getSocketFd()] = &sock;
-  FD_SET(sock.getSocketFd(), &mReadfds);
-  mMaxfd = mMaxfd > sock.getSocketFd() ? mMaxfd : sock.getSocketFd() + 1;
+void SelectMultiplexer::add(IServerSocket *sock)
+{
+  serverSockets[sock->getSocketFd()] = sock;
+  FD_SET(sock->getSocketFd(), &mReadfds);
+  mMaxfd = mMaxfd > sock->getSocketFd() ? mMaxfd : sock->getSocketFd() + 1;
 }
 
-void SelectMultiplexer::remove(IServerSocket &sock) {
-  ServerSockets::iterator it = serverSockets.find(sock.getSocketFd());
+void SelectMultiplexer::remove(IServerSocket *sock)
+{
+  ServerSockets::iterator it = serverSockets.find(sock->getSocketFd());
 
   if (it != serverSockets.end())
   {
     serverSockets.erase(it);
-    // std::cout << "sock ------------------------------------ removiing " << sock.getSocketFd() << std::endl;
-    FD_CLR(sock.getSocketFd(), &mReadfds);
-
-    if (sock.getSocketFd() == mMaxfd - 1)
+    FD_CLR(sock->getSocketFd(), &mReadfds);
+    if (sock->getSocketFd() == mMaxfd - 1)
       updateMaxFd();
   }
 }
 
 std::queue<IServerSocket *>
-SelectMultiplexer::getReadyServerSockets() const {
+SelectMultiplexer::getReadyServerSockets() const
+{
   std::queue<IServerSocket *> ret;
 
   if (mReadyfdsCount == 0)
@@ -58,7 +58,8 @@ SelectMultiplexer::getReadyServerSockets() const {
 
   ServerSockets::const_iterator its = serverSockets.begin();
 
-  while (its != serverSockets.end()) {
+  while (its != serverSockets.end())
+  {
     if (FD_ISSET(its->first, &mReadfdsTmp))
       ret.push(its->second);
     ++its;
@@ -70,28 +71,28 @@ SelectMultiplexer::getReadyServerSockets() const {
           Clients
 ******************************************************************************/
 
-void SelectMultiplexer::add(IClient &client) {
-  // std::cout << "client ------------------------------------ adding " << client.getSocketFd() << std::endl;
-  clients[client.getSocketFd()] = &client;
-  FD_SET(client.getSocketFd(), &mReadfds);
-  mMaxfd = mMaxfd > client.getSocketFd() ? mMaxfd : client.getSocketFd() + 1;
+void SelectMultiplexer::add(IClient *client)
+{
+  clients[client->getSocketFd()] = client;
+  FD_SET(client->getSocketFd(), &mReadfds);
+  mMaxfd = mMaxfd > client->getSocketFd() ? mMaxfd : client->getSocketFd() + 1;
 }
 
-void SelectMultiplexer::remove(IClient &client) {
-  Clients::iterator it = clients.find(client.getSocketFd());
+void SelectMultiplexer::remove(IClient *client)
+{
+  Clients::iterator it = clients.find(client->getSocketFd());
 
   if (it != clients.end())
   {
     clients.erase(it);
-    // std::cout << "client ------------------------------------ removiing " << client.getSocketFd() << std::endl;
-    FD_CLR(client.getSocketFd(), &mReadfds);
-
-     if (client.getSocketFd() == mMaxfd - 1)
+    FD_CLR(client->getSocketFd(), &mReadfds);
+    if (client->getSocketFd() == mMaxfd - 1)
       updateMaxFd();
   }
 }
 
-std::queue<IClient *> SelectMultiplexer::getReadyClients() const {
+std::queue<IClient *> SelectMultiplexer::getReadyClients() const
+{
   std::queue<IClient *> ret;
 
   if (mReadyfdsCount == 0)
@@ -111,21 +112,22 @@ std::queue<IClient *> SelectMultiplexer::getReadyClients() const {
          Responses
 ******************************************************************************/
 
-void SelectMultiplexer::add(IResponse &res) {
-  responses[res.getSocketFd()] = &res;
-  FD_SET(res.getSocketFd(), &mWritefds);
-  mMaxfd = mMaxfd > res.getSocketFd() ? mMaxfd : res.getSocketFd() + 1;
+void SelectMultiplexer::add(IResponse *res)
+{
+  responses[res->getSocketFd()] = res;
+  FD_SET(res->getSocketFd(), &mWritefds);
+  mMaxfd = mMaxfd > res->getSocketFd() ? mMaxfd : res->getSocketFd() + 1;
 }
 
-void SelectMultiplexer::remove(IResponse &res) {
-  Responses::iterator it = responses.find(res.getSocketFd());
+void SelectMultiplexer::remove(IResponse *res)
+{
+  Responses::iterator it = responses.find(res->getSocketFd());
 
   if (it != responses.end())
   {
     responses.erase(it);
-    FD_CLR(res.getSocketFd(), &mWritefds);
-
-     if (res.getSocketFd() == mMaxfd - 1)
+    FD_CLR(res->getSocketFd(), &mWritefds);
+    if (res->getSocketFd() == mMaxfd - 1)
       updateMaxFd();
   }
 }

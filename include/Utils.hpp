@@ -41,7 +41,6 @@ namespace utils
 	std::string		trim_spaces(const std::string& aString);
 	std::string&	str_to_lower(std::string& str);
 	char** 			vector_to_cstring_array(const std::vector<std::string>& vec);
-	unsigned int	string_to_uint(const std::string& str);
 
 	template <typename T>
 	std::string				to_string(T t)
@@ -51,6 +50,10 @@ namespace utils
 		ss << t;
 		return (ss.str());
 	}
+
+	//	Numbers
+	unsigned int	string_to_uint(const std::string& str);
+	unsigned int	hex_to_uint(const std::string& str);
 
 	//	Network
 	unsigned int			ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d);

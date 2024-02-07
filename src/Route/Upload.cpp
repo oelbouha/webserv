@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/07 09:52:59 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/07 20:57:15 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,11 @@
 
 Upload::Upload(IRequest *request, const string& upload_path) : 
 	request(request),
-	upload_dir(upload_path),
 	firstRead(true),
 	is_done(false),
-	count(0)
+	upload_dir(upload_path),
+	count(0),
+	client(NULL)
 {
 	if (upload_dir.back() != '/')
 		upload_dir += "/";
@@ -27,18 +28,26 @@ Upload::Upload(IRequest *request, const string& upload_path) :
 	boundry = "--" + type.substr(pos + 1, type.length());
 	start = "Content-Disposition: form-data; name=\"";
 	body = boundry;
+
+	handle();
 }
 
 Upload::Upload(const Upload& obj){ (void)obj; }
 
-bool Upload::done() const { return is_done; }
+bool Upload::done() const
+{
+	return is_done;
+}
 
 Upload& Upload::operator=(const Upload& obj) {
 	(void)obj;
 	return *this;
 }
 
-Upload::~Upload(){}
+Upload::~Upload()
+{
+	delete request;
+}
 
 bool Upload::search(const string& buff, const string & line) {
 	return (buff.find(line) >= 0);
@@ -148,7 +157,6 @@ void	Upload::handle()
 			is_done = true;
 			body += "--\r\n";
 			buff.clear();
-			std::cout << "new Body: \n" << body << std::endl;
 			break;
 		}
 	}

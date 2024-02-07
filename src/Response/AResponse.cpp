@@ -11,19 +11,24 @@
 
 
 AResponse::AResponse( const IClientSocket &aSocket ) :
-    mSocket(aSocket)
+    mSocket(aSocket),
+    client(NULL)
 {}
 
 AResponse::AResponse(const AResponse &AResponse) :
-    mSocket(AResponse.mSocket)
+    mSocket(AResponse.mSocket),
+    client(NULL)
 {}
 
 AResponse::~AResponse()
 {}
 
-AResponse &AResponse::operator=(const AResponse &AResponse)
+AResponse &AResponse::operator=(const AResponse &aResponse)
 {
-  (void)AResponse;
+  if (this != &aResponse)
+  {
+
+  }
   return (*this);
 }
 
@@ -35,9 +40,9 @@ AResponse &AResponse::setStatusCode(unsigned int aStatusCode)
   return (*this);
 }
 
-AResponse &AResponse::setHeader(const std::string &aHeader, const std::string &aValue)
+AResponse &AResponse::setHeader(const std::string &key, const std::string &val)
 {
-  mHeaders[aHeader] = aValue;
+  mHeaders[key] = val;
   return (*this);
 }
 

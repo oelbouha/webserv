@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/07 12:24:44 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/07 13:08:00 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include "src/DataTypes/Config.hpp"
 #include "src/Server/ErrorPage.hpp"
 #include "src/Route/Upload.hpp"
+#include "src/CGI/CGIHandler.hpp"
 #include "Utils.hpp"
 
 class Upload;

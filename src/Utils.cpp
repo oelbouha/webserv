@@ -12,7 +12,7 @@
 
 namespace utils
 {
-	// strings 
+	//	Strings 
 	bool			is_not_space(char c)
 	{
 		return (std::isspace(c) == false);
@@ -71,20 +71,6 @@ namespace utils
 		return (str);
 	}
 
-	unsigned int	string_to_uint(const std::string& str)
-	{
-		std::string			trimmed = trim_spaces(str);
-		std::stringstream	ss(trimmed);
-		long unsigned int	res;
-		std::string			rest;
-
-		ss >> res;
-		ss >> rest;
-		if (! rest.empty() || !std::isdigit(trimmed[0]) || res > UINT_MAX)
-			throw std::invalid_argument("argument is not an unsigned integer value");
-		return (res);
-	}
-
 	char** 			vector_to_cstring_array(const std::vector<std::string>& vec)
 	{
 		char**  ret = new char*[vec.size() + 1];
@@ -101,7 +87,32 @@ namespace utils
 		return (ret);
 	}
 
-	// Network
+	//	Numbers
+	unsigned int	hex_to_uint(const std::string& str)
+	{
+		unsigned int        x;   
+		std::stringstream   ss;
+
+		ss << std::hex << str;
+		ss >> x;
+		return (x);
+	}
+	
+	unsigned int	string_to_uint(const std::string& str)
+	{
+		std::string			trimmed = trim_spaces(str);
+		std::stringstream	ss(trimmed);
+		long unsigned int	res;
+		std::string			rest;
+
+		ss >> res;
+		ss >> rest;
+		if (! rest.empty() || !std::isdigit(trimmed[0]) || res > UINT_MAX)
+			throw std::invalid_argument("argument is not an unsigned integer value");
+		return (res);
+	}
+	
+	//	Network
 	unsigned int	ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d)
 	{
 		return (a << 24 | b << 16 | c << 8 | d);
@@ -161,7 +172,7 @@ namespace utils
 		return ret;
 	}
 	
-	// Other
+	//	Other
 	int		get_exit_status(pid_t pid)
 	{
 		int				ret;

@@ -18,6 +18,8 @@
 #include "IRequestReader.hpp"
 #include "IClientSocket.hpp"
 
+#include "RequestException.hpp"
+
 class ChunkedRequestReader : public IRequestReader
 {
 	IClientSocket&	mSocket;

@@ -48,6 +48,7 @@ public:
   virtual void            listen();
   virtual IClientSocket*  accept() const;
   virtual void            setNonBlocking();
+  void                    close();
 
   virtual int   getPort() const;
   virtual ip_t  getIP() const;

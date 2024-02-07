@@ -12,8 +12,8 @@ NAME := webserv
 ##########################################################################
 #	Compiler Variables
 
-CXX := clang++
-#CXX := c++
+# CXX := clang++
+CXX := c++
 
 INC := -I. \
 		-I./include \
@@ -22,7 +22,7 @@ INC := -I. \
 #TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
 TMP :=
 
-CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) -fsanitize=address -g 
+CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) #-fsanitize=address -g 
 
 LINKER := -L/goinfre/ysalmi/brew/opt/llvm/lib/c++ \
 		-Wl,-rpath,/goinfre/ysalmi/brew/opt/llvm/lib/c++

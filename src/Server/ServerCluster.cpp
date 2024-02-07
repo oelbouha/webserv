@@ -68,16 +68,6 @@ ServerCluster::getServersIPPortPairs() const
     return (pairs);
 }
 
-
-#include "src/CGI/CGIHandler.hpp"
-
-ProxyPair   ServerCluster::handleCGI(IRequest* request)
-{
-    CGIHandler    handler;
-
-    return (handler.handle(request));
-}
-
 bool    ServerCluster::isServerMatched(const Server& server, unsigned int ip, unsigned int port)
 {
     const std::vector<unsigned int>& ports = server.getPorts();

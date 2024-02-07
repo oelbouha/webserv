@@ -12,31 +12,24 @@
 #define CGIHANDLER_HPP
 
 #include <vector>
-
-#include "DescriptorProxyRequest.hpp"
-#include "ProxyPair.hpp"
 #include <string>
+
 #include <unistd.h>
 
-#include "IProxyHandler.hpp"
 #include "src/Interfaces/IRequest.hpp"
 
-#include "ProxyPair.hpp"
 #include "DescriptorProxyRequest.hpp"
+#include "ProxyPair.hpp"
+#include "IProxyHandler.hpp"
 #include "CGIResponse.hpp"
 
 class CGIHandler
 {
 private:
-	std::vector<std::string>	mArgs, mEnv;
-	void	compileEnv(IRequest& req);
-public:
+	static std::vector<std::string>	compileEnv(IRequest& req);
 	CGIHandler();
-	CGIHandler( const CGIHandler& c);
-	~CGIHandler();
+public:
 
-	CGIHandler&	operator=( const CGIHandler& c );
-
-    virtual ProxyPair   handle(IRequest* request);
+    static ProxyPair   handle(IRequest* request, const std::string& path);
 };
 #endif

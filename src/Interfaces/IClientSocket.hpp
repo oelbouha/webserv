@@ -25,6 +25,7 @@ public:
     virtual int         writeAll( const std::string& aBuffer ) const = 0;
 
     virtual std::string readAll() = 0;
+    virtual std::string readTo(const std::string& s) = 0;
     virtual std::string readHeaderOnly() = 0;
     virtual std::string read( unsigned int aMaxSize ) = 0;
 
