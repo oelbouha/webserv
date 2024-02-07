@@ -33,13 +33,13 @@ cluster:
         - 500
         - 501
     error_page:
-      file: /4xx.html
+      file: /4xxx.html
       codes:
         - 418
         - 404
         - 400
     cgi:
-      - .h
+      - .py
     route:
       uri: /test
       root: /Users/ysalmi/code/in_progress/webserv/pages

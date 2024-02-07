@@ -27,6 +27,7 @@
 
 class CGIHandler
 {
+private:
 	std::vector<std::string>	mArgs, mEnv;
 	void	compileEnv(IRequest& req);
 public:

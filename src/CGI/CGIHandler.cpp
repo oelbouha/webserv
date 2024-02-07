@@ -147,6 +147,8 @@ void    CGIHandler::compileEnv(IRequest& req)
         mEnv.push_back("HTTP_COOKIE=" + cookie);
 }
 
+
+
 static char**   vectorToCStringArray(const std::vector<std::string>& vec)
 {
     char**  ret = new char*[vec.size() + 1];

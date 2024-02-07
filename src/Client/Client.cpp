@@ -38,12 +38,12 @@ bool    Client::operator==(const IClient& client) const
 
 int     Client::getSocketFd() const { return mSocket->getSocketFd(); }
 
-int     Client::getIncomingIP() const { return mIncomingIP; }
-
-int     Client::getIncomingPort() const { return mIncomingPort; }
-
 bool    Client::hasRequest() const { return ( ! mRequests.empty() ); }
 
+bool    Client::hasTimedOut(size_t timeout) const
+{
+    return (std::difftime(std::time(0), lastActivityEnd) > timeout);
+}
 
 void Client::makeRequest() 
 {
@@ -80,32 +80,4 @@ IRequest *Client::getRequest()
   IRequest *ret = mRequests.front();
   mRequests.pop();
   return (ret);
-}
-
-void    Client::dump()
-{
-    // mSocket->dump();
-    IRequest*   req;
-    if (mRequests.empty()){
-        makeRequest();
-        req = mRequests.front();
-        if (status == Client::DISCONNECTED)
-        {
-            delete  req;
-            req = NULL;
-            return;
-        }
-
-        return ;
-    }
-    req = mRequests.front();
-    std::cout << "dumping...\n" << std::flush;
-    std::cout << req->read() << std::flush;
-    if (req->done()){
-        std::cout << "request complete - content length: " 
-            << req->getContentLength() << "\n" << std::flush;
-        delete req;
-        req = NULL;
-        throw 42;
-    }
 }

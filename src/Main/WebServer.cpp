@@ -227,7 +227,7 @@ void  WebServer::handleUploads()
                 mMux->remove(upload);
                 IRequest *request = upload->getRequest();
 
-                IResponse *response = new Response(request->getSocket());
+                IResponse *response = new BufferResponse(request->getSocket());
                 response->setStatusCode(201)
                     .setBody("upload")
                     .build();

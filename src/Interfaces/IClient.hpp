@@ -23,11 +23,6 @@ class IClient {
         virtual bool                    hasRequest() const = 0;
         virtual IRequest*               getRequest() = 0;
         virtual int                     getSocketFd() const = 0;
-        virtual int                     getIncomingIP() const = 0;
-        virtual int                     getIncomingPort() const = 0;
         virtual const IClientSocket&    getSocket() const = 0;
-
-        virtual void dump() = 0;
-
 };
 #endif

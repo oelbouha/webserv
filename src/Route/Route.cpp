@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 22:16:24 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/02/07 12:42:47 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,16 +60,15 @@ const ErrorPage& 	Route::getErrorPage() const { return error_pages; }
 
 const std::string&	Route::getURI() const{ return uri; }
 
-bool	Route::IsMethodAllowed(const std::string& method) {
-	for(size_t i = 0; i < allowedMethods.size(); ++i){
+bool				Route::IsMethodAllowed(const std::string& method)
+{
+	for(size_t i = 0; i < allowedMethods.size(); ++i)
 		if (method == allowedMethods[i])
 			return true;
-	}
 	return false;
 }
 
-
-std::vector<string> Route::ReadDirectory(const std::string& path)
+std::vector<string>	Route::ReadDirectory(const std::string& path)
 {
 	std::vector<string> list;
 
@@ -84,7 +83,7 @@ std::vector<string> Route::ReadDirectory(const std::string& path)
 	return list;
 }
 
-IResponse*	Route::makeDirectoryListingResponse(const IRequest& request, const std::string& path)
+IResponse*			Route::makeDirectoryListingResponse(const IRequest& request, const std::string& path)
 {	
 	std::vector<string> fileList = ReadDirectory(path);
 	
@@ -96,7 +95,7 @@ IResponse*	Route::makeDirectoryListingResponse(const IRequest& request, const st
 	}
 	body += "</ul>";
 
-	IResponse * response = new Response(request.getSocket());
+	IResponse * response = new BufferResponse(request.getSocket());
 	response->setHeader("content-type", "text/html")
 		.setStatusCode(200)
 		.setBody(body)
@@ -104,14 +103,13 @@ IResponse*	Route::makeDirectoryListingResponse(const IRequest& request, const st
 	return response;
 }
 
-
-IResponse*  Route::makeFileResponseFromPath(const IRequest& request, const std::string& path) {
+IResponse*  		Route::makeFileResponseFromPath(const IRequest& request, const std::string& path) {
 	try
 	{
-		IResponse * response = new Response(request.getSocket());
+		IResponse * response = new FileResponse(request.getSocket());
 		response->setHeader("connection", request.getHeader("Connection"))
 			.setStatusCode(200)
-			.setBodyFile(path)
+			.setBody(path)
 			.build();
 		return response;
 	}
@@ -122,21 +120,21 @@ IResponse*  Route::makeFileResponseFromPath(const IRequest& request, const std::
 	}
 }
 
-IResponse*  Route::handleRequestToFile(const IRequest& request) {
-	
+IResponse*  		Route::handleRequestToFile(const IRequest& request)
+{
 	std::string path = getAbsolutePath(request.getURI());
 
-	if (utils::IsDirectory(path))
+	if (utils::is_directory(path))
 	{
 		if (path.back() != '/')
 		{
 			const string& uri = request.getURI();
-			IResponse * response = new Response(request.getSocket());	
+			IResponse * response = new BufferResponse(request.getSocket());	
 			response->setHeader("Location", "http://" + request.getHeader("host") + uri + "/")
 				.setHeader("Content-Length", "0")
 				.setStatusCode(301)
 				.build();
-			return response;
+			return (response);
 		}
 		else if (!indexfile.empty())
 			return (makeFileResponseFromPath(request, path + indexfile));
@@ -148,7 +146,8 @@ IResponse*  Route::handleRequestToFile(const IRequest& request) {
 				return response;
 			}
 			catch(...){
-				return makeFileResponseFromPath(request, path);
+				// return (error_pages.build(request, 403));
+				// log error
 			}
 		}
 		return (error_pages.build(request, 403));
@@ -156,37 +155,46 @@ IResponse*  Route::handleRequestToFile(const IRequest& request) {
 	return makeFileResponseFromPath(request, path);
 }
 
-Result  Route::handleRequestToCgi(IRequest& request)
+Result  			Route::handleRequestToCgi(IRequest& request)
 {
-	if (request.getMethod() == "POST" && \
-		!uploadPath.empty() && \
+	std::string path = getAbsolutePath(request.getURI());
+
+	std::cout << "abs path: " << path << std::endl;
+	
+	if ( ::access(path.c_str(), F_OK) == -1)
+	{
+		std::cout << errno << std::endl;
+		perror("handleRequestToCgi");
+		return (Result(error_pages.build(request, 404)));
+	}
+	
+	if ( ::access(path.c_str(), R_OK | X_OK) == -1 )
+	{
+		std::cout << errno << std::endl;
+		perror("handleRequestToCgi");
+		return (Result(error_pages.build(request, 500)));
+	}
+	
+	if (
+		request.getMethod() == "POST" &&
+		!uploadPath.empty() &&
 		request.getHeader("content-type").find("multipart/form-data") != std::string::npos
 	)
-	{
-		Upload *upload = new Upload(&request, uploadPath);
+		return (Result(new Upload(&request, uploadPath)));
+
+	
 		
-		// std::string buff = upload->handle(request);
-		// while (true) {
-		// 	if (upload->IsDone())
-		// 		break ;
-		// 	buff += upload->handle(request);
-		// }
-		
-		// statusCode = 201;
-		std::cout << "Upload......\n" << std::flush;
-		return (Result(upload));
-	}
 	return (Result(error_pages.build(request, 400)));
 }
 
-std::string Route::getAbsolutePath(std::string requri) {
+std::string 		Route::getAbsolutePath(std::string requri) {
 	requri.erase(0, uri.length());
 	if (!requri.empty() && requri.front() != '/')
 		requri = "/" + requri;
 	return (root + requri);
 }
 
-Result  Route::handle(IRequest& request)
+Result  			Route::handle(IRequest& request)
 {	
 	if (IsMethodAllowed(request.getMethod()) == false)
 		return (Result(error_pages.build(request, 405)));
@@ -199,14 +207,7 @@ Result  Route::handle(IRequest& request)
 		return Result(response);
 	}
 	if (isRequestToCgi(request.getURI()))
-	{
 		return handleRequestToCgi(request);
-		// IResponse * response = new Response(request.getSocket());
-		// response->setBody("CGI")
-		// 	.setStatusCode(200)
-		// 	.build();
-		// return Result(response);
-	}
 	if (request.getMethod() == "GET") {
 		IResponse *res = handleRequestToFile(request);
 		return (Result(res));		
@@ -214,7 +215,7 @@ Result  Route::handle(IRequest& request)
 	return (Result(error_pages.build(request, 415)));
 }
 
-bool	Route::isRequestToCgi(const std::string & aUri) {
+bool				Route::isRequestToCgi(const std::string & aUri) {
 	if (!CGIExtensions.empty())
 	{
 		std::string extension = utils::getExtension(aUri);

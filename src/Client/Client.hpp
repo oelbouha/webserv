@@ -13,6 +13,7 @@
 #define CLIENT_HPP
 
 #include <iostream>
+#include <ctime>
 
 #include "IClient.hpp"
 #include "IClientSocket.hpp"
@@ -43,11 +44,10 @@ public:
   };
 
   IResponse*  activeResponse;
+  Upload*     activeUpload;
   ProxyPair   activeProxyPair;
-  Upload      *activeUpload;
-  // active upload
   Status      status;
-
+  time_t      lastActivityEnd;
 
 public:
   Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort);
@@ -56,14 +56,12 @@ public:
   bool  operator==(const IClient& client) const;
 
   virtual int       getSocketFd() const;
-  virtual int       getIncomingIP() const;
-  virtual int       getIncomingPort() const;
   virtual IRequest* getRequest();
 
   virtual bool      hasRequest() const;
   virtual void      makeRequest();
 
-  virtual void      dump();
+  bool              hasTimedOut(size_t timeout) const;
 
   virtual const IClientSocket&  getSocket() const;
 };

@@ -12,7 +12,8 @@
 
 namespace utils
 {
-	bool	is_not_space(char c)
+	// strings 
+	bool			is_not_space(char c)
 	{
 		return (std::isspace(c) == false);
 	}
@@ -57,21 +58,20 @@ namespace utils
 		return (s);
 	}
 	
-	std::string	trim_spaces(const std::string& str)
+	std::string		trim_spaces(const std::string& str)
 	{
 		std::string	s(str);
 		return (trim_spaces(s));
 	}
 
-	std::string&  str_to_lower(std::string& str)
+	std::string&	str_to_lower(std::string& str)
 	{
 		for (std::string::iterator it = str.begin(); it != str.end(); ++it)
 			*it = std::tolower(*it);
 		return (str);
 	}
 
-
-	unsigned int			string_to_uint(const std::string& str)
+	unsigned int	string_to_uint(const std::string& str)
 	{
 		std::string			trimmed = trim_spaces(str);
 		std::stringstream	ss(trimmed);
@@ -85,25 +85,23 @@ namespace utils
 		return (res);
 	}
 
-
-	std::vector<string> SplitString(std::string line, char delimeter)
+	char** 			vector_to_cstring_array(const std::vector<std::string>& vec)
 	{
-		std::vector<string> vec;
-		std::stringstream ss(line);
-		std::string component;
-
-		while (std::getline(ss, component, delimeter)) {
-			std::vector<string>::iterator find = std::find(vec.begin(), vec.end(), component);
-			if (find != vec.end())
-				throw ConfigException("Webserver: Duplicate Number", "Value", *find);
-			if (!component.empty())
-				vec.push_back(component);
+		char**  ret = new char*[vec.size() + 1];
+		int     k = 0;
+		for (std::vector<std::string>::const_iterator it = vec.begin(); it != vec.end(); ++it)
+		{
+			char*   str = new char[it->length() + 1];
+			for (size_t i = 0; i < it->length(); ++i)
+				str[i] = static_cast<char>(it->at(i));
+			str[it->length()] = 0;
+			ret[k++] = str;
 		}
-
-		return vec;
+		ret[k] = NULL;
+		return (ret);
 	}
 
-
+	// Network
 	unsigned int	ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d)
 	{
 		return (a << 24 | b << 16 | c << 8 | d);
@@ -125,7 +123,7 @@ namespace utils
 		return (ss.str());
 	}
 	
-	unsigned int ip(const std::string& ip_address)
+	unsigned int	ip(const std::string& ip_address)
 	{
 		std::istringstream	ss(ip_address);
 		std::vector<int>	components;
@@ -141,74 +139,7 @@ namespace utils
 		return ip(components[0], components[1], components[2], components[3]);
 	}
 
-	
-
-	int	get_exit_status(pid_t pid)
-	{
-		int				ret;
-		unsigned char	*status;
-		int				stts;
-
-		stts = 0;
-		waitpid(pid, &stts, 0);
-		status = (unsigned char *) &stts;
-		if (status[0])
-			return (status[0] + 128);
-		ret = (unsigned char) status[1];
-		return (ret);
-	}
-
-	bool	IsDirectory(string uri)
-	{
-		struct stat info;
-
-		if (stat(uri.c_str(), &info) != 0)
-			return false;
-		// Check if the path corresponds to a directory
-		return S_ISDIR(info.st_mode);
-	}
-
-	string	getExtension(string line)
-	{
-		string extension;
-		int pos = line.rfind('.');
-		if (pos > 0)
-			extension = line.substr(pos + 1, line.length());
-		return (extension);	
-	}
-
-	bool isValidNumber(std::string line)
-	{
-		for(size_t i = 0; i < line.length(); ++i) {
-			if (std::isdigit(line[i]) == false)
-				return false;
-		}
-		return true;
-	}
-
-	bool isValidIp_address(std::string ip_address)
-	{
-		if (ip_address == "localhost")
-			return true;
-		std::istringstream ss(ip_address);
-		std::string component;
-		unsigned int count = 0;
-
-		while (std::getline(ss, component, '.')) {
-			if (isValidNumber(component) == false) {
-				return 0;
-			}
-			++count;
-		}
-		return (count == 4);
-	}
-
-	int min(int a, int b)
-	{
-		return (a < b) ? a : b;
-	}
-
-	unsigned int hostname_to_ip_v4(const std::string& hostname)
+	unsigned int	hostname_to_ip_v4(const std::string& hostname)
 	{
 		unsigned int		ret = -1;
 		addrinfo 	        hints, *result;
@@ -229,6 +160,74 @@ namespace utils
 		freeaddrinfo(result);
 		return ret;
 	}
+	
+	// Other
+	int		get_exit_status(pid_t pid)
+	{
+		int				ret;
+		unsigned char	*status;
+		int				stts;
+
+		stts = 0;
+		waitpid(pid, &stts, 0);
+		status = (unsigned char *) &stts;
+		if (status[0])
+			return (status[0] + 128);
+		ret = (unsigned char) status[1];
+		return (ret);
+	}
+
+	bool	is_directory(string uri)
+	{
+		struct stat info;
+
+		if (stat(uri.c_str(), &info) != 0)
+			return false;
+		// Check if the path corresponds to a directory
+		return S_ISDIR(info.st_mode);
+	}
+
+	string	getExtension(string line)
+	{
+		string extension;
+		int pos = line.rfind('.');
+		if (pos > 0)
+			extension = line.substr(pos + 1, line.length());
+		return (extension);	
+	}
+
+	bool	is_valid_number(std::string line)
+	{
+		for(size_t i = 0; i < line.length(); ++i) {
+			if (std::isdigit(line[i]) == false)
+				return false;
+		}
+		return true;
+	}
+
+	bool	is_valid_ip_address(std::string ip_address)
+	{
+		if (ip_address == "localhost")
+			return true;
+		std::istringstream ss(ip_address);
+		std::string component;
+		unsigned int count = 0;
+
+		while (std::getline(ss, component, '.')) {
+			if (is_valid_number(component) == false) {
+				return 0;
+			}
+			++count;
+		}
+		return (count == 4);
+	}
+
+	int		min(int a, int b)
+	{
+		return (a < b) ? a : b;
+	}
+
+	
 }
 
 

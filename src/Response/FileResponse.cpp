@@ -20,7 +20,9 @@ FileResponse::FileResponse(const FileResponse &aFileResponse) :
 	AResponse(aFileResponse.mSocket)
 {}
 
-FileResponse::~FileResponse() {}
+FileResponse::~FileResponse() {
+	::close(mFile);
+}
 
 FileResponse &FileResponse::operator=(const FileResponse &aFileResponse)
 {

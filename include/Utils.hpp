@@ -11,12 +11,13 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <iostream>
 #include <ostream>
 #include <string>
 #include <sstream>
+#include <vector>
 #include <algorithm>
 #include <cstring>
-
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -27,29 +28,20 @@
 #include <netinet/in.h>
 
 
-
-#include "../src/DataTypes/Config.hpp"
-
 using std::string;
-using std::cout;
 using std::endl;
 
 namespace utils
 {
-	//	strings
-	std::string&			replace(std::string& str, const std::string& old_word, const std::string& new_word);
-	std::string&			replace_all(std::string& str, const std::string& old_word, const std::string& new_word);
-
-	std::size_t				find_last_not_of(const std::string& s, const std::string& set, std::size_t start = 0);
-
-	std::string&			trim_spaces(std::string& aString);
-	std::string				trim_spaces(const std::string& aString);
-
-	std::string&  			str_to_lower(std::string& str);
-
-	// std::vector<string> 	SplitString(std::string line, char delimeter);
-
-	unsigned int			string_to_uint(const std::string& str);
+	//	Ntrings
+	std::string&	replace(std::string& str, const std::string& old_word, const std::string& new_word);
+	std::string&	replace_all(std::string& str, const std::string& old_word, const std::string& new_word);
+	std::size_t		find_last_not_of(const std::string& s, const std::string& set, std::size_t start = 0);
+	std::string&	trim_spaces(std::string& aString);
+	std::string		trim_spaces(const std::string& aString);
+	std::string&	str_to_lower(std::string& str);
+	char** 			vector_to_cstring_array(const std::vector<std::string>& vec);
+	unsigned int	string_to_uint(const std::string& str);
 
 	template <typename T>
 	std::string				to_string(T t)
@@ -60,23 +52,20 @@ namespace utils
 		return (ss.str());
 	}
 
-	//	network
+	//	Network
 	unsigned int			ip(unsigned char a, unsigned char b, unsigned char c, unsigned char d);
-
 	unsigned int 			ip(const std::string& aIP);
-	
 	std::string				ip(unsigned int aIP);
-
 	unsigned int 			hostname_to_ip_v4(const std::string& hostname);
 	
+
+	//	Other
 	std::string				getExtension(string line);
-
-	bool 					isValidIp_address(std::string ip_address);
-	bool					IsDirectory(string uri);
-	bool	 				isValidNumber(std::string line);
-
+	bool 					is_valid_ip_address(std::string ip_address);
+	bool					is_directory(string uri);
+	bool	 				is_valid_number(std::string line);
 	int						get_exit_status(pid_t pid);
-	int						stringToInt(std::string str);
+	int						string_to_int(std::string str);
 	int 					min(int a, int b);
 	
 }

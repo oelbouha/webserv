@@ -23,6 +23,9 @@
 #include "IClientSocket.hpp"
 #include "IResponse.hpp"
 
+#include "src/Response/FileResponse.hpp"
+#include "src/Response/BufferResponse.hpp"
+
 #include "src/Server/MimeTypes.hpp"
 #include "src/Socket/SocketException.hpp"
 #include "src/Response/ResponseException.hpp"

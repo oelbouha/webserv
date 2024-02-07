@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:39:26 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 10:21:52 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/02/07 12:44:07 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	ErrorPage::setErrorPage(const std::vector<Config *>& error_pages_config, co
 			
 			while (cur != codes.end())
 			{
-				if (utils::isValidNumber(*cur) == false)
+				if (utils::is_valid_number(*cur) == false)
 					throw ConfigException("error_page: Invalid Error Code number", "codes", *cur);
 				error_pages[*cur] = file;
 				++cur;
