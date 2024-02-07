@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Upload.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:19 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 22:32:24 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/02/07 09:46:58 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define UPLOAD_HPP
 
 #include <iostream>
+#include <ctime>
 
 #include "src/Interfaces/IUpload.hpp"
 
@@ -51,6 +52,7 @@ private:
 	std::string 	file_name;
 	std::string 	file_content_type;
 	std::string 	file_path;
+	unsigned int	count;
 
 private:
 	Upload&	operator=( const Upload& s );

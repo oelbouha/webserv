@@ -6,3 +6,6 @@ pages/*.mp4
 .gitignore
 main.cpp
 .gitignore
+upload/.DS_Store
+upload/
+.*

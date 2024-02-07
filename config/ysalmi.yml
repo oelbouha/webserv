@@ -1,0 +1,99 @@
+#comment;
+error_log_file  : /Users/ysalmi/webserv.error.log
+error_log_level : warn
+
+cluster:
+  default_mime: text/plain
+  mime_types:
+    # html: text/html
+    jpg: image/jpeg
+  keep_alive:	65
+  server_props: no
+
+  error_page:
+    file: /40x.html
+    codes:
+      - 401
+      - 404
+      - 416
+
+  server:
+    root: /Users/ysalmi/code/in_progress/webserv/pages
+    upload: /Users/ysalmi/code/in_progress/webserv/upload
+    # default: yes
+    host: localhost
+    ports:
+      - 8000
+      - 8080
+    # names:
+    #   - localhost
+    error_page:
+      file: /50x.html
+      codes:
+        - 500
+        - 501
+    error_page:
+      file: /4xx.html
+      codes:
+        - 418
+        - 404
+        - 400
+    cgi:
+      - .h
+    route:
+      uri: /test
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      redirect:
+        code: 301
+        location: /
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+    route:
+      uri: /
+      cgi:
+        - .ph
+        - .p
+        - .phg
+        - .gf
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      autoindex: yes
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+    route:
+      uri: /pages/
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+    route:
+      uri: /pages
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      index: index.html
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+  
+  server:
+    host: 10.30.252.175
+    index: index.html
+    root: /Users/ysalmi/code/in_progress/webserv/pages
+    upload: /Users/ysalmi/code/in_progress/webserv/upload
+    ports:
+      - 8058
+    error_page:
+      file: /40x.html
+      codes:
+        - 418
+        # - 404
+        - 400
+    route:
+      uri: /
+      allowed_methods:
+        - GET
+        - POST

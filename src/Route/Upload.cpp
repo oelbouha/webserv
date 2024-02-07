@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Upload.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 22:38:44 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/02/07 09:52:59 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@ Upload::Upload(IRequest *request, const string& upload_path) :
 	request(request),
 	upload_dir(upload_path),
 	firstRead(true),
-	is_done(false)
+	is_done(false),
+	count(0)
 {
 	if (upload_dir.back() != '/')
 		upload_dir += "/";
@@ -25,7 +26,7 @@ Upload::Upload(IRequest *request, const string& upload_path) :
 	int pos = type.rfind("=");
 	boundry = "--" + type.substr(pos + 1, type.length());
 	start = "Content-Disposition: form-data; name=\"";
-	body = boundry + "\r\n";
+	body = boundry;
 }
 
 Upload::Upload(const Upload& obj){ (void)obj; }
@@ -43,7 +44,8 @@ bool Upload::search(const string& buff, const string & line) {
 	return (buff.find(line) >= 0);
 }
 
-string getNextTmpName() {
+string getNextTmpName()
+{
     static int  n;
 
     std::stringstream ss;
@@ -54,14 +56,32 @@ string getNextTmpName() {
 
 void	Upload::createTmpFile()
 {
-	name = getFieldName("filename=\"", "\"");
-	file_name = getFieldName("name=\"", "\";");
+	name = getFieldName("name=\"", "\";");
+	file_name = getFieldName("filename=\"", "\"");
 	file_content_type = getFieldName("Content-Type:", "\r\n");
-	file_path = upload_dir + getNextTmpName();
+	utils::trim_spaces(file_content_type);
+	
+	file_path = upload_dir + utils::to_string(time(0)) + utils::to_string(count++);
 	file_stream.open(file_path);
 	buff.erase(0, buff.find("\r\n\r\n") + 4);
-	
-	// std::cout << "content type :: " << file_content_type << "\n";
+
+	size_t pos = buff.find(boundry);
+	if (pos != std::string::npos)
+	{		
+		file_stream << buff.substr(0, pos - 2);
+		file_stream.close();
+		
+		buff.erase(0, pos + boundry.length());
+		
+		body += std::string("\r\n") + start + name + "_name\"\r\n\r\n" + file_name + "\r\n" + boundry + "\r\n";
+		body += start + name + "_content-type\"\r\n\r\n" + file_content_type + "\r\n" + boundry + "\r\n";
+		body += start + name + "_path\"\r\n\r\n" + file_path + "\r\n" + boundry;
+	}
+	else
+	{
+		file_stream << buff;
+		buff.clear();
+	}
 }
 
 void	Upload::buildUploadRequest()
@@ -69,11 +89,13 @@ void	Upload::buildUploadRequest()
 	size_t pos = buff.find(boundry);
 	if (pos != std::string::npos)
 	{		
-		file_stream << buff.substr(0, pos);
+		file_stream << buff.substr(0, pos - 2);
 		file_stream.close();
+		
 		buff.erase(0, pos + boundry.length());
+		
 		body += std::string("\r\n") + start + name + "_name\"\r\n\r\n" + file_name + "\r\n" + boundry + "\r\n";
-		body += start + name + "_content-type\"\r\n\r\n" + file_content_type + "\r\n" + boundry + "\r\n";
+		body += start + name + "_content_type\"\r\n\r\n" + file_content_type + "\r\n" + boundry + "\r\n";
 		body += start + name + "_path\"\r\n\r\n" + file_path + "\r\n" + boundry;
 	}
 	else
@@ -92,25 +114,25 @@ std::string Upload::getFieldName(const std::string& name, const std::string& del
 
 void	Upload::handle()
 {
-	buff = request->read();
+	buff += request->read();
 
-	if (firstRead == true)
+	if (firstRead)
 	{
 		if (std::strncmp(boundry.c_str(), buff.c_str(), boundry.length()) != 0)
-		{
 			std::cout << " not a valid boundry :" << buff.substr(0, boundry.length()) << ":" << std::endl;
-		}
 		buff.erase(0, boundry.length());
 		firstRead = false;
 	}
 	
-	std::cout << "buff ::\n" << buff << std::endl;
-	while (is_done == false)
+	while (!buff.empty())
 	{
-		if (search(buff, "\r\n\r\n"))
+		if (buff.find("\r\n\r\n") != std::string::npos)
 		{
-			if (!search(buff, "Content-Type") && search(buff, boundry))
+			if (buff.find("Content-Type") > buff.find("\r\n\r\n"))
 			{
+				if (buff.find(boundry) == std::string::npos)
+					break ;
+					
 				string content = buff.substr(0, buff.find(boundry) + boundry.length());
 				body += content;
 				buff.erase(0, content.length());
@@ -120,19 +142,25 @@ void	Upload::handle()
 		}
 		else if (file_stream.is_open())
 			buildUploadRequest();
-		else if (buff == "--\r\n")
+		
+		if (buff == "--\r\n")
 		{
 			is_done = true;
 			body += "--\r\n";
+			buff.clear();
+			std::cout << "new Body: \n" << body << std::endl;
+			break;
 		}
 	}
 }
 
-int	Upload::getSocketFd() const {
+int	Upload::getSocketFd() const
+{
 	return request->getSocketFd();
 }
 
-IRequest*		Upload::getRequest() {
+IRequest*		Upload::getRequest()
+{
 	IRequest *req = new Request(*static_cast<Request*>(request));
 	return req;
 }

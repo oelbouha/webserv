@@ -185,7 +185,6 @@ void Request::parseHeaderProperty(const std::string &aHeaderLine)
     utils::trim_spaces(value);
 
     utils::str_to_lower(key);
-    utils::str_to_lower(value);
 
     if (key.empty())
         throw RequestException(aHeaderLine + "Unkown header format");
