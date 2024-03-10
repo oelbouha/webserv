@@ -30,6 +30,7 @@ Response::Response(const Response &aResponse) :
 
 Response::~Response()
 {
+  std::cout << mFile << " : closed\n";
     ::close(mFile);
 }
 
@@ -63,11 +64,8 @@ Response &Response::setBody(const std::string &aBody)
 Response&   Response::setBodyFile( const std::string& aFileName )
 {
     mFile = ::open(aFileName.data(), O_RDONLY);
-    if (mFile < 0){
-      std::cout << "errno: " << errno << std::endl;
-      perror("Response::setBodyFile: ");
+    if (mFile < 0) 
       throw ResponseException("file " + aFileName + " could not be openned");
-    }
 
     std::ifstream file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
     std::string   contentLength = utils::to_string(file.tellg());

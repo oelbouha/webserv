@@ -42,11 +42,11 @@ class Request : public IRequest
     std::string         mQuery;
     std::string         mHttpVersion;
     string_string_map   mHeaders;
-
     std::string         mNoHeader;
 
 public:
     Request(IClientSocket &mSocket, int aIncomingIP, int aIncomingPort);
+    Request(const Request &aRequest);
     ~Request();
 
     const IClientSocket&    getSocket() const;
@@ -59,14 +59,15 @@ public:
     const std::string&  getHttpVersion() const;
     const std::string&  getQuery() const;
     const std::string&  getHeader(const std::string &aKey) const;
+    void                setHeader(const std::string& key, const std::string& val);
     size_t              getContentLength() const;
 
     void                build();
     std::string         read();
     bool                done() const;
-    void                dump( bool colors = true ) const;
+    virtual void        dump( bool colors = true ) const;
 
-    Request(const Request &aRequest);
+
 private:
     Request &operator=(const Request &aRequest);
 

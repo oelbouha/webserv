@@ -35,10 +35,12 @@ std::string	BufferRequest::read()
 	return (ret);
 }
 
-bool	BufferRequest::done() const { return (mBuffer.empty());}
+bool	BufferRequest::done() const {
+    return (mBuffer.empty());
+}
 
-void	BufferRequest::dump() const
+void	BufferRequest::dump(bool colors) const
 {
-	Request::dump();
+	Request::dump(colors);
 	std::cout << "Buffer:\n" << mBuffer << std::endl;
 }

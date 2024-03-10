@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:39:26 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/07 12:44:07 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/07 15:59:31 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,7 @@ ErrorPage::ErrorPage(){}
 bool	ErrorPage::HasErrorPageFor(unsigned int stscode) const
 {
 	try{
-		std::cout << "has error page for: " << utils::to_string(stscode) << std::endl;
 		error_pages.at(utils::to_string(stscode));
-		std::cout << "YES : " << error_pages.at(utils::to_string(stscode)) << std::endl;
 		return true;
 	}
 	catch(...){

@@ -20,6 +20,7 @@
 #include "src/Interfaces/IClient.hpp"
 
 #include "src/Request/Request.hpp"
+#include "src/Request/BufferRequest.hpp"
 #include "src/DataTypes/Config.hpp"
 
 

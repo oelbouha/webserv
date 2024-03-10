@@ -21,6 +21,7 @@ FileResponse::FileResponse(const FileResponse &aFileResponse) :
 {}
 
 FileResponse::~FileResponse() {
+	std::cout << mFile << " : closed\n";
 	::close(mFile);
 }
 

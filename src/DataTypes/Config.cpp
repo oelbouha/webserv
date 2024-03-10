@@ -189,30 +189,9 @@ const string& 	Config::getInlineConfigOr(const string& property, const string& d
 	return default_value;
 }
 
-// void	Config::IsValidDirective(const std::string& property) {
-// 	std::string value;
-// 	if (property == "host")
-// 	{
-// 		value = getInlineConfigIfExist(property);
-// 		if (utils::isValidIp_address(value) == false)
-// 			throw ConfigException("Webserver: Invalid IPv4 address format.", property, value);
-// 		return ;
-// 	}
-// 	value = getInlineConfigIfExist(property);
-// 	std::vector<string> ports = utils::SplitString(value, ' ');
-// 	for(size_t i = 0; i < ports.size(); ++i)
-// 	{
-// 		if (utils::isValidNumber(ports[i]) == false)
-// 			throw ConfigException("Webserver : Not a Valid Number", property, ports[i]);
-// 	}
-// } 
-
-
 /****************************************************************************************************/
 void				Config::dump(int indent) const
 {
-	// std::cout << "==================\n" << "|| " << indent << "\n=================\n" << std::endl;
-
 	std::map<string, string>::const_iterator	iit = mInlineConfig.begin();
 
 	while (iit != mInlineConfig.end())

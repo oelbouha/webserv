@@ -50,6 +50,11 @@ Request &Request::operator=(const Request &r)
     return (*this);
 }
 
+void    Request::setHeader(const std::string& key, const std::string& val) {
+    if (!key.empty())
+        mHeaders[key] = val;
+}
+
 const IClientSocket &Request::getSocket() const { return mSocket; }
 
 int                 Request::getSocketFd() const { return mSocket.getSocketFd(); }
@@ -113,13 +118,12 @@ void Request::build()
     catch (const SocketException& e)
     {
         (void)e;
-        std::cout << "exception\n" << std::flush;
+        std::cout << "request build: socket exception: connection closed\n" << std::flush;
         throw RequestException(RequestException::CONNECTION_CLOSED);
     }
 }
 
-std::string Request::read()
-{
+std::string Request::read() {
     return (mReader->read());
 }
 
@@ -128,8 +132,7 @@ bool      Request::done() const
     return (mReader->eof());
 }
 
-void Request::parse()
-{
+void Request::parse() {
     std::string header = mSocket.readHeaderOnly();
 
     if (header.empty())
@@ -145,8 +148,7 @@ void Request::parse()
         parseHeaderProperty(line);
 }
 
-void Request::parseRequestLine(const std::string &aRequestLine)
-{
+void Request::parseRequestLine(const std::string &aRequestLine) {
     std::istringstream ss(aRequestLine);
     std::string word;
 
@@ -169,8 +171,7 @@ void Request::parseRequestLine(const std::string &aRequestLine)
     mHttpVersion = word.substr(word.find("/") + 1);
 }
 
-void Request::parseHeaderProperty(const std::string &aHeaderLine)
-{
+void Request::parseHeaderProperty(const std::string &aHeaderLine) {
     std::string key, value;
 
     size_t collonPos = aHeaderLine.find(":");
@@ -192,8 +193,7 @@ void Request::parseHeaderProperty(const std::string &aHeaderLine)
     mHeaders[key] = value;
 }
 
-void Request::dump(bool colors) const
-{
+void Request::dump(bool colors) const {
     using std::cout;
     using std::endl;
     using std::flush;
@@ -208,13 +208,12 @@ void Request::dump(bool colors) const
         cout << "HTTP/" << mHttpVersion << "\e[0m\n";
 
         string_string_map::const_iterator it = mHeaders.begin();
-        for (; it != mHeaders.end(); ++it)
-            std::cout << std::left << std::setw(20) << it->first << ": " << it->second
-                << std::endl;
+        for (; it != mHeaders.end(); ++it) {
+            std::cout << std::left << std::setw(20) << it->first << ": "
+                << it->second << std::endl;
+        }
     }
-
     // cout << "----- body -----\n" << flush;
     // std::string body = mReader->read();
-
     // cout << body << endl << flush;
 }

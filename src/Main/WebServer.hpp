@@ -34,37 +34,38 @@
 
 class WebServer
 {
-  Config*                       mConfig;
-  std::vector<ServerSocket>     mSockets;
-  IMultiplexer*                 mMux;
-  ServerCluster                 *mServers;
-  std::vector<Client*>          mClients;
-  std::vector<IResponse *>      mResponses;
-  // unsigned int                  mAliveClientsCount;
-  // unsigned int                  mAliveClientMax;
-  // unsigned int                  mAliveTimeout;
+    Config*                       mConfig;
+    std::vector<ServerSocket>     mSockets;
+    IMultiplexer*                 mMux;
+    ServerCluster                 *mServers;
+    std::vector<Client*>          mClients;
+    std::vector<IResponse *>      mResponses;
+    // unsigned int                  mAliveClientsCount;
+    // unsigned int                  mAliveClientMax;
+    // unsigned int                  mAliveTimeout;
 
 
 private:
-  void  acceptNewClients();
-  void  takeAndHandleRequests();
-  void  sendResponses();
+    void  acceptNewClients();
+    void  takeAndHandleRequests();
+    void  sendResponses();
+    void  handleUploads();
+    void  readFromReadyProxyRequests();
+    void  sendReadyProxyRequests();
+    void  readFromReadyProxyResponses();
+    void  sendReadyProxyResponses();
 
-  void  handleUploads();
-
-  void  readFromReadyProxyRequests();
-  void  sendReadyProxyRequests();
-  void  readFromReadyProxyResponses();
-  void  sendReadyProxyResponses();
-
-  void  disconnectClient(Client& client);
+    void  handleClientRequest(Client* client, IRequest* request);
+    void  disconnectClient(Client& client);
+    
+    void  cleanup();
 
 public:
-  void  InitiateServersSockets();
-  WebServer(Config *aConfig);
-  ~WebServer();
+    void  InitiateServersSockets();
+    WebServer(Config *aConfig);
+    ~WebServer();
 
-  void start();
-  void loop();
+    void start();
+    void loop();
 };
 #endif

@@ -8,6 +8,7 @@
  */
 
 #include "BufferProxyRequest.hpp"
+#include <iostream>
 
 BufferProxyRequest::BufferProxyRequest(int fd, const std::string& buffer) :
     mOutputFd(fd),
@@ -23,6 +24,7 @@ BufferProxyRequest::BufferProxyRequest( const BufferProxyRequest& b ) :
 
 BufferProxyRequest::~BufferProxyRequest()
 {
+    std::cout << mOutputFd << " : closed\n";
     ::close(mOutputFd);
 }
 

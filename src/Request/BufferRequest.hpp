@@ -30,7 +30,7 @@ public:
 	std::string	read();
 	bool		done() const;
 
-	void		dump() const;
+	void		dump(bool colors = true) const;
 
 };
 #endif

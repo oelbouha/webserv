@@ -5,8 +5,8 @@ error_log_level : warn
 cluster:
   default_mime: text/plain
   mime_types:
-    # html: text/html
     jpg: image/jpeg
+    jpeg: image/jpeg
   keep_alive:	65
   server_props: no
 
@@ -20,13 +20,10 @@ cluster:
   server:
     root: /Users/ysalmi/code/in_progress/webserv/pages
     upload: /Users/ysalmi/code/in_progress/webserv/upload
-    # default: yes
     host: localhost
     ports:
       - 8000
       - 8080
-    # names:
-    #   - localhost
     error_page:
       file: /50x.html
       codes:
@@ -54,7 +51,7 @@ cluster:
       uri: /
       cgi:
         - .ph
-        - .p
+        - .py
         - .phg
         - .gf
       root: /Users/ysalmi/code/in_progress/webserv/pages

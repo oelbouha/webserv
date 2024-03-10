@@ -100,38 +100,7 @@ std::string ChunkedRequestReader::read()
     }
     return (ret);
 }
-/**/
 
-/*
-std::string ChunkedRequestReader::read()
-{
-    if (mEof)
-        return ("");
-
-    std::string buffer = mBuffer + mSocket.readAll();
-
-    if ( ! mBuffer.empty() && mBuffer != CRLF)
-        if ( ! parseChunkHeader(buffer) )
-            return ("");
-
-    mBuffer.clear();
-
-    std::cout << (int)buffer[0] << " - " << (int)buffer[1] << " ******* " << std::endl;
-
-    if (mTrailer)
-    {
-        size_t  pos = buffer.find("\r\n\r\n");
-        if (pos != std::string::npos)
-        {
-            mEof = true;
-            // mSocket.retake(buffer.substr(pos + 4))
-        }
-        return ("");
-    }
-
-    return (unchunk(buffer));
-}
-*/
 
 bool    ChunkedRequestReader::parseChunkHeader(std::string& buffer)
 {

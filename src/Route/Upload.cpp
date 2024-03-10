@@ -6,11 +6,12 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/07 20:57:15 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/07 15:59:09 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Upload.hpp"
+#include <iostream>
 
 Upload::Upload(IRequest *request, const string& upload_path) : 
 	request(request),
@@ -169,6 +170,7 @@ int	Upload::getSocketFd() const
 
 IRequest*		Upload::getRequest()
 {
-	IRequest *req = new Request(*static_cast<Request*>(request));
+	Request *req = new BufferRequest(*static_cast<Request*>(request), body);
+    req->setHeader("x-upload", "false");
 	return req;
 }

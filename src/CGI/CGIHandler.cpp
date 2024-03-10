@@ -49,11 +49,7 @@ ProxyPair    CGIHandler::handle(IRequest* request, const std::string& path)
         err = chdir("/Users/ysalmi/code/in_progress/webserv/pages");
         if (err)
             exit(1);
-
-        std::cout << "file: " << file << std::endl;
         args.push_back(file);
-
-
         // excute script;
         execve(file.c_str(), utils::vector_to_cstring_array(args), utils::vector_to_cstring_array(env));
         perror("cgi");
@@ -67,7 +63,6 @@ ProxyPair    CGIHandler::handle(IRequest* request, const std::string& path)
 
     IProxyRequest*  req = new DescriptorProxyRequest(input[1], *request);
     IProxyResponse* res = new CGIResponse(output[0], request->getSocket());
-    std::cout << pid << " - " << req << " - " << res << std::endl;
     ProxyPair      ret(pid, req, res);
     
     return (ret);

@@ -10,25 +10,20 @@
 #include "ClientSocket.hpp"
 #include <string>
 
-ClientSocket::ClientSocket(int aFileDes):
+ClientSocket::ClientSocket(int aFileDes) :
     mID(aFileDes),
     mRead(-1)
-{
-    // std::cout << "client socket +++++++++++++++++++++++++++++++++ opened " << mID << std::endl;
-}
+{}
 
-ClientSocket::ClientSocket(const ClientSocket &aClientSocket):
+ClientSocket::ClientSocket(const ClientSocket &aClientSocket) :
     mID(aClientSocket.mID)
 {}
 
-ClientSocket::~ClientSocket()
-{
-    // std::cout << "client socket +++++++++++++++++++++++++++++++++ closing " << mID << std::endl;
+ClientSocket::~ClientSocket() {
     ::close(mID);
 }
 
-ClientSocket &ClientSocket::operator=(const ClientSocket &aClientSocket)
-{
+ClientSocket &ClientSocket::operator=(const ClientSocket &aClientSocket) {
     if (this != &aClientSocket) {
     }
     return (*this);

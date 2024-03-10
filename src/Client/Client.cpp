@@ -8,8 +8,16 @@
  */
 
 #include "Client.hpp"
+#include <ctime>
 
-const IClientSocket&    Client::getSocket() const { return (*mSocket); }
+int Client::KeepAliveMax = 0;
+int Client::KeepAliveTimeout = 60;
+
+void Client::setKeepAlive(int maxConnections, int timeout) {
+    Client::KeepAliveMax = maxConnections;
+    Client::KeepAliveTimeout = timeout;
+}
+
 
 Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort) :
     mIncomingIP(aIncomingIP),
@@ -17,11 +25,11 @@ Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort) :
     mSocket(aSocket),
     activeResponse(NULL),
     activeUpload(NULL),
-    status(Client::CONNECTED)
+    status(Client::CONNECTED),
+    lastActivityEnd(std::time(NULL))
 {}
 
-Client::~Client()
-{
+Client::~Client() {
     delete  mSocket;
     while (mRequests.size())
     {
@@ -30,41 +38,45 @@ Client::~Client()
     }
 }
 
-bool    Client::operator==(const IClient& client) const
-{
-    return (this->getSocketFd() == client.getSocketFd());
+bool    Client::operator==(const IClient& client) const {
+    return (getSocketFd() == client.getSocketFd());
 }
 
-
-int     Client::getSocketFd() const { return mSocket->getSocketFd(); }
-
-bool    Client::hasRequest() const { return ( ! mRequests.empty() ); }
-
-bool    Client::hasTimedOut(size_t timeout) const
-{
-    return (std::difftime(std::time(0), lastActivityEnd) > timeout);
+const IClientSocket&    Client::getSocket() const {
+    return (*mSocket);
 }
 
-void Client::makeRequest() 
-{
+int     Client::getSocketFd() const {
+    return mSocket->getSocketFd();
+}
+
+bool    Client::hasRequest() const {
+    return ( ! mRequests.empty() );
+}
+
+bool    Client::hasTimedOut() const {
+    if (status != Client::CONNECTED)
+        return false;
+        
+    long long inactiveTime = std::difftime(std::time(0), lastActivityEnd);
+    // std::cout << "inactiveTime: " << inactiveTime << endl;
+    return (inactiveTime >= Client::KeepAliveTimeout);
+}
+
+void Client::makeRequest() {
     IRequest*   req;
     try
     {
-        std::cout << "making request\n" << std::flush;
-        
         req = new Request(*mSocket, mIncomingIP, mIncomingPort);
         
-        std::cout << "building\n" << std::flush;
-
         req->build();
         mRequests.push(req);
 
-    } catch(const RequestException& e)
-    {
+    }
+    catch(const RequestException& e) {
         if (e.error == RequestException::CONNECTION_CLOSED)
         {
             status = Client::DISCONNECTED;
-            std::cout << "client closed connection\n" << std::flush;
         }
         else {
             std::cout << e.what() << std::endl;
@@ -72,11 +84,11 @@ void Client::makeRequest()
         delete req;
     }
     catch (const SocketException &e) {
+        delete req;
     }
 }
 
-IRequest *Client::getRequest()
-{
+IRequest *Client::getRequest() {
   IRequest *ret = mRequests.front();
   mRequests.pop();
   return (ret);

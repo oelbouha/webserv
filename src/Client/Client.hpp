@@ -8,61 +8,67 @@
  */
 
 #pragma once
-#include <queue>
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
 #include <iostream>
+#include <queue>
 #include <ctime>
 
 #include "IClient.hpp"
 #include "IClientSocket.hpp"
 
-#include "src/Socket/SocketException.hpp"
-
 #include "src/Request/Request.hpp"
 #include "src/Response/Response.hpp"
 #include "src/Route/Upload.hpp"
-
 #include "src/CGI/ProxyPair.hpp"
+
+#include "src/Socket/SocketException.hpp"
 
 class Client : public IClient
 {
-  int                   mIncomingIP;
-  int                   mIncomingPort;
-  IClientSocket*        mSocket;
-  std::queue<IRequest*> mRequests;
-
-
-public:
-  enum  Status
-  {
-    CONNECTED,
-    EXCHANGING,
-    RECEIVING,
-    DISCONNECTED
-  };
-
-  IResponse*  activeResponse;
-  Upload*     activeUpload;
-  ProxyPair   activeProxyPair;
-  Status      status;
-  time_t      lastActivityEnd;
+    int                   mIncomingIP;
+    int                   mIncomingPort;
+    IClientSocket*        mSocket;
+    std::queue<IRequest*> mRequests;
 
 public:
-  Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort);
-  ~Client();
+    enum  Status
+    {
+        CONNECTED,
+        EXCHANGING,
+        RECEIVING,
+        DISCONNECTED
+    };
 
-  bool  operator==(const IClient& client) const;
+    IResponse*  activeResponse;
+    Upload*     activeUpload;
+    ProxyPair   activeProxyPair;
+    Status      status;
+    time_t      lastActivityEnd;
 
-  virtual int       getSocketFd() const;
-  virtual IRequest* getRequest();
+public:
+    Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort);
+    ~Client();
 
-  virtual bool      hasRequest() const;
-  virtual void      makeRequest();
+    bool  operator==(const IClient& client) const;
 
-  bool              hasTimedOut(size_t timeout) const;
+    virtual int       getSocketFd() const;
+    virtual IRequest* getRequest();
+    virtual bool      hasRequest() const;
+    virtual void      makeRequest();
+    bool              hasTimedOut() const;
+    void              setClientHeaders(IResponse* res) const;
+    void              setClientHeaders(IProxyResponse* res) const;
 
-  virtual const IClientSocket&  getSocket() const;
+    virtual const IClientSocket&  getSocket() const;
+
+private:
+    static int KeepAliveCount;
+    static int KeepAliveMax;
+    static int KeepAliveTimeout;
+
+public:
+    static void setKeepAlive(int maxConnections, int timeout);
 };
 #endif

@@ -13,7 +13,8 @@ DescriptorProxyRequest::DescriptorProxyRequest(int fd, IRequest& req) :
     mOutputFd(fd),
     mRequest(req)
 {
-    // std::cout << "cgi request    +++++++++++++++++++++++++++++++ opened " << mOutputFd << std::endl;
+    if (req.getSocketFd() == -1)
+        mBuffer = req.read();
 }
 
 DescriptorProxyRequest::DescriptorProxyRequest( const DescriptorProxyRequest& d )
@@ -24,7 +25,7 @@ DescriptorProxyRequest::DescriptorProxyRequest( const DescriptorProxyRequest& d 
 
 DescriptorProxyRequest::~DescriptorProxyRequest()
 {
-    // std::cout << "cgi request +++++++++++++++++++++++++++++++ closing " << mOutputFd << std::endl;
+    std::cout << mOutputFd << " : closed\n";
     ::close(mOutputFd);
     delete &mRequest;
 }
@@ -42,7 +43,7 @@ int     DescriptorProxyRequest::getOutputFd() const
 
 int     DescriptorProxyRequest::getSocketFd() const
 {
-    return (mRequest.getSocket().getSocketFd());
+    return (mRequest.getSocketFd());
 }
 
 bool    DescriptorProxyRequest::done() const

@@ -1,23 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Multi-Form Example</title>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Forms</title>
 
-<h2>Upload Files</h2>
+        <style>
+            html {
+                background: #242424;
+                color: white;
+                display: flex;
+                justify-content: center;
+            }
 
-<form action="/upload" method="post" enctype="multipart/form-data">
-    <label for="file1">File 1:</label>
-    <input type="file" name="file1" id="file1"><br>
+            body {
+                width: 1960px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            main {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 20px;
+            }
+            .form {
+                display: flex;
+                flex-direction: column;
+                background: #595959;
+                padding: 16px;
+                border-radius: 8px;
+            }
 
-    <label for="file2">File 2:</label>
-    <input type="file" name="file2" id="file2"><br>
+            .form > label {
+                font-size: 23px;
+                margin-bottom: 12px;
+            }
 
-    <input type="submit" value="Upload">
-</form>
+            .form form {
+                display: flex;
+                flex-direction: column;
+            }
+            .form form label {
+                font-size: 20px;
+            }
+            input {
+                padding: 12px;
+                font-size: 20px;
+                margin-bottom: 8px;
+                background: #242424;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                outline: none;
+            }
+        </style>
+    </head>
+    <body>
 
-</body>
+        <h1>Forms</h1>
+        <main>
+            <div class="form">
+                <label>Data</label>
+                <form action="/main.py" method="POST">
+                    <label for="name">Name:</label>
+                    <input type="text" name="name" id="name">
+                
+                    <label for="age">Age:</label>
+                    <input type="number" name="age" id="age">
+                
+                    <input type="submit" value="Send">
+                </form>
+            </div>
+            <div class="form">
+                <label>1 File upload</label>
+                <form action="/main.py" method="post" enctype="multipart/form-data">
+                    <label for="name">Name:</label>
+                    <input type="text" name="name" id="name">
+                
+                    <label for="file">File 2:</label>
+                    <input type="file" name="file" id="file">
+                
+                    <input type="submit" value="Upload">
+                </form>
+            </div>
+            <div class="form">
+                <label>2 File upload</label>
+                <form action="/main.py" method="post" enctype="multipart/form-data">
+                    <label for="file1">File 1:</label>
+                    <input type="file" name="file1" id="file1">
+                
+                    <label for="file2">File 2:</label>
+                    <input type="file" name="file2" id="file2">
+                
+                    <input type="submit" value="Upload">
+                </form>
+            </div>
+        </main>
+
+
+    </body>
 </html>

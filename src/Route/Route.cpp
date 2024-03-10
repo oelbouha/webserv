@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/07 13:12:08 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/07 16:00:05 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,27 +158,22 @@ IResponse*  		Route::handleRequestToFile(const IRequest& request)
 Result  			Route::handleRequestToCgi(IRequest& request)
 {
 	std::string path = getAbsolutePath(request.getURI());
-
-	std::cout << "abs path: " << path << std::endl;
 	
 	if ( ::access(path.c_str(), F_OK) == -1)
 	{
-		std::cout << errno << std::endl;
-		perror("handleRequestToCgi");
 		return (Result(error_pages.build(request, 404)));
 	}
 	
 	if ( ::access(path.c_str(), R_OK | X_OK) == -1 )
 	{
-		std::cout << errno << std::endl;
-		perror("handleRequestToCgi");
 		return (Result(error_pages.build(request, 500)));
 	}
 	
 	if (
 		request.getMethod() == "POST" &&
 		!uploadPath.empty() &&
-		request.getHeader("content-type").find("multipart/form-data") != std::string::npos
+		request.getHeader("content-type").find("multipart/form-data") != std::string::npos &&
+        request.getHeader("x-upload") != "false"
 	)
 		return (Result(new Upload(&request, uploadPath)));
 

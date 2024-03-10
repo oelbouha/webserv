@@ -16,9 +16,7 @@ CGIResponse::CGIResponse(int fd, const IClientSocket& sock):
 	mFile(-1),
 	mHeaderComplete(false),
 	mSent(0)
-{
-	// std::cout << "cgi response +++++++++++++++++++++++++++++++ opened " << mInputFd << std::endl;
-}
+{}
 
 CGIResponse::CGIResponse( const CGIResponse& p ):
 	mSocket(p.mSocket)
@@ -28,7 +26,8 @@ CGIResponse::CGIResponse( const CGIResponse& p ):
 
 CGIResponse::~CGIResponse()
 {
-	// std::cout << "cgi response +++++++++++++++++++++++++++++++ closing " << mInputFd << std::endl;
+	std::cout << mInputFd << " : closed\n";
+	std::cout << mFile << " : closed\n";
 	::close(mInputFd);
 	::close(mFile);
 }
@@ -62,7 +61,7 @@ void	CGIResponse::read()
 
 		if (r == 0)
 			mEof = true;
-		
+		std::cout << "cgi response read r = " << r << std::endl;
 
 		size_t	pos = mHeader.find("\r\n\r\n");
 		int		len = 4;
@@ -84,7 +83,7 @@ void	CGIResponse::read()
 
 	while ((r = ::read(mInputFd, buffer, size)) > 0)
 		mBuffer += std::string(buffer, r);
-	
+	std::cout << "cgi response read r = " << r << std::endl;
 	if (r == 0)
 		mEof = true;
 }
@@ -130,9 +129,9 @@ void	CGIResponse::send()
 	if (mBuffer.empty())
 		return;
 	int	r = mSocket.write(mBuffer);
-	std::cout << mBuffer.substr(0, r) << std::endl;
 	mBuffer.erase(0, r);
 	mSent += r;
+	std::cout << "cgi response send r = " << r << std::endl;
 }
 
 bool	CGIResponse::sent() const
@@ -142,6 +141,11 @@ bool	CGIResponse::sent() const
 
 bool	CGIResponse::done() const
 {
+	// bool ret = mHeaderComplete && mEof && mBuffer.empty();
+	// std::cout << "cgi response done: " << (ret?"true":"false") << std::endl;
+	// std::cout << "cgi response mHeaderComplete: " << (mHeaderComplete?"true":"false") << std::endl;
+	// std::cout << "cgi response mEof: " << (mEof?"true":"false") << std::endl;
+	// std::cout << "cgi response mBuffer.empty(): " << mBuffer.length() << std::endl;
 	return (mHeaderComplete && mEof && mBuffer.empty());
 }
 
