@@ -50,14 +50,15 @@ Request &Request::operator=(const Request &r)
     return (*this);
 }
 
-void    Request::setHeader(const std::string& key, const std::string& val) {
+void    Request::setHeader(const std::string& key, const std::string& val)
+{
     if (!key.empty())
         mHeaders[key] = val;
 }
 
 const IClientSocket &Request::getSocket() const { return mSocket; }
 
-int                 Request::getSocketFd() const { return mSocket.getSocketFd(); }
+int Request::getSocketFd() const { return mSocket.getSocketFd(); }
 
 unsigned int Request::getIncomingIP() const { return mIncommingIP; }
 
@@ -73,14 +74,18 @@ const std::string&  Request::getQuery() const { return (mQuery); }
 
 const std::string&  Request::getHeader(const std::string &aKey) const
 {
-    try
-    {
-        return (mHeaders.at(aKey));
-    }
-    catch (...)
-    {
-        return (mNoHeader);
-    }
+    string_string_map::const_iterator val = mHeaders.find(aKey);
+    if (val == mHeaders.end())
+        return mNoHeader;
+    return val->second;
+    // try
+    // {
+    //     return (mHeaders.at(aKey));
+    // }
+    // catch (...)
+    // {
+    //     return (mNoHeader);
+    // }
 }
 
 size_t  Request::getContentLength() const 

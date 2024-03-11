@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/07 16:00:05 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/11 10:41:03 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,13 @@ const std::string&	Route::getURI() const{ return uri; }
 
 bool				Route::IsMethodAllowed(const std::string& method)
 {
-	for(size_t i = 0; i < allowedMethods.size(); ++i)
+	std::cout << "Allowed Methods : ";
+	for(size_t i = 0; i < allowedMethods.size(); ++i) {
+		std::cout << allowedMethods[i] << ' ';
 		if (method == allowedMethods[i])
 			return true;
+	}
+	std::cout << std::endl;
 	return false;
 }
 
@@ -194,9 +198,10 @@ std::string 		Route::getAbsolutePath(std::string requri) {
 
 Result  			Route::handle(IRequest& request)
 {	
-	if (IsMethodAllowed(request.getMethod()) == false)
+	if (! IsMethodAllowed(request.getMethod()))
 		return (Result(error_pages.build(request, 405)));
-	else if (!redirect.empty())
+	
+	if (!redirect.empty())
 	{
 		IResponse * response = new Response(request.getSocket());
 		response->setHeader("location", location)
@@ -204,12 +209,15 @@ Result  			Route::handle(IRequest& request)
 			.build();
 		return Result(response);
 	}
+	
 	if (isRequestToCgi(request.getURI()))
 		return handleRequestToCgi(request);
+		
 	if (request.getMethod() == "GET") {
 		IResponse *res = handleRequestToFile(request);
 		return (Result(res));		
 	}
+	
 	return (Result(error_pages.build(request, 415)));
 }
 

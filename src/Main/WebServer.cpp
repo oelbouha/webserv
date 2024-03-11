@@ -94,8 +94,8 @@ void WebServer::loop()
             sendReadyProxyResponses();
             handleUploads();
         }
-
         // function that loops and close connections to clients that need the connection to be closed (ex: timedout)
+        // check timed out cgi scripts
         cleanup();
     }
 }

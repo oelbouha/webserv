@@ -11,7 +11,9 @@ cluster:
     Default: yes
     host: localhost
     port: 8000
-    name: localhost
+    names: 
+      - localhost
+      - test.y
     root: /Users/ysalmi/code/in_progress/webserv/YoupiBanane
     cgi:
       - .py

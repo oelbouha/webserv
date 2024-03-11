@@ -27,10 +27,13 @@
 
 class Client : public IClient
 {
-    int                   mIncomingIP;
-    int                   mIncomingPort;
-    IClientSocket*        mSocket;
-    std::queue<IRequest*> mRequests;
+    int             mIncomingIP;
+    int             mIncomingPort;
+    IClientSocket*  mSocket;
+    IRequest*       mRequest;
+    bool            mKeepAlive;
+
+
 
 public:
     enum  Status
@@ -40,10 +43,11 @@ public:
         RECEIVING,
         DISCONNECTED
     };
+    
+    IResponse*      activeResponse;
+    Upload*         activeUpload;
+    ProxyPair       activeProxyPair;
 
-    IResponse*  activeResponse;
-    Upload*     activeUpload;
-    ProxyPair   activeProxyPair;
     Status      status;
     time_t      lastActivityEnd;
 

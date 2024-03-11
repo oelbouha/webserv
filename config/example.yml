@@ -5,9 +5,9 @@ error_log_level : warn
 cluster:
   default_mime: text/plain
   mime_types:
-    # html: text/html
     jpg: image/jpeg
   keep_alive:	65
+  # keep_alive_timeout: 25
   server_props: no
 
   error_page:

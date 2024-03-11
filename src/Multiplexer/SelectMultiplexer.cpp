@@ -415,7 +415,7 @@ void SelectMultiplexer::wait(std::size_t timeout_us)
     struct timeval timeout;
     timeout.tv_sec = static_cast<long>(timeout_us / 1000000);
     timeout.tv_usec = static_cast<long>(timeout_us % 1000000);
-
+  
     mReadyfdsCount = ::select(mMaxfd, &mReadfdsTmp, &mWritefdsTmp, NULL, &timeout);
 
     // std::cout << mReadyfdsCount << std::endl;
