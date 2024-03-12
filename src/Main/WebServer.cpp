@@ -132,7 +132,8 @@ void    WebServer::handleClientRequest(Client* client, IRequest* request)
     {
         std::cout << "Result::RESPONSE" << std::endl;
         AResponse *response = static_cast<AResponse*>(result.response());
-        // client->setResponseHeaders(response);
+        client->setResponseHeaders(response);
+        response->build();
         mMux->add(response);
         mResponses.push_back(response);
 
@@ -209,7 +210,7 @@ void WebServer::sendResponses()
         {
             Client* client = static_cast<Client*>(res->client);
             client->activeResponse = NULL;
-            client->status = Client::CONNECTED;
+            client->status = Client::IDLE;
             mMux->remove(res);
             mMux->add(client);
             delete res;
@@ -482,6 +483,7 @@ void WebServer::sendReadyProxyResponses()
                         std::cout << "response setting child free" << std::endl;
                         client.activeProxyPair.setChildFree();
                         client.activeProxyPair.response = NULL;
+                        client.status = Client::IDLE;
                         mMux->add(&client);
                         break;
                     }
@@ -557,7 +559,7 @@ void WebServer::cleanup()
     while (it != mClients.end()) {
         Client* client = *it;
 
-        if (client->hasTimedOut()) {
+        if (client->hasTimedOut() || ! client->isKeptAlive()) {
             vector<Client*>::iterator tmp = it - 1;
             // mClients.erase(it);
             disconnectClient(*client);

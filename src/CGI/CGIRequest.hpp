@@ -4,32 +4,32 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: BufferProxyRequest.hpp 
+ *			File: CGIRequest.hpp 
  */
 
 #pragma once
-#ifndef BUFFERPROXYREQUEST_HPP
-#define BUFFERPROXYREQUEST_HPP
+#ifndef CGIRequest_HPP
+#define CGIRequest_HPP
 
-
-#include <string>
-
+#include <iostream>
 #include <unistd.h>
+
+#include "src/Interfaces/IRequest.hpp"
 
 #include "IProxyRequest.hpp"
 
-class BufferProxyRequest : public IProxyRequest
+class CGIRequest : public IProxyRequest
 {
     int             mOutputFd;
+    IRequest&       mRequest; 
     std::string     mBuffer;
-    size_t          mCursor;
 
-	BufferProxyRequest&	operator=( const BufferProxyRequest& b );
-	BufferProxyRequest( const BufferProxyRequest& b);
+	CGIRequest( const CGIRequest& d);
+	CGIRequest&	operator=( const CGIRequest& d );
 
 public:
-    BufferProxyRequest(int fd, const std::string& buffer);
-	~BufferProxyRequest();
+	CGIRequest(int fd, IRequest& req);
+	~CGIRequest();
 
     int     getOutputFd() const;
     int     getSocketFd() const;
@@ -37,6 +37,5 @@ public:
     void    read();
     void    send();
     bool    done() const;
-
 };
 #endif

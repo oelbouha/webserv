@@ -18,10 +18,9 @@
 
 #include "src/Interfaces/IRequest.hpp"
 
-#include "DescriptorProxyRequest.hpp"
-#include "BufferProxyRequest.hpp"
-#include "ProxyPair.hpp"
 #include "IProxyHandler.hpp"
+#include "ProxyPair.hpp"
+#include "CGIRequest.hpp"
 #include "CGIResponse.hpp"
 
 class CGIHandler

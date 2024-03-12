@@ -78,14 +78,6 @@ const std::string&  Request::getHeader(const std::string &aKey) const
     if (val == mHeaders.end())
         return mNoHeader;
     return val->second;
-    // try
-    // {
-    //     return (mHeaders.at(aKey));
-    // }
-    // catch (...)
-    // {
-    //     return (mNoHeader);
-    // }
 }
 
 size_t  Request::getContentLength() const 
@@ -98,26 +90,14 @@ void Request::build()
     try
     {
         parse();
-        try
-        {
-            if (mHeaders.at("transfer-encoding") != "chunked")
-                throw false;
+
+        string_string_map::iterator te = mHeaders.find("transfer-encoding");
+        if (te != mHeaders.end() && te->second == "chunked")
             mReader = new ChunkedRequestReader(mSocket);
-        }
-        catch (...)
-        {
-            std::string cl;
-            try
-            {
-                cl = mHeaders.at("content-length");
-            } catch(...)
-            {
-                cl = "0";
-            }
-
-            size_t  contentLength = std::stod(cl.data(), NULL);
-
-            mReader = new DefaultRequestReader(mSocket, contentLength);
+        else {
+            string_string_map::iterator cl = mHeaders.find("content-length");
+            unsigned int content_length = cl==mHeaders.end()?0:utils::string_to_uint(cl->second);
+            mReader = new DefaultRequestReader(mSocket, content_length);
         }
     }
     catch (const SocketException& e)

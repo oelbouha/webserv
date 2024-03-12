@@ -41,6 +41,7 @@ namespace utils
 	std::string		trim_spaces(const std::string& aString);
 	std::string&	str_to_lower(std::string& str);
 	char** 			vector_to_cstring_array(const std::vector<std::string>& vec);
+	std::string  	decode_uri(const string& uri);
 
 	template <typename T>
 	std::string				to_string(T t)

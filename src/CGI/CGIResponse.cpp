@@ -26,8 +26,8 @@ CGIResponse::CGIResponse( const CGIResponse& p ):
 
 CGIResponse::~CGIResponse()
 {
-	std::cout << mInputFd << " : closed\n";
-	std::cout << mFile << " : closed\n";
+	// std::cout << mInputFd << " : closed\n";
+	// std::cout << mFile << " : closed\n";
 	::close(mInputFd);
 	::close(mFile);
 }
@@ -61,7 +61,6 @@ void	CGIResponse::read()
 
 		if (r == 0)
 			mEof = true;
-		std::cout << "cgi response read r = " << r << std::endl;
 
 		size_t	pos = mHeader.find("\r\n\r\n");
 		int		len = 4;
@@ -77,13 +76,20 @@ void	CGIResponse::read()
 			mHeader.erase(pos);
 			build();
 			mHeaderComplete = true;
+			// writer->append(mBuffer);
+			/*
+			writer->append(mHeader.substr(pos + len));
+			mHeader.erase(pos);
+			build();
+			mHeaderComplete = true;
+			*/
 		}
 		return;
 	}
 
 	while ((r = ::read(mInputFd, buffer, size)) > 0)
 		mBuffer += std::string(buffer, r);
-	std::cout << "cgi response read r = " << r << std::endl;
+	// writer->append(std::string(buffer, r));
 	if (r == 0)
 		mEof = true;
 }
@@ -109,7 +115,9 @@ void	CGIResponse::build()
 		responseHeader = "HTTP/1.1 " + it->second + "\r\n";
 		mResponseHeaders.erase(it);
 	}
-	responseHeader += "Content-Length: " + utils::to_string(mBuffer.length()) + "\r\n";
+	it = mResponseHeaders.find("content-length");
+	if (it == mResponseHeaders.end())
+		responseHeader += "Content-Length: " + utils::to_string(mBuffer.length()) + "\r\n";
 	it = mResponseHeaders.begin();
 	while (it != mResponseHeaders.end())
 	{
@@ -130,8 +138,8 @@ void	CGIResponse::send()
 		return;
 	int	r = mSocket.write(mBuffer);
 	mBuffer.erase(0, r);
+	// mSent += writer->write();
 	mSent += r;
-	std::cout << "cgi response send r = " << r << std::endl;
 }
 
 bool	CGIResponse::sent() const
@@ -141,12 +149,8 @@ bool	CGIResponse::sent() const
 
 bool	CGIResponse::done() const
 {
-	// bool ret = mHeaderComplete && mEof && mBuffer.empty();
-	// std::cout << "cgi response done: " << (ret?"true":"false") << std::endl;
-	// std::cout << "cgi response mHeaderComplete: " << (mHeaderComplete?"true":"false") << std::endl;
-	// std::cout << "cgi response mEof: " << (mEof?"true":"false") << std::endl;
-	// std::cout << "cgi response mBuffer.empty(): " << mBuffer.length() << std::endl;
 	return (mHeaderComplete && mEof && mBuffer.empty());
+	// return (mHeaderComplete && mEof && writer->done());
 }
 
 bool	CGIResponse::error() const
@@ -176,7 +180,7 @@ void	CGIResponse::parseHeader()
 		value = line.substr(pos + 1);
 
 		utils::str_to_lower(utils::trim_spaces(key));
-		utils::str_to_lower(utils::trim_spaces(value));
+		utils::trim_spaces(value);
 
 		if (key.empty() || value.empty())
 		{

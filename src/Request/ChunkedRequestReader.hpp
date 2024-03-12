@@ -20,6 +20,8 @@
 
 #include "RequestException.hpp"
 
+#include "Utils.hpp"
+
 class ChunkedRequestReader : public IRequestReader
 {
 	IClientSocket&	mSocket;
@@ -30,8 +32,8 @@ class ChunkedRequestReader : public IRequestReader
 	bool			mEof;
 	bool			mTrailer;
 
-	size_t			hexToInt(const std::string& raw) const;
-	std::string		unchunk(std::string& buffer);
+	// size_t			hexToInt(const std::string& raw) const;
+	// std::string		unchunk(std::string& buffer);
 	bool			parseChunkHeader(std::string& buffer);
 
 public:

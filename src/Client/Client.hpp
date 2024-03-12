@@ -39,11 +39,12 @@ public:
     enum  Status
     {
         CONNECTED,
+        IDLE,
         EXCHANGING,
         RECEIVING,
         DISCONNECTED
     };
-    
+
     IResponse*      activeResponse;
     Upload*         activeUpload;
     ProxyPair       activeProxyPair;
@@ -62,8 +63,9 @@ public:
     virtual bool      hasRequest() const;
     virtual void      makeRequest();
     bool              hasTimedOut() const;
-    void              setClientHeaders(IResponse* res) const;
-    void              setClientHeaders(IProxyResponse* res) const;
+    bool              isKeptAlive() const;
+    void              setResponseHeaders(IResponse* res) const;
+    void              setResponseHeaders(IProxyResponse* res) const;
 
     virtual const IClientSocket&  getSocket() const;
 

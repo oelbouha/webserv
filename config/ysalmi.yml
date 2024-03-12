@@ -76,20 +76,20 @@ cluster:
         - DELETE
         - GET
   
-  # server:
-  #   host: 10.30.252.175
-  #   index: index.html
-  #   root: /Users/ysalmi/code/in_progress/webserv/pages
-  #   upload: /Users/ysalmi/code/in_progress/webserv/upload
-  #   ports:
-  #     - 8058
-  #   error_page:
-  #     file: /40x.html
-  #     codes:
-  #       - 418
-  #       - 400
-  #   route:
-  #     uri: /
-  #     allowed_methods:
-  #       - GET
-  #       - POST
+  server:
+    host: 10.30.252.175
+    index: index.html
+    root: /Users/ysalmi/code/in_progress/webserv/pages
+    upload: /Users/ysalmi/code/in_progress/webserv/upload
+    ports:
+      - 8058
+    error_page:
+      file: /40x.html
+      codes:
+        - 418
+        - 400
+    route:
+      uri: /
+      allowed_methods:
+        - GET
+        - POST

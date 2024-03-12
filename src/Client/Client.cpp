@@ -11,7 +11,8 @@
 #include <ctime>
 
 int Client::KeepAliveMax = 2;
-int Client::KeepAliveTimeout = 60;
+int Client::KeepAliveCount = 0;
+int Client::KeepAliveTimeout = 40;
 
 void Client::setKeepAlive(int maxConnections, int timeout) {
     Client::KeepAliveMax = maxConnections;
@@ -34,6 +35,9 @@ Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort) :
 Client::~Client() {
     delete  mSocket;
     delete  mRequest;
+
+    if (mKeepAlive)
+        Client::KeepAliveCount--;
 }
 
 bool    Client::operator==(const IClient& client) const
@@ -58,7 +62,7 @@ bool    Client::hasRequest() const
 
 bool    Client::hasTimedOut() const
 {
-    if (status != Client::CONNECTED)
+    if (status != Client::IDLE)
         return false;
         
     long long inactiveTime = std::difftime(std::time(0), lastActivityEnd);
@@ -73,7 +77,12 @@ void Client::makeRequest()
         req = new Request(*mSocket, mIncomingIP, mIncomingPort);
         req->build();
         mRequest = req;
-
+        if (!mKeepAlive && Client::KeepAliveCount < Client::KeepAliveMax) {
+            std::string connection = req->getHeader("connection");
+            mKeepAlive = utils::str_to_lower(connection) == "keep-alive";
+            Client::KeepAliveCount++;
+            // std::cout << "keep alive : " << (mKeepAlive?"True":"False") << std::endl;
+        }
     } catch(const RequestException& e)
     {
         if (e.error == RequestException::CONNECTION_CLOSED)
@@ -96,3 +105,26 @@ IRequest *Client::getRequest()
   mRequest = NULL;
   return (ret);
 }
+
+bool            Client::isKeptAlive() const
+{
+    return status != Client::IDLE || mKeepAlive;
+}
+
+void              Client::setResponseHeaders(IResponse* res) const
+{
+    if (mKeepAlive) {
+        res->setHeader("connection", "keep-alive");
+        return;
+    }
+    res->setHeader("connection", "close");
+}
+
+// void              Client::setClientHeaders(IProxyResponse* res) const
+// {
+//     if (mKeepAlive) {
+//         res->setHeader("connection", "keep-alive");
+//         return;
+//     }
+//     res->setHeader("connection", "close");
+// }

@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/11 10:41:03 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/12 15:32:31 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ const std::string&	Route::getURI() const{ return uri; }
 
 bool				Route::IsMethodAllowed(const std::string& method)
 {
-	std::cout << "Allowed Methods : ";
 	for(size_t i = 0; i < allowedMethods.size(); ++i) {
 		std::cout << allowedMethods[i] << ' ';
 		if (method == allowedMethods[i])
@@ -72,32 +71,45 @@ bool				Route::IsMethodAllowed(const std::string& method)
 	return false;
 }
 
-std::vector<string>	Route::ReadDirectory(const std::string& path)
+std::vector<DirLisingItem>	Route::ReadDirectory(const std::string& path)
 {
-	std::vector<string> list;
+	std::vector<DirLisingItem> list;
 
 	DIR* dir = opendir(path.c_str());
-	if (!dir)
-		throw std::invalid_argument("Permession Denied");
+	if (!dir) throw std::invalid_argument("Permession Denied");
+	
 	struct dirent* entry;
-	while ((entry = readdir(dir)) != NULL) 
-		if (entry->d_name[0] != '.')
-			list.push_back(entry->d_name);
+	DirLisingItem	tmp;
+	while ((entry = readdir(dir)) != NULL) {
+		if (entry->d_name[0] == '.')
+			continue;
+		tmp.name = entry->d_name;
+		tmp.isDir = (entry->d_type == DT_DIR);
+		list.push_back(tmp);
+	}
 	closedir(dir);
+	std::sort(list.begin(), list.end());
 	return list;
 }
 
 IResponse*			Route::makeDirectoryListingResponse(const IRequest& request, const std::string& path)
 {	
-	std::vector<string> fileList = ReadDirectory(path);
+	std::vector<DirLisingItem> fileList = ReadDirectory(path);
 	
-	std::string body = "<h1> Directory Listing </h1> <ul>";
+	std::string body = DIR_LISTING_START;
 	for (size_t i = 0; i < fileList.size(); ++i)
 	{
-		string line = "<li> <a href=\"" + fileList[i] + "\">" + fileList[i] + "</a> </li> ";
+		DirLisingItem& item = fileList[i];
+		std::string line;
+		
+		if (item.isDir) line = DIR_ITEM;
+		else line = FILE_ITEM;
+		
+		utils::replace(line, "::path::", item.name);
+		utils::replace(line, "::name::", item.name);
 		body += line;
 	}
-	body += "</ul>";
+	body += DIR_LISTING_END;
 
 	IResponse * response = new BufferResponse(request.getSocket());
 	response->setHeader("content-type", "text/html")
@@ -190,6 +202,7 @@ Result  			Route::handleRequestToCgi(IRequest& request)
 }
 
 std::string 		Route::getAbsolutePath(std::string requri) {
+	requri = utils::decode_uri(requri);
 	requri.erase(0, uri.length());
 	if (!requri.empty() && requri.front() != '/')
 		requri = "/" + requri;

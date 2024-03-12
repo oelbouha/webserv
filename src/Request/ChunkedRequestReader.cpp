@@ -18,7 +18,9 @@ ChunkedRequestReader::ChunkedRequestReader(IClientSocket& sock):
     mCurrentChunkRead(0),
     mEof(false),
     mTrailer(false)
-{}
+{
+    std::cout << "Chunked Request Reader Created\n";
+}
 
 size_t  ChunkedRequestReader::getContentLength() const
 {
@@ -120,108 +122,108 @@ bool    ChunkedRequestReader::parseChunkHeader(std::string& buffer)
 
     pos = line.find(" ");
     if (pos == std::string::npos)
-        mCurrentChunkSize = hexToInt(line);
+        mCurrentChunkSize = utils::hex_to_uint(line);
     else
-        mCurrentChunkSize = hexToInt(line.substr(pos));
+        mCurrentChunkSize = utils::hex_to_uint(line.substr(pos));
 
 
     return (true);
 }
 
-std::string ChunkedRequestReader::unchunk(std::string& buffer)
-{
-    std::string ret;
+// std::string ChunkedRequestReader::unchunk(std::string& buffer)
+// {
+//     std::string ret;
 
-    std::cout << std::endl;
-    std::cout << "chunk size: " << mCurrentChunkSize << std::endl;
-    std::cout << "read  size: " << mCurrentChunkRead << std::endl;
-    std::cout << "buffer len: " << buffer.length() << std::endl;
-    std::cout << "start of buff: ";
+//     std::cout << std::endl;
+//     std::cout << "chunk size: " << mCurrentChunkSize << std::endl;
+//     std::cout << "read  size: " << mCurrentChunkRead << std::endl;
+//     std::cout << "buffer len: " << buffer.length() << std::endl;
+//     std::cout << "start of buff: ";
 
-    for (unsigned int i = 0; i < 10; i++)
-    {
-        if (std::isprint(buffer[i]))
-            std::cout << buffer[i];
-        else
-            std::cout << " $" << (int)buffer[i] << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "end of buff: ";
-    for (unsigned int i = 0; i < 10 && buffer.length() > i + mCurrentChunkSize - 1; i++)
-    {
-        if (std::isprint(buffer[i + mCurrentChunkSize - 1]))
-            std::cout << buffer[i + mCurrentChunkSize - 1];
-        else
-            std::cout << " $" << (int)buffer[i + mCurrentChunkSize - 1] << " ";
-    }
-    std::cout << std::endl;
+//     for (unsigned int i = 0; i < 10; i++)
+//     {
+//         if (std::isprint(buffer[i]))
+//             std::cout << buffer[i];
+//         else
+//             std::cout << " $" << (int)buffer[i] << " ";
+//     }
+//     std::cout << std::endl;
+//     std::cout << "end of buff: ";
+//     for (unsigned int i = 0; i < 10 && buffer.length() > i + mCurrentChunkSize - 1; i++)
+//     {
+//         if (std::isprint(buffer[i + mCurrentChunkSize - 1]))
+//             std::cout << buffer[i + mCurrentChunkSize - 1];
+//         else
+//             std::cout << " $" << (int)buffer[i + mCurrentChunkSize - 1] << " ";
+//     }
+//     std::cout << std::endl;
 
-    if (buffer.length() <= mCurrentChunkSize - mCurrentChunkRead)
-    {
-        mCurrentChunkRead += buffer.length();
-        mContentLength += buffer.length();
-        return (buffer);
-    }
+//     if (buffer.length() <= mCurrentChunkSize - mCurrentChunkRead)
+//     {
+//         mCurrentChunkRead += buffer.length();
+//         mContentLength += buffer.length();
+//         return (buffer);
+//     }
 
 
-    ret = buffer.substr(0, mCurrentChunkSize - mCurrentChunkRead);
-    mContentLength += mCurrentChunkSize - mCurrentChunkRead;
-    buffer.erase(0, mCurrentChunkSize - mCurrentChunkRead);
-    mCurrentChunkRead += ret.length();
+//     ret = buffer.substr(0, mCurrentChunkSize - mCurrentChunkRead);
+//     mContentLength += mCurrentChunkSize - mCurrentChunkRead;
+//     buffer.erase(0, mCurrentChunkSize - mCurrentChunkRead);
+//     mCurrentChunkRead += ret.length();
 
-    std::cout << "*start of buff: ";
-    for (unsigned int i = 0; i < 10; i++)
-    {
-        if (std::isprint(buffer[i]))
-            std::cout << buffer[i];
-        else
-            std::cout << " $" << (int)buffer[i] << " ";
-    }
-    std::cout << std::endl;
+//     std::cout << "*start of buff: ";
+//     for (unsigned int i = 0; i < 10; i++)
+//     {
+//         if (std::isprint(buffer[i]))
+//             std::cout << buffer[i];
+//         else
+//             std::cout << " $" << (int)buffer[i] << " ";
+//     }
+//     std::cout << std::endl;
 
-    // if (mCurrentChunkSize != 0)
-    // {
-        if (buffer.find(CRLF) != 0){
-            // std::cout << ret << std::endl;
-            std::cout << mCurrentChunkSize << " - " << mCurrentChunkRead << std::endl;
-            std::cout << (int)buffer[0] << " - " << (int)buffer[1] << std::endl;
-            throw RequestException("Bad Request 1", RequestException::BAD_REQUEST);
-        }
-        if (buffer == CRLF)
-            return (ret);
-        buffer.erase(0, 2);
+//     // if (mCurrentChunkSize != 0)
+//     // {
+//         if (buffer.find(CRLF) != 0){
+//             // std::cout << ret << std::endl;
+//             std::cout << mCurrentChunkSize << " - " << mCurrentChunkRead << std::endl;
+//             std::cout << (int)buffer[0] << " - " << (int)buffer[1] << std::endl;
+//             throw RequestException("Bad Request 1", RequestException::BAD_REQUEST);
+//         }
+//         if (buffer == CRLF)
+//             return (ret);
+//         buffer.erase(0, 2);
 
-    // }
+//     // }
 
-    /*
-     *  new chunk
-     */
-    if ( ! parseChunkHeader(buffer) )
-        return (ret);
+//     /*
+//      *  new chunk
+//      */
+//     if ( ! parseChunkHeader(buffer) )
+//         return (ret);
 
-    if (mCurrentChunkSize == (size_t)-1)
-        throw RequestException("Bad Request 2", RequestException::BAD_REQUEST);
-    else if (mCurrentChunkSize == 0)
-    {
-        if (buffer.find(CRLF) == (size_t)0)
-        {
-            mEof = true;
-            // mSocket.retake(buffer.substr(2))
-            return (ret);
-        }
-        else {
-            size_t  pos = buffer.find("\r\n\r\n");
-            if (pos != std::string::npos)
-                mEof = true;
-                // mSocket.retake(buffer.substr(pos + 4))
-            else
-                mTrailer = true;
-            return (ret);
-        }
-    }
+//     if (mCurrentChunkSize == (size_t)-1)
+//         throw RequestException("Bad Request 2", RequestException::BAD_REQUEST);
+//     else if (mCurrentChunkSize == 0)
+//     {
+//         if (buffer.find(CRLF) == (size_t)0)
+//         {
+//             mEof = true;
+//             // mSocket.retake(buffer.substr(2))
+//             return (ret);
+//         }
+//         else {
+//             size_t  pos = buffer.find("\r\n\r\n");
+//             if (pos != std::string::npos)
+//                 mEof = true;
+//                 // mSocket.retake(buffer.substr(pos + 4))
+//             else
+//                 mTrailer = true;
+//             return (ret);
+//         }
+//     }
 
-    return (ret + unchunk(buffer));
-}
+//     return (ret + unchunk(buffer));
+// }
 
 
 
@@ -231,12 +233,12 @@ bool	ChunkedRequestReader::eof() const
 }
 
 
-size_t  ChunkedRequestReader::hexToInt(const std::string& str) const
-{
-    size_t              x;   
-    std::stringstream   ss;
+// size_t  ChunkedRequestReader::hexToInt(const std::string& str) const
+// {
+//     size_t              x;   
+//     std::stringstream   ss;
 
-    ss << std::hex << str;
-    ss >> x;
-    return (x);
-}
+//     ss << std::hex << str;
+//     ss >> x;
+//     return (x);
+// }

@@ -22,7 +22,7 @@
 #include "src/CGI/ProxyPair.hpp"
 
 #include "src/CGI/CGIResponse.hpp"
-#include "src/CGI/DescriptorProxyRequest.hpp"
+#include "src/CGI/CGIRequest.hpp"
 
 #include "src/DataTypes/Config.hpp"
 #include "src/Server/Server.hpp"

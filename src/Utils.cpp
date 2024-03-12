@@ -87,6 +87,21 @@ namespace utils
 		return (ret);
 	}
 
+	std::string  	decode_uri(const string& uri)
+	{
+		std::string decoded = uri;
+		size_t pos = 0;
+		while (true) {
+			pos = decoded.find("%", pos);
+			if (pos == std::string::npos)
+				break;
+			char c = static_cast<char>(hex_to_uint(decoded.substr(pos+1, 2)));
+			decoded.erase(pos, 2);
+			decoded[pos] = c;
+		}
+		return decoded;
+	}
+
 	//	Numbers
 	unsigned int	hex_to_uint(const std::string& str)
 	{

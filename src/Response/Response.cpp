@@ -30,7 +30,7 @@ Response::Response(const Response &aResponse) :
 
 Response::~Response()
 {
-  std::cout << mFile << " : closed\n";
+  // std::cout << mFile << " : closed\n";
     ::close(mFile);
 }
 

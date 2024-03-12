@@ -68,9 +68,8 @@ RESPONSE_COMPONENT := Response/Response.cpp \
 
 CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 	CGI/ProxyPair.cpp \
-	CGI/CGIResponse.cpp \
-	CGI/DescriptorProxyRequest.cpp \
-	CGI/BufferProxyRequest.cpp
+	CGI/CGIRequest.cpp \
+	CGI/CGIResponse.cpp 
 
 MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
 

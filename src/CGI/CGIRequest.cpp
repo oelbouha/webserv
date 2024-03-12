@@ -4,12 +4,12 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: DescriptorProxyRequest.cpp 
+ *			File: CGIRequest.cpp 
  */
 
-#include "DescriptorProxyRequest.hpp"
+#include "CGIRequest.hpp"
 
-DescriptorProxyRequest::DescriptorProxyRequest(int fd, IRequest& req) :
+CGIRequest::CGIRequest(int fd, IRequest& req) :
     mOutputFd(fd),
     mRequest(req)
 {
@@ -17,47 +17,47 @@ DescriptorProxyRequest::DescriptorProxyRequest(int fd, IRequest& req) :
         mBuffer = req.read();
 }
 
-DescriptorProxyRequest::DescriptorProxyRequest( const DescriptorProxyRequest& d )
+CGIRequest::CGIRequest( const CGIRequest& d )
     : mRequest(d.mRequest)
 {
     (void)d;
 }
 
-DescriptorProxyRequest::~DescriptorProxyRequest()
+CGIRequest::~CGIRequest()
 {
-    std::cout << mOutputFd << " : closed\n";
+    // std::cout << mOutputFd << " : closed\n";
     ::close(mOutputFd);
     delete &mRequest;
 }
 
-DescriptorProxyRequest&	DescriptorProxyRequest::operator=( const DescriptorProxyRequest& d )
+CGIRequest&	CGIRequest::operator=( const CGIRequest& d )
 {
     (void)d;
 	return (*this);
 }
 
-int     DescriptorProxyRequest::getOutputFd() const
+int     CGIRequest::getOutputFd() const
 {
     return (mOutputFd);
 }
 
-int     DescriptorProxyRequest::getSocketFd() const
+int     CGIRequest::getSocketFd() const
 {
     return (mRequest.getSocketFd());
 }
 
-bool    DescriptorProxyRequest::done() const
+bool    CGIRequest::done() const
 {
     return (mRequest.done() && mBuffer.empty());
 }
 
-void    DescriptorProxyRequest::read()
+void    CGIRequest::read()
 {
     if (!mRequest.done())
         mBuffer += mRequest.read();
 }
 
-void    DescriptorProxyRequest::send()
+void    CGIRequest::send()
 {
     if (mBuffer.empty())
         return;
