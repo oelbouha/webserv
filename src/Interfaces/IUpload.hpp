@@ -4,7 +4,7 @@
 #ifndef IUPLOAD_HPP
 #define IUPLOAD_HPP
 
-#include "src/Response/Response.hpp"
+// #include "src/Response/Response.hpp"
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
 #include "Utils.hpp"

@@ -58,10 +58,11 @@ void WebServer::start()
     {
         ServerSocket& socket = *it;
         try {
-
+            socket.setNonBlocking();
             socket.bind();
             socket.listen();
             mMux->add(it.base());
+
             Logger::info ("Listening on ")( utils::ip(ntohl(socket.getIP())) );
             Logger::info (" on port ")(socket.getPort()).flush();
         }
@@ -69,6 +70,7 @@ void WebServer::start()
             std::vector<ServerSocket>::iterator it_tmp = it--;
             it_tmp->close();
             mSockets.erase(it_tmp);
+
             Logger::warn ( e.what() ).flush();
         }
     }
@@ -83,8 +85,7 @@ void WebServer::loop()
 {
     while (true)
     {
-        mMux->wait(1 * 1000000); // 1 seconds
-
+        mMux->wait(1 * 1000000);
         if (mMux->ready())
         {
             acceptNewClients();
@@ -105,19 +106,14 @@ void WebServer::loop()
 void WebServer::acceptNewClients()
 {
     std::queue<IServerSocket *> qs = mMux->getReadyServerSockets();
-    ;
     while (qs.size())
     {
         const IServerSocket &sock = *(qs.front());
-
         IClientSocket *clientSock = sock.accept();
-
-        clientSock->setNonBlocking();
-
         Client *client = new Client(clientSock, sock.getIP(), sock.getPort());
 
+        clientSock->setNonBlocking();
         mClients.push_back(client);
-
         mMux->add(client);
 
         qs.pop();
@@ -126,9 +122,6 @@ void WebServer::acceptNewClients()
 
 void    WebServer::handleClientRequest(Client* client, IRequest* request)
 {
-    Request*    req = static_cast<Request*>(request);
-    req->dump();
-
     mMux->remove(client);
 
     Result result = mServers->handle(*request);
@@ -189,8 +182,8 @@ void WebServer::takeAndHandleRequests()
     while (qc.size())
     {
         Client *client = static_cast<Client *>(qc.front());
-
         client->makeRequest();
+        
         if (client->status == Client::DISCONNECTED)
         {
             disconnectClient(*client);

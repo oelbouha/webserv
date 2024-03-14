@@ -102,8 +102,6 @@ void Request::build()
     }
     catch (const SocketException& e)
     {
-        (void)e;
-        Logger::debug ("request build: socket exception: connection closed").flush();
         throw RequestException(RequestException::CONNECTION_CLOSED);
     }
 }
@@ -191,8 +189,4 @@ void Request::dump(bool colors) const
     string_string_map::const_iterator it = mHeaders.begin();
     for (; it != mHeaders.end(); ++it)
         Logger::debug.l().w(20, it->first)(": ")(it->second).flush();
-
-    // cout << "----- body -----\n" << flush;
-    // std::string body = mReader->read();
-    // cout << body << endl << flush;
 }

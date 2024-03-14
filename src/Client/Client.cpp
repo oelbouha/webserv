@@ -77,13 +77,15 @@ void Client::makeRequest()
         req = new Request(*mSocket, mIncomingIP, mIncomingPort);
         req->build();
         mRequest = req;
-        if (!mKeepAlive && Client::KeepAliveCount < Client::KeepAliveMax) {
+
+        if (!mKeepAlive && Client::KeepAliveCount < Client::KeepAliveMax)
+        {
             std::string connection = req->getHeader("connection");
             mKeepAlive = utils::str_to_lower(connection) == "keep-alive";
             Client::KeepAliveCount++;
-            // std::cout << "keep alive : " << (mKeepAlive?"True":"False") << std::endl;
         }
-    } catch(const RequestException& e)
+    }
+    catch(const RequestException& e)
     {
         if (e.error == RequestException::CONNECTION_CLOSED)
         {

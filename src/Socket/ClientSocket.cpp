@@ -31,14 +31,16 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &aClientSocket) {
 
 int ClientSocket::getSocketFd() const { return mID; }
 
-
 int ClientSocket::write( const std::string& aBuffer ) const
 {
     int r = ::write(mID, aBuffer.data(), aBuffer.length());
 
     if (r < 0){
         perror("socket write");
-        throw SocketException(std::string("Couldn't write to socket: ") + strerror(errno));
+        throw SocketException(
+            std::string("Couldn't write to socket: ") + strerror(errno),
+            SocketException::CANT_WRITE_TO_SOCKET
+        );
     }
 
     return (r);
@@ -126,7 +128,10 @@ std::string ClientSocket::readAll()
         mRead = r;
 
     if (mRead == 0 && ret.empty())
-        throw SocketException("Connection Closed");
+        throw SocketException(
+            "Connection Closed",
+            SocketException::CONNECTION_CLOSED
+        );
 
     return (ret);
 }
@@ -148,6 +153,9 @@ void ClientSocket::dump()
 void ClientSocket::setNonBlocking()
 {
     if (fcntl(mID, F_SETFL, O_NONBLOCK, O_CLOEXEC) < 0)
-        throw SocketException("Can't switch socket to non-blocking mode");
+        throw SocketException(
+            "Can't switch socket to non-blocking mode" + std::string(strerror(errno)),
+            SocketException::CANT_BE_SET_TO_NON_BLOCKING
+        );
 }
 

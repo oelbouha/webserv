@@ -71,18 +71,4 @@ public:
 
 };
 
-/*
-  add(ProxyPair*)
-  {
-    add request input for write events
-    add client socket for read events
-
-    add response output for read events
-    add client socket for write events
-
-    pb:
-      client already registered for read events
-  }
-*/
-
 #endif

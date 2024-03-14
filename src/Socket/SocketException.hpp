@@ -22,6 +22,7 @@ public:
     enum Error {
         CANT_BE_SET_TO_NON_BLOCKING,
         CONNECTION_CLOSED,
+        CANT_WRITE_TO_SOCKET,
         DEFAULT
     };
 

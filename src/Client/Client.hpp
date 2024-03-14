@@ -19,7 +19,7 @@
 #include "IClientSocket.hpp"
 
 #include "src/Request/Request.hpp"
-#include "src/Response/Response.hpp"
+// #include "src/Response/Response.hpp"
 #include "src/Route/Upload.hpp"
 #include "src/CGI/ProxyPair.hpp"
 

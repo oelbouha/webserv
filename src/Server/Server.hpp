@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/14 12:37:09 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/14 13:46:17 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include <dirent.h>
 
 #include "src/Server/Result.hpp"
-#include "src/Response/Response.hpp"
+// #include "src/Response/Response.hpp"
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
 #include "src/Route/Route.hpp"

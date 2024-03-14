@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:36:00 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 10:12:07 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/14 13:46:24 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@
 #include <iostream>
 
 #include <src/Interfaces/IResponse.hpp>
-#include "src/Response/Response.hpp"
+// #include "src/Response/Response.hpp"
 #include "src/Response/FileResponse.hpp"
 #include "src/Response/BufferResponse.hpp"
 #include "src/Request/Request.hpp"

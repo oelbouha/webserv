@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/14 13:25:59 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/14 15:04:19 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,12 +151,12 @@ private:
 				background: none;\
 				margin-top: 8px;\
 			}\
-			@media only screen and (max-width: 870px) {\
+			@media (max-width: 1180px) {\
 				main {\
 					grid-template-columns: 1fr 1fr 1fr 1fr;\
 				}\
 			}\
-			@media only screen and (max-width: 650px) {\
+			@media (max-width: 860px) {\
 				main {\
 					grid-template-columns: 1fr 1fr 1fr;\
 				}\

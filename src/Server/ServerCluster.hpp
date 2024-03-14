@@ -16,7 +16,7 @@
 #include <iostream>
 #include <utility>
 
-#include "src/Response/Response.hpp"
+// #include "src/Response/Response.hpp"
 #include "src/Request/Request.hpp"
 
 #include "src/CGI/ProxyPair.hpp"
