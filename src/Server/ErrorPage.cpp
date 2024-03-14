@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:39:26 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/07 15:59:31 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/14 13:23:41 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,9 +91,9 @@ IResponse*      ErrorPage::build(const IRequest& request, unsigned int status_co
 		
 		std::string	body = CUSTOM_PAGE_BODY;
 		
-		utils::replace(body, "::title::", Response::StatusCodes.at(status_code));
+		utils::replace(body, "::title::", AResponse::StatusCodes.at(status_code));
 		utils::replace(body, "::code::", utils::to_string(status_code));
-		utils::replace(body, "::message::", Response::StatusCodes.at(status_code));
+		utils::replace(body, "::message::", AResponse::StatusCodes.at(status_code));
 		
 		response->setBody(body)
 			.build();
@@ -108,7 +108,7 @@ void	ErrorPage::dump()
 	
 	while (it != error_pages.end())
 	{
-		std::cout << it->first << " -> " << it->second << std::endl;
+		Logger::debug (it->first)(" -> ")(it->second).flush();
 		++it;
 	}
 }

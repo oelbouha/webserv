@@ -25,6 +25,8 @@
 #include "IClientSocket.hpp"
 #include "SocketException.hpp"
 
+#include "Logger.hpp"
+
 class ClientSocket : public IClientSocket
 {
 	const int	mID;

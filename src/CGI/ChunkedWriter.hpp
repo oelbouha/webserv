@@ -14,15 +14,25 @@
 #include <iostream>
 
 #include "IResponseWriter.hpp"
+#include "src/Interfaces/IClientSocket.hpp"
+
+#include "Utils.hpp"
 
 class ChunkedWriter : public IResponseWriter
 {
+	const IClientSocket&	mSocket;
+	std::string				mHeader;
+	std::string				mActiveBuffer;
+	std::string				mWaitingBuffer;
+	bool					mEOF;
 public:
-	ChunkedWriter();
-	ChunkedWriter( const ChunkedWriter& c);
+	ChunkedWriter(const IClientSocket& socket);
 	~ChunkedWriter();
 
-	ChunkedWriter&	operator=( const ChunkedWriter& c );
+	virtual void		setHeader(const std::string& header);
+	virtual void		append(const std::string& data);
+	virtual int			write();
+	virtual bool		done() const;
 
 };
 #endif

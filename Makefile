@@ -40,10 +40,11 @@ TEST_FLAGS := $(TEST_INC) $(TEST_LIB)
 MAIN_COMPONENT := Main/main.cpp \
 	Main/WebServer.cpp
 
-UTILS_COMPONENT := Utils.cpp
+UTILS_COMPONENT := Utils.cpp \
+	Logger.cpp
 
 DATATYPES_COMPONENT := DataTypes/Config.cpp \
-						DataTypes/ConfigException.cpp
+	DataTypes/ConfigException.cpp
 
 CONFIG_PARSER_COMPONENT := ConfigParser/ConfigHelper.cpp \
 	ConfigParser/YmlConfigParser.cpp \
@@ -60,8 +61,7 @@ REQUEST_COMPONENT := Request/Request.cpp \
 	Request/BufferRequest.cpp \
 	Request/RequestException.cpp
 
-RESPONSE_COMPONENT := Response/Response.cpp \
-	Response/AResponse.cpp \
+RESPONSE_COMPONENT := 	Response/AResponse.cpp \
 	Response/FileResponse.cpp \
 	Response/BufferResponse.cpp \
 	Response/ResponseException.cpp
@@ -69,7 +69,9 @@ RESPONSE_COMPONENT := Response/Response.cpp \
 CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 	CGI/ProxyPair.cpp \
 	CGI/CGIRequest.cpp \
-	CGI/CGIResponse.cpp 
+	CGI/CGIResponse.cpp  \
+	CGI/DefaultWriter.cpp \
+	CGI/ChunkedWriter.cpp
 
 MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
 

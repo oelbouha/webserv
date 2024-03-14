@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/07 15:59:56 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/14 12:42:04 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ Result  Server::handle(IRequest& request)
 {
 	if (isRequestProperlyStructured(request) == false)
     {
-        std::cout << " Request not properly structered ... " << statusCode << std::endl;
+        Logger::debug (" Request not properly structered ... ")(statusCode).flush();
         IResponse*  res = error_pages.build(request, statusCode);
         return (Result(res));
     }
@@ -141,7 +141,7 @@ Result  Server::handle(IRequest& request)
 	route = getMatchedRoute(request);
 	if (route == NULL)
 	{
-		std::cout << "No route matched uri ... <" << request.getURI() << ">" << std::endl;;
+		Logger::debug ("No route matched uri ... <")( request.getURI() ).flush();
 		statusCode = 404;
 		IResponse*	res = error_pages.build(request, statusCode);
 		return (Result(res));
@@ -162,12 +162,12 @@ bool	Server::isRequestProperlyStructured(const IRequest &req)
     const string& transfer_encoding  = req.getHeader("transfer-encoding");
     if (!transfer_encoding.empty() && transfer_encoding != "chunked")
     {
-        std::cout << "request not well formed\n" << std::endl;
+        Logger::debug ("request not well formed").flush();
         statusCode = 501;
         return false;
     }
     if (containsValidCharacters(req.getURI()) == false) {
-        std::cout << "contains not valid characters\n" << std::flush;
+        Logger::debug ("contains not valid characters").flush();
         statusCode = 400;
         return false;
     }

@@ -1,60 +1,83 @@
+/*	                     __          _
+ *	   __  ___________ _/ /___ ___  (_)
+ *	  / / / / ___/ __ `/ / __ `__ \/ /
+ *	 / /_/ (__  ) /_/ / / / / / / / / 
+ *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
+ *	/____/	User: Youssef Salmi
+ *			File: CGIResponse.cpp 
+ */
+
 #include "Logger.hpp"
 
-namespace logger
+Logger::Level   Logger::level = Logger::DEBUG;
+Logger::File    Logger::debug(Logger::DEBUG, 1);
+Logger::File    Logger::info(Logger::INFO, 1);
+Logger::File    Logger::warn(Logger::WARNING, 2);
+Logger::File    Logger::error(Logger::ERROR, 2);
+Logger::File    Logger::fatal(Logger::FATAL, 2);
+
+Logger::File::File(Logger::Level lvl, int fd) :
+    msg_level(lvl),
+    fd(fd)
 {
-    std::ostream&   inform = std::cout;
+    switch (msg_level)
+    {
+    case DEBUG:
+        slvl = "DEBUG";
+        break;
+    case INFO:
+        slvl = "INFO";
+        break;
+    case WARNING:
+        slvl = "WARNING";
+        break;
+    case ERROR:
+        slvl = "ERROR";
+        break;
+    case FATAL:
+        slvl = "FATAL";
+        break;
+    default:
+        break;
+    }
+    ss << std::left << std::setw(10) << slvl << ": ";
 }
 
-Logger* Logger::mInstance = NULL;
-
-Logger::Logger():
-mLogLevel(logger::error),
-mNextMsgLogLevel(logger::info),
-mStream(std::cout)
+Logger::File::File(const File& file) :
+    msg_level(file.msg_level),
+    fd(file.fd)
 {}
 
-Logger::Logger( const logger::LogLevel& aLevel ):
-mLogLevel(aLevel),
-mNextMsgLogLevel(logger::info),
-mStream(std::cout)
-{}
-
-Logger::~Logger(){}
-
-ILogger&     Logger::getInstance( const logger::LogLevel& aLevel )
+Logger::File::~File()
 {
-    if (Logger::mInstance == NULL)
-        Logger::mInstance = new Logger(aLevel);
-    return (*mInstance);
+    ::close(fd);
 }
 
-// std::ostream&   Logger::getStream(){
-//     return (mStream);
-// }
-
-void        Logger::setLogLevel(const logger::LogLevel& aLevel){
-    mLogLevel = aLevel;
+Logger::File&   Logger::File::operator=(const File& file)
+{
+    if (this != &file) {
+        msg_level = file.msg_level;
+        fd = file.fd;
+        // ss = new std::stringstream();
+    }
+    return (*this);
 }
 
-Logger&     Logger::operator<<(const logger::LogLevel& aLevel){
-    mNextMsgLogLevel = aLevel;
-    // mStream << "changed to " << aLevel << std::endl;
-    return *this;
+Logger::File&   Logger::File::r() {
+    ss << std::right;
+    return (*this);
+}
+Logger::File&   Logger::File::l() {
+    ss << std::left;
+    return (*this);
 }
 
-Logger&     Logger::operator<<(const std::string& aMessage){
-    mStream << aMessage;
-    return *this;
-}
+void    Logger::File::flush() {
+    if (level > msg_level) return;
 
-Logger&     Logger::operator<<(const logger::endl_t& endl){
-    (void)endl;
-    mStream << std::endl;
-    return *this;
-}
-
-Logger&     Logger::operator<<(const logger::flush_t& flush){
-    (void)flush;
-    mStream << std::flush;
-    return *this;
+    ss << std::endl;
+    const std::string&    buffer = ss.str();
+    ::write(fd, buffer.data(), buffer.length());
+    ss.str("");
+    ss << std::left << std::setw(10) << slvl << ": ";
 }

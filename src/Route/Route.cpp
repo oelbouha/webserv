@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/12 15:32:31 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/14 13:29:09 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Route::Route(Config* config, ErrorPage& pages): error_pages(pages)
 			code = utils::string_to_uint(prop);
 			if (code < 300 || code >= 400)
 				throw std::invalid_argument("Invalid code");
-			Response::StatusCodes.at(code);
+			AResponse::StatusCodes.at(code);
 		}
 		catch(const std::exception& e) {
 			throw ConfigException("Not a Valid Redirect Code Number", "code", prop);
@@ -63,11 +63,9 @@ const std::string&	Route::getURI() const{ return uri; }
 bool				Route::IsMethodAllowed(const std::string& method)
 {
 	for(size_t i = 0; i < allowedMethods.size(); ++i) {
-		std::cout << allowedMethods[i] << ' ';
 		if (method == allowedMethods[i])
 			return true;
 	}
-	std::cout << std::endl;
 	return false;
 }
 
@@ -105,7 +103,7 @@ IResponse*			Route::makeDirectoryListingResponse(const IRequest& request, const 
 		if (item.isDir) line = DIR_ITEM;
 		else line = FILE_ITEM;
 		
-		utils::replace(line, "::path::", item.name);
+		utils::replace(line, "::path::", utils::encode_url(item.name));
 		utils::replace(line, "::name::", item.name);
 		body += line;
 	}
@@ -202,7 +200,7 @@ Result  			Route::handleRequestToCgi(IRequest& request)
 }
 
 std::string 		Route::getAbsolutePath(std::string requri) {
-	requri = utils::decode_uri(requri);
+	requri = utils::decode_url(requri);
 	requri.erase(0, uri.length());
 	if (!requri.empty() && requri.front() != '/')
 		requri = "/" + requri;
@@ -216,9 +214,10 @@ Result  			Route::handle(IRequest& request)
 	
 	if (!redirect.empty())
 	{
-		IResponse * response = new Response(request.getSocket());
+		BufferResponse* response = new BufferResponse(request.getSocket());
 		response->setHeader("location", location)
 			.setStatusCode(code)
+			.setBody("")
 			.build();
 		return Result(response);
 	}

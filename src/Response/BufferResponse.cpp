@@ -37,11 +37,11 @@ BufferResponse&	BufferResponse::setBody(const std::string &aBody)
 	return (*this);
 }
 
-BufferResponse&	BufferResponse::setBodyFile(const std::string &aFileName)
-{
-	(void)aFileName;
-	return *this;
-}
+// BufferResponse&	BufferResponse::setBodyFile(const std::string &aFileName)
+// {
+// 	(void)aFileName;
+// 	return *this;
+// }
 
 BufferResponse&	BufferResponse::build()
 {

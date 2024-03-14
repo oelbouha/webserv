@@ -205,13 +205,13 @@ void  SelectMultiplexer::add(IProxyRequest* req, IMultiplexer::mod_t mod)
         FD_SET(req->getSocketFd(), &mReadfds);
         mMaxfd = mMaxfd > req->getSocketFd() ? mMaxfd : req->getSocketFd() + 1;
 
-        std::cout << req->getSocketFd() << " : (r) added\n";
+        Logger::debug (req->getSocketFd())(" : (r) added").flush();
         return;
     }
 
     FD_SET(req->getOutputFd(), &mWritefds);
     mMaxfd = mMaxfd > req->getOutputFd() ? mMaxfd : req->getOutputFd() + 1;
-    std::cout << req->getOutputFd() << " : (w) added\n";
+    Logger::debug (req->getOutputFd())(" : (w) added").flush();
 }
 
 void  SelectMultiplexer::remove(IProxyRequest* req, IMultiplexer::mod_t mod)
@@ -226,7 +226,7 @@ void  SelectMultiplexer::remove(IProxyRequest* req, IMultiplexer::mod_t mod)
         if (req->getSocketFd() == -1) return;
 
         FD_CLR(req->getSocketFd(), &mReadfds);
-        std::cout << req->getSocketFd() << " : (r) removed\n";
+        Logger::debug (req->getSocketFd())(" : (r) removed").flush();
 
         if (!FD_ISSET(req->getOutputFd(), &mWritefds)) {
           proxyRequests.erase(it);
@@ -239,7 +239,7 @@ void  SelectMultiplexer::remove(IProxyRequest* req, IMultiplexer::mod_t mod)
     }
 
     FD_CLR(req->getOutputFd(), &mWritefds);
-    std::cout << req->getOutputFd() << " : (w) removed\n";
+    Logger::debug (req->getOutputFd())(" : (w) removed").flush();
 
     if (req->getSocketFd() == -1 || !FD_ISSET(req->getSocketFd(), &mReadfds)) {
       proxyRequests.erase(it);
@@ -256,13 +256,13 @@ void  SelectMultiplexer::add(IProxyResponse* res, IMultiplexer::mod_t mod)
     if (mod == IMultiplexer::READ)
     {
         FD_SET(res->getInputFd(), &mReadfds);
-        std::cout << res->getInputFd() << " : (r) added\n";
+        Logger::debug (res->getInputFd())(" : (r) added").flush();
         mMaxfd = mMaxfd > res->getInputFd() ? mMaxfd : res->getInputFd() + 1;
         return;
     }
     
     FD_SET(res->getSocketFd(), &mWritefds);
-    std::cout << res->getSocketFd() << " : (w) added\n";
+    Logger::debug (res->getSocketFd())(" : (w) added").flush();
     mMaxfd = mMaxfd > res->getSocketFd() ? mMaxfd : res->getSocketFd() + 1;
 }
 
@@ -271,7 +271,7 @@ void  SelectMultiplexer::remove(IProxyResponse* res, IMultiplexer::mod_t mod)
     ProxyResponses::iterator it = proxyResponses.find(res->getSocketFd());
 
     if (it == proxyResponses.end()) {
-        std::cout << "cgi res not found\n";
+        Logger::debug ("cgi res not)(nd\n").flush();
         return;
     }
 
@@ -279,7 +279,7 @@ void  SelectMultiplexer::remove(IProxyResponse* res, IMultiplexer::mod_t mod)
     if (mod == IMultiplexer::READ)
     {
         FD_CLR(res->getInputFd(), &mReadfds);
-        std::cout << res->getInputFd() << " : (r) removed\n";
+        Logger::debug (res->getInputFd())(" : (r) removed").flush();
 
         if (!FD_ISSET(res->getSocketFd(), &mWritefds)) {
           proxyResponses.erase(it);
@@ -291,7 +291,7 @@ void  SelectMultiplexer::remove(IProxyResponse* res, IMultiplexer::mod_t mod)
     }
 
     FD_CLR(res->getSocketFd(), &mWritefds);
-    std::cout << res->getSocketFd() << " : (w) removed\n";
+    Logger::debug (res->getSocketFd())(" : (w) removed").flush();
 
     if (!FD_ISSET(res->getInputFd(), &mReadfds)) {
         proxyResponses.erase(it);
@@ -303,7 +303,7 @@ void  SelectMultiplexer::remove(IProxyResponse* res, IMultiplexer::mod_t mod)
 
 std::queue<IProxyRequest*>  SelectMultiplexer::getReadyForReadingProxyRequests() const
 {
-    // std::cout << "proxyRequests.size() = " << proxyRequests.size() << std::endl;
+    // Logger::debug ("proxyRequests.size())( << proxyRequests.size() << std::endl).flush();
     std::queue<IProxyRequest *> ret;
 
     if (mReadyfdsCount == 0)
@@ -339,7 +339,7 @@ std::queue<IProxyRequest*>  SelectMultiplexer::getReadyForWritingProxyRequests()
 
 std::queue<IProxyResponse*>  SelectMultiplexer::getReadyForReadingProxyResponses() const
 {
-//   std::cout << "proxyResponses.size() = " << proxyResponses.size() << std::endl;
+//   Logger::debug ("proxyResponses.size())( << proxyResponses.size() << std::endl).flush();
   std::queue<IProxyResponse *> ret;
 
   if (mReadyfdsCount == 0)
@@ -400,16 +400,14 @@ void SelectMultiplexer::wait(std::size_t timeout_us)
         bool wb = (w[idx] >> shift) & 1;
         
         if (rb || wb)
-            std::cout << i;
-        if (rb)
-            std::cout << 'r';
-        if (wb)
-            std::cout << 'w';
-        if (rb || wb)
-            std::cout << ' ';
+            Logger::debug (i;
+        if (rb)(          Logger::debug ('r').flush();
+        if)().flush();
+            Logger::debug ('w';
+        if)( || wb).flush();
+            Logger::debug (' ';
         }
-        std::cout << std::endl;
-    }
+        Logger)(bug (std::endl;)( ).flush();
     */
 
     struct timeval timeout;
@@ -418,9 +416,9 @@ void SelectMultiplexer::wait(std::size_t timeout_us)
   
     mReadyfdsCount = ::select(mMaxfd, &mReadfdsTmp, &mWritefdsTmp, NULL, &timeout);
 
-    // std::cout << mReadyfdsCount << std::endl;
+    // Logger::debug (mReadyfdsCount << std::)().flush();
       
-  // std::cout << mReadyfdsCount << ' ' << proxyRequests.size() << ' ' << proxyResponses.size() << std::endl;
+  // Logger::debug (mReadyfdsCount << ' ')(proxyRequests.size() << ' ' << proxyResponses.size() << std::endl).flush();
 }
 
 bool  SelectMultiplexer::ready() const

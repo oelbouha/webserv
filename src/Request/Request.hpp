@@ -28,6 +28,7 @@
 #include "src/Socket/SocketException.hpp"
 
 #include "Types.hpp"
+#include "Logger.hpp"
 
 class Request : public IRequest
 {

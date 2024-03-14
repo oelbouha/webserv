@@ -42,5 +42,5 @@ bool	BufferRequest::done() const {
 void	BufferRequest::dump(bool colors) const
 {
 	Request::dump(colors);
-	std::cout << "Buffer:\n" << mBuffer << std::endl;
+	Logger::debug ("Buffer:\n")(mBuffer).flush();
 }

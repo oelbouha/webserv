@@ -27,7 +27,7 @@ public:
 	~BufferResponse();
 
 	BufferResponse&	setBody(const std::string &aBody);
-	BufferResponse&	setBodyFile(const std::string &aFileName);
+	// BufferResponse&	setBodyFile(const std::string &aFileName);
 	BufferResponse&	build();
 
 	void send();

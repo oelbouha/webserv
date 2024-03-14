@@ -14,15 +14,21 @@
 #include <iostream>
 
 #include "IResponseWriter.hpp"
+#include "src/Interfaces/IClientSocket.hpp"
 
 class DefaultWriter : public IResponseWriter
 {
+	const IClientSocket&	mSocket;
+	std::string				mBuffer;
+	std::size_t				mContentLength;
 public:
-	DefaultWriter();
-	DefaultWriter( const DefaultWriter& d);
+	DefaultWriter(const IClientSocket& socket, size_t cl);
 	~DefaultWriter();
 
-	DefaultWriter&	operator=( const DefaultWriter& d );
+	virtual void		setHeader(const std::string& header);
+	virtual void		append(const std::string& data);
+	virtual int			write();
+	virtual bool		done() const;
 
 };
 #endif

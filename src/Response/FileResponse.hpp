@@ -27,7 +27,7 @@ public:
 	~FileResponse();
 
 	FileResponse&	setBody(const std::string &aBody);
-	FileResponse&	setBodyFile(const std::string &aFileName);
+	// FileResponse&	setBodyFile(const std::string &aFileName);
 	FileResponse&	build();
 
 	void send();

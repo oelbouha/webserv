@@ -9,16 +9,35 @@
 
 #include "DefaultWriter.hpp"
 
-DefaultWriter::DefaultWriter()
-{}
-
-DefaultWriter::DefaultWriter( const DefaultWriter& d )
+DefaultWriter::DefaultWriter(const IClientSocket& socket, size_t content_length) :
+	mSocket(socket),
+	mContentLength(content_length)
 {}
 
 DefaultWriter::~DefaultWriter()
 {}
 
-DefaultWriter&	DefaultWriter::operator=( const DefaultWriter& d )
+void	DefaultWriter::setHeader(const std::string& header)
 {
-	return (*this);
+	mBuffer = header + mBuffer;
+}
+
+void	DefaultWriter::append(const std::string& data)
+{
+	mBuffer += data;
+}
+
+int	DefaultWriter::write()
+{
+	if (mBuffer.empty()) return 0;
+
+	int r = mSocket.write(mBuffer);
+	mBuffer.erase(0, r);
+	mContentLength -= r;
+	return r;
+}
+
+bool	DefaultWriter::done() const
+{
+	return mBuffer.empty();
 }

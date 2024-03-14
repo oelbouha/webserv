@@ -20,6 +20,8 @@
 
 #include "IMultiplexer.hpp"
 
+#include "Logger.hpp"
+
 
 class SelectMultiplexer : public IMultiplexer {
   fd_set mReadfds, mReadfdsTmp;

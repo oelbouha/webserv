@@ -30,7 +30,6 @@ Response::Response(const Response &aResponse) :
 
 Response::~Response()
 {
-  // std::cout << mFile << " : closed\n";
     ::close(mFile);
 }
 
@@ -80,7 +79,7 @@ Response&   Response::setBodyFile( const std::string& aFileName )
 
 Response &Response::build()
 {
-  mRawResponse = "HTTP/1.1 " + Response::StatusCodes.at(mStatusCode) + "\r\n";
+  mRawResponse = "HTTP/1.1 " + AResponse::StatusCodes.at(mStatusCode) + "\r\n";
 
   for (string_string_map::iterator it = mHeaders.begin();it != mHeaders.end(); ++it)
     mRawResponse += it->first + ": " + it->second + "\r\n";
@@ -132,9 +131,11 @@ bool Response::done() const
   return (isComplete);
 }
 
-void Response::dump() { std::cout << mRawResponse << std::endl << std::flush; }
+void Response::dump() { 
+  Logger::debug (mRawResponse).flush();
+}
 
-const uint_string_map Response::StatusCodes = Response::initStatusCodes();
+const uint_string_map AResponse::StatusCodes = Response::initStatusCodes();
 
 uint_string_map Response::initStatusCodes()
 {

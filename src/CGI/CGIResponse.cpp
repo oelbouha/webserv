@@ -15,7 +15,8 @@ CGIResponse::CGIResponse(int fd, const IClientSocket& sock):
 	mEof(false),
 	mFile(-1),
 	mHeaderComplete(false),
-	mSent(0)
+	mSent(0),
+	mWriter(NULL)
 {}
 
 CGIResponse::CGIResponse( const CGIResponse& p ):
@@ -59,9 +60,6 @@ void	CGIResponse::read()
 		while ((r = ::read(mInputFd, buffer, size)) > 0)
 			mHeader += std::string(buffer, r);
 
-		if (r == 0)
-			mEof = true;
-
 		size_t	pos = mHeader.find("\r\n\r\n");
 		int		len = 4;
 		if (pos == std::string::npos)
@@ -72,74 +70,91 @@ void	CGIResponse::read()
 
 		if (pos != std::string::npos)
 		{
-			mBuffer = mHeader.substr(pos + len);
+			std::string	body = mHeader.substr(pos + len);
 			mHeader.erase(pos);
-			build();
 			mHeaderComplete = true;
-			// writer->append(mBuffer);
-			/*
-			writer->append(mHeader.substr(pos + len));
-			mHeader.erase(pos);
-			build();
-			mHeaderComplete = true;
-			*/
+
+			parseHeader();
+			
+			bool	location = mResponseHeaders.find("location") != mResponseHeaders.end();
+			string_string_map::iterator it = mResponseHeaders.find("content-length");
+			if (location || it != mResponseHeaders.end()) {
+				if (!location)
+					mWriter = new DefaultWriter(mSocket, utils::string_to_uint(it->second));
+				else
+					mWriter = new DefaultWriter(mSocket, 0);
+				build();
+			} else {
+				mWriter = new ChunkedWriter(mSocket);
+				mResponseHeaders["transfer-encoding"] = "chunked";
+				build();
+			}
+			
+			mWriter->setHeader(mHeader);
+			mWriter->append(body);
+		
+			if (r == 0) {
+				mEof = true;
+				mWriter->append("");
+			}
 		}
 		return;
 	}
 
 	while ((r = ::read(mInputFd, buffer, size)) > 0)
-		mBuffer += std::string(buffer, r);
-	// writer->append(std::string(buffer, r));
-	if (r == 0)
+		mWriter->append(std::string(buffer, r));
+
+	if (r == 0) {
 		mEof = true;
+		mWriter->append("");
+	}
 }
 
 void	CGIResponse::build()
 {
-	std::string	responseHeader = "HTTP/1.1 200 OK\r\n";
+	//	if location
+	string_string_map::iterator it = mResponseHeaders.find("location");
+	if (it != mResponseHeaders.end()) {
+		if (mResponseHeaders.size() > 1) {/*err*/}
+		mHeader = "HTTP/1.1 302 Found\r\ncontent-length: 0\r\n";
+		mHeader += it->first + ": " + it->second + "\r\n\r\n";
+		return;
+	}
 
-	parseHeader();
-
-	// if location
-
-	// else if no content type supplied
-	string_string_map::iterator it = mResponseHeaders.find("content-type");
-	if (it != mResponseHeaders.end())
-	{
+	//	else 
+	//	if no content type supplied
+	it = mResponseHeaders.find("content-type");
+	if (it != mResponseHeaders.end()) {
 		// error
 	}
+
 	// else
 	it = mResponseHeaders.find("status");
-	if (it != mResponseHeaders.end())
-	{
-		responseHeader = "HTTP/1.1 " + it->second + "\r\n";
+	if (it != mResponseHeaders.end()) {
+		mHeader = "HTTP/1.1 " + it->second + "\r\n";
 		mResponseHeaders.erase(it);
 	}
-	it = mResponseHeaders.find("content-length");
-	if (it == mResponseHeaders.end())
-		responseHeader += "Content-Length: " + utils::to_string(mBuffer.length()) + "\r\n";
+	else mHeader = "HTTP/1.1 200 OK\r\n";
+
 	it = mResponseHeaders.begin();
-	while (it != mResponseHeaders.end())
-	{
-		responseHeader += it->first + ": " + it->second + "\r\n";
+	while (it != mResponseHeaders.end()) {
+		mHeader += it->first + ": " + it->second + "\r\n";
 		++it;
 	}
-	// if no content length is supplied choose chunked transfer enconding
-	responseHeader += "\r\n";
-
-	mBuffer = responseHeader + mBuffer;
+	mHeader += "\r\n";
 }
 
 
 
 void	CGIResponse::send()
 {
-	if (mBuffer.empty())
-		return;
-	int	r = mSocket.write(mBuffer);
-	mBuffer.erase(0, r);
-	// mSent += writer->write();
-	mSent += r;
+	// if (mBuffer.empty())
+	// 	return;
+	// int	r = mSocket.write(mBuffer);
+	// mBuffer.erase(0, r);
+	if (mWriter)
+		mSent += mWriter->write();
+	// mSent += r;
 }
 
 bool	CGIResponse::sent() const
@@ -149,8 +164,8 @@ bool	CGIResponse::sent() const
 
 bool	CGIResponse::done() const
 {
-	return (mHeaderComplete && mEof && mBuffer.empty());
-	// return (mHeaderComplete && mEof && writer->done());
+	// return (mHeaderComplete && mEof && mBuffer.empty());
+	return (mHeaderComplete && mEof && mWriter->done());
 }
 
 bool	CGIResponse::error() const

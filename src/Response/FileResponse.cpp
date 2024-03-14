@@ -21,7 +21,6 @@ FileResponse::FileResponse(const FileResponse &aFileResponse) :
 {}
 
 FileResponse::~FileResponse() {
-	// std::cout << mFile << " : closed\n";
 	::close(mFile);
 }
 
@@ -50,11 +49,11 @@ FileResponse &FileResponse::setBody(const std::string &aFileName)
 	return *this;
 }
 
-FileResponse &FileResponse::setBodyFile(const std::string &aFileName)
-{
-	setBody(aFileName);
-	return *this;
-}
+// FileResponse &FileResponse::setBodyFile(const std::string &aFileName)
+// {
+// 	setBody(aFileName);
+// 	return *this;
+// }
 
 FileResponse &FileResponse::build()
 {

@@ -56,24 +56,26 @@ void WebServer::start()
 {
     for (std::vector<ServerSocket>::iterator it = mSockets.begin(); it != mSockets.end(); ++it)
     {
+        ServerSocket& socket = *it;
         try {
 
-            it->bind();
-            it->listen();
+            socket.bind();
+            socket.listen();
             mMux->add(it.base());
-
-            std::cout << "listening on " 
-                << std::right << std::setw(15) << utils::ip(ntohl(it->getIP()))
-                << " on port " << it->getPort()
-                << std::endl;
-
+            Logger::info ("Listening on ")( utils::ip(ntohl(socket.getIP())) );
+            Logger::info (" on port ")(socket.getPort()).flush();
         }
         catch (const SocketException& e) {
             std::vector<ServerSocket>::iterator it_tmp = it--;
             it_tmp->close();
             mSockets.erase(it_tmp);
-            std::cerr << "webserv: " << e.what() << std::endl;
+            Logger::warn ( e.what() ).flush();
         }
+    }
+
+    if (mSockets.empty()) {
+        Logger::fatal ("No active listening Socket").flush();
+        std::exit(EXIT_FAILURE);
     }
 }
 
@@ -124,13 +126,16 @@ void WebServer::acceptNewClients()
 
 void    WebServer::handleClientRequest(Client* client, IRequest* request)
 {
+    Request*    req = static_cast<Request*>(request);
+    req->dump();
+
     mMux->remove(client);
 
     Result result = mServers->handle(*request);
 
     if (result.type == Result::RESPONSE)
     {
-        std::cout << "Result::RESPONSE" << std::endl;
+        Logger::debug ("Result::Response").flush();
         AResponse *response = static_cast<AResponse*>(result.response());
         client->setResponseHeaders(response);
         response->build();
@@ -145,7 +150,7 @@ void    WebServer::handleClientRequest(Client* client, IRequest* request)
     }
     else if (result.type == Result::PROXY_PAIR)
     {
-        std::cout << "Result::PROXY_PAIR" << std::endl;
+        Logger::debug ("Result::ProxyPair").flush();
         ProxyPair pair = result.proxyPair();
 
         client->status = Client::EXCHANGING;
@@ -167,7 +172,7 @@ void    WebServer::handleClientRequest(Client* client, IRequest* request)
     }
     else if (result.type == Result::UPLOAD)
     {
-        std::cout << "Result::UPLOAD" << std::endl;
+        Logger::debug ("Result::Upload").flush();
         Upload* upload = result.upload();
 
         upload->client = client;
@@ -230,12 +235,12 @@ void  WebServer::handleUploads()
             upload->handle();
             if (upload->done())
             {
-                std::cout << "upload done\n";
+                Logger::debug ("upload done").flush();
                 Client* client = static_cast<Client*>(upload->client);
                 mMux->remove(upload);
                 // mMux->add(client);
                 handleClientRequest(client, upload->getRequest());
-                std::cout << "upload request handled\n";
+                Logger::debug ("upload request handled").flush();
                 /*
                     IRequest *request = upload->getRequest();
 
@@ -276,7 +281,6 @@ void WebServer::readFromReadyProxyRequests()
 
         try
         {
-            // std::cout << "cgi request reading\n" << std::flush;
             req->read();
             // if (req->done())
             // {
@@ -303,8 +307,7 @@ void WebServer::readFromReadyProxyRequests()
         }
         catch (const RequestException &e)
         {
-            std::cout << "cgi request error " << e.what() << std::endl
-                      << std::flush;
+            Logger::debug ("cgi request error ")( e.what() ).flush();
             if (e.error == RequestException::CONNECTION_CLOSED)
             {
                 std::vector<Client *>::iterator itc = mClients.begin();
@@ -365,8 +368,7 @@ void WebServer::sendReadyProxyRequests()
         }
         catch (const std::exception &e)
         {
-            std::cout << "cgi sending error " << e.what() << std::endl
-                      << std::flush;
+            Logger::debug ("cgi sending error ")( e.what() ).flush();
 
             std::vector<Client *>::iterator itc = mClients.begin();
             while (itc != mClients.end())
@@ -425,19 +427,18 @@ void WebServer::readFromReadyProxyResponses()
     // request need to be removed
     // generate an error response if possible
     std::queue<IProxyResponse *> qpres = mMux->getReadyForReadingProxyResponses();
-    // std::cout << "read pres: " << qpres.size() << std::endl;
     while (qpres.size())
     {
         IProxyResponse *res = qpres.front();
         try
         {
-            std::cout << "cgi response reading\n" << std::flush;
+            Logger::debug ("cgi response reading").flush();
             res->read();
-            std::cout << "cgi response reading done." << std::endl;
+            Logger::debug ("cgi response reading done.").flush();
         }
         catch (const std::exception &e)
         {
-            std::cerr << "cgi response error " << e.what() << std::endl;
+            Logger::warn ("cgi response error ")( e.what() ).flush();
         }
 
         qpres.pop();
@@ -461,14 +462,13 @@ void WebServer::sendReadyProxyResponses()
     // request
     // response
     std::queue<IProxyResponse *> qpres = mMux->getReadyForWritingProxyResponses();
-    // std::cout << "write pres: " << qpres.size() << std::endl;
+    
     while (qpres.size())
     {
         IProxyResponse *res = qpres.front();
 
         try
         {
-            // std::cout << "cgi response sending\n" << std::flush;
             res->send();
             if (res->done() || res->error())
             {
@@ -480,7 +480,7 @@ void WebServer::sendReadyProxyResponses()
                     Client &client = **itc;
                     if (client.getSocketFd() == res->getSocketFd())
                     {
-                        std::cout << "response setting child free" << std::endl;
+                        Logger::debug ("response setting child free").flush();
                         client.activeProxyPair.setChildFree();
                         client.activeProxyPair.response = NULL;
                         client.status = Client::IDLE;
@@ -511,7 +511,7 @@ void WebServer::sendReadyProxyResponses()
         }
         catch (const std::exception &e)
         {
-            std::cout << "cgi response error " << e.what() << std::endl;
+            Logger::warn ("cgi response error ")( e.what() ).flush();
         }
 
         qpres.pop();

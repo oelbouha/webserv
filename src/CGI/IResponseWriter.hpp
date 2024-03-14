@@ -15,7 +15,11 @@ class IResponseWriter
 {
 public:
 	virtual		~IResponseWriter(){};
-	
+
+	virtual void		setHeader(const std::string& header) = 0;
+	virtual void		append(const std::string& data) = 0;
+	virtual int			write() = 0;
+	virtual bool		done() const = 0;
 
 };
 #endif

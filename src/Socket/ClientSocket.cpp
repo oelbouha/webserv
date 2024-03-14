@@ -138,11 +138,11 @@ void ClientSocket::dump()
     for (std::string::iterator it = s.begin(); it != s.end(); ++it)
     {
         if (*it != 10 && (*it < 32 || *it > 126))
-            std::cout << "▒";
+            Logger::debug ("▒");
         else
-            std::cout << *it;
+            Logger::debug (*it);
     }
-    std::cout << std::endl << std::flush;
+    Logger::debug.flush();
 }
 
 void ClientSocket::setNonBlocking()

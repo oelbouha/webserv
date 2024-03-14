@@ -196,8 +196,8 @@ void				Config::dump(int indent) const
 
 	while (iit != mInlineConfig.end())
 	{
-		std::cout << std::string(indent, '\t');
-		std::cout << iit->first << " : " << iit->second << std::endl;
+		Logger::debug (std::string(indent, '\t'))
+			(iit->first)(" : ")(iit->second).flush();
 		++iit;
 	}
 

@@ -90,7 +90,7 @@ void Client::makeRequest()
             status = Client::DISCONNECTED;
         }
         else {
-            std::cout << e.what() << std::endl;
+            Logger::warn (e.what()).flush();
         }
         delete req;
     } catch (const SocketException &e)

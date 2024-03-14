@@ -19,6 +19,8 @@
 #include "Utils.hpp"
 #include "ConfigException.hpp"
 
+#include "Logger.hpp"
+
 using std::map;
 using std::vector;
 using std::string;

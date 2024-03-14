@@ -116,13 +116,6 @@ Server*	ServerCluster::getMatchedServer(const IRequest &req)
 Result  ServerCluster::handle(IRequest& request)
 {
     Server* server = getMatchedServer(request);
-    // std::cout << "reqest: " 
-    //     << utils::ip(ntohl(request.getIncomingIP())) << " "
-    //     << request.getIncomingPort() << std::endl;
-
-    // std::cout << "match : " 
-    //     << utils::ip(ntohl(server->getIP())) << " "
-    //     << server->getPorts() << std::endl;
     return (server->handle(request));
 }
 

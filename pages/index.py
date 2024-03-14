@@ -1,3 +1,5 @@
+#!//usr/local/bin/python3
+
 body = '''
 <!DOCTYPE html>
 <html>
@@ -15,7 +17,6 @@ body = '''
 </html>
 '''
 
-print("HTTP/1.1 200 OK\r")
 print("content-type: text/html\r")
 print("content-length: ", end="")
 print(len(body), end="")

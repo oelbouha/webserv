@@ -87,7 +87,7 @@ namespace utils
 		return (ret);
 	}
 
-	std::string  	decode_uri(const string& uri)
+	std::string  	decode_url(const string& uri)
 	{
 		std::string decoded = uri;
 		size_t pos = 0;
@@ -102,6 +102,23 @@ namespace utils
 		return decoded;
 	}
 
+	std::string		encode_url(const std::string& url)
+	{
+		std::stringstream	ss;
+		ss << std::hex;
+
+		string allowed("-_.~");
+		for (string::const_iterator it = url.begin(); it != url.end(); ++it) {
+			char c = *it;
+			if (std::isalnum(c) || allowed.find(c) != string::npos) ss << c;
+			else {
+				ss << std::uppercase;
+				ss << "%" << std::setw(2) << static_cast<int>(c);
+				ss << std::nouppercase;
+			}
+		}
+		return ss.str();
+	}
 	//	Numbers
 	unsigned int	hex_to_uint(const std::string& str)
 	{
@@ -109,6 +126,16 @@ namespace utils
 		std::stringstream   ss;
 
 		ss << std::hex << str;
+		ss >> x;
+		return (x);
+	}
+	
+	std::string		uint_to_hex(uint n)
+	{
+		std::string       	x;   
+		std::stringstream   ss;
+
+		ss << std::hex << n;
 		ss >> x;
 		return (x);
 	}

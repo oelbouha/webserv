@@ -103,7 +103,7 @@ void Request::build()
     catch (const SocketException& e)
     {
         (void)e;
-        std::cout << "request build: socket exception: connection closed\n" << std::flush;
+        Logger::debug ("request build: socket exception: connection closed").flush();
         throw RequestException(RequestException::CONNECTION_CLOSED);
     }
 }
@@ -178,26 +178,20 @@ void Request::parseHeaderProperty(const std::string &aHeaderLine) {
     mHeaders[key] = value;
 }
 
-void Request::dump(bool colors) const {
-    using std::cout;
-    using std::endl;
-    using std::flush;
+void Request::dump(bool colors) const
+{
+    if (colors)
+        Logger::debug ("\e[32m");
 
-    {
-        if (colors)
-            cout << "\e[32m";
+    Logger::debug (mMethod)(" ");
+    Logger::debug (mUri)(" ");
+    Logger::debug (mQuery)(" ");
+    Logger::debug ("HTTP/")(mHttpVersion)("\e[0m").flush();
 
-        cout << mMethod << " ";
-        cout << mUri << " ";
-        cout << mQuery << " ";
-        cout << "HTTP/" << mHttpVersion << "\e[0m\n";
+    string_string_map::const_iterator it = mHeaders.begin();
+    for (; it != mHeaders.end(); ++it)
+        Logger::debug.l().w(20, it->first)(": ")(it->second).flush();
 
-        string_string_map::const_iterator it = mHeaders.begin();
-        for (; it != mHeaders.end(); ++it) {
-            std::cout << std::left << std::setw(20) << it->first << ": "
-                << it->second << std::endl;
-        }
-    }
     // cout << "----- body -----\n" << flush;
     // std::string body = mReader->read();
     // cout << body << endl << flush;

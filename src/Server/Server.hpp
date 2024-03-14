@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/06 22:14:20 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/03/14 12:37:09 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@
 #include "src/Interfaces/IServer.hpp"
 #include "src/Interfaces/IHandler.hpp"
 #include "Utils.hpp"
+
+#include "Logger.hpp"
 
 class Route;
 

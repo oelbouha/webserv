@@ -6,6 +6,9 @@
         <title>Forms</title>
 
         <style>
+            * {
+                box-sizing: border-box;
+            }
             html {
                 background: #242424;
                 color: white;
@@ -15,14 +18,20 @@
 
             body {
                 width: 1960px;
+                max-width: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
             }
             main {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 20px;
+                /* display: grid; */
+                /* grid-template-columns: 1fr 1fr 1fr; */
+                /* gap: 20px; */
+                display: flex;
+                flex-direction: column;
+                width: 800px;
+                max-width: 100%;
+                padding: 12px;
             }
             .form {
                 display: flex;
@@ -30,6 +39,8 @@
                 background: #595959;
                 padding: 16px;
                 border-radius: 8px;
+
+                margin-bottom: 20px;
             }
 
             .form > label {

@@ -25,6 +25,9 @@
 
 #include "src/Socket/SocketException.hpp"
 
+
+#include "Logger.hpp"
+
 class Client : public IClient
 {
     int             mIncomingIP;

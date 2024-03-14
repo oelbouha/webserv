@@ -1,15 +1,7 @@
 #!//usr/local/bin/python3
 
-import os
-import sys
-test = "x-test: " + os.environ['URI']
 
-print("\n/**********************************************************", file=sys.stderr)
-print("URI:" + os.environ['URI'], file=sys.stderr)
-print("**********************************************************/\n", file=sys.stderr)
-
-body = '''
-<!DOCTYPE html>
+body = '''<!DOCTYPE html>
 <html>
     <head>
         <title>cgi test page</title>
@@ -22,15 +14,12 @@ body = '''
             <img src="/index.jpeg">
         </ul>
     </body>
-</html>
-'''
+</html>'''
 
 # print("Status: 201 Created\r")
 print("content-type: text/html\r")
-print("set-cookie: sessionid=thisissessionid\r");
-print("content-length: ", end="")
-print(len(body), end="")
 print("\r")
+# print(len(body), end="")
 
 print("\r")
 print(body)

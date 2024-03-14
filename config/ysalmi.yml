@@ -20,10 +20,10 @@ cluster:
   server:
     root: /Users/ysalmi/code/in_progress/webserv/pages
     # upload: /Users/ysalmi/code/in_progress/webserv/upload
-    host: localhost
+    host: 0.0.0.0
     ports:
       - 8000
-      - 8080
+      # - 8080
     error_page:
       file: /50x.html
       codes:
@@ -75,14 +75,15 @@ cluster:
         - POST
         - DELETE
         - GET
-  
+
+ 
   server:
-    host: 10.30.252.175
+    host: 10.30.252.176
     index: index.html
     root: /Users/ysalmi/code/in_progress/webserv/pages
     upload: /Users/ysalmi/code/in_progress/webserv/upload
     ports:
-      - 8058
+      - 8001
     error_page:
       file: /40x.html
       codes:

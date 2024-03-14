@@ -93,10 +93,8 @@ IClientSocket *ServerSocket::accept() const
 
     int id = ::accept(mID, (struct sockaddr *)&addr, (socklen_t *)&addr_len);
 
-    std::cout << "accepted: " << utils::ip(ntohl(addr.sin_addr.s_addr))
-        << "::" << ntohs(addr.sin_port) << " on " << utils::ip(ntohl(mIP))
-        << std::endl
-        << std::flush;
+    Logger::info ("Accepted: ")( utils::ip(ntohl(addr.sin_addr.s_addr)) )
+        (":")( ntohs(addr.sin_port) )(" on ")( utils::ip(ntohl(mIP)) ).flush();
 
     return (new ClientSocket(id));
 }

@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/07 15:59:09 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/14 12:34:53 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ void	Upload::handle()
 	if (firstRead)
 	{
 		if (std::strncmp(boundry.c_str(), buff.c_str(), boundry.length()) != 0)
-			std::cout << " not a valid boundry :" << buff.substr(0, boundry.length()) << ":" << std::endl;
+			Logger::debug (" not a valid boundry :")(buff.substr(0, boundry.length())).flush();
 		buff.erase(0, boundry.length());
 		firstRead = false;
 	}

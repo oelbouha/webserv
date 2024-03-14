@@ -158,7 +158,6 @@ void	KqueueMultiplexer::wait(unsigned long int time){
   	timeout.tv_nsec = static_cast<long>(time % 1000000);
 	
 	ReadyEvents = kevent(Kq, NULL, 0, events, MAX_EVENTS, &timeout);
-    // std::cout << "ReadyEvents -> " << ReadyEvents << std::endl;
 }
 
 void	KqueueMultiplexer::prepareClients(){

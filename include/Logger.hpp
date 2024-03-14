@@ -11,31 +11,73 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
+
 #include <iostream>
-#include "ILogger.hpp"
+#include <iomanip>
+#include <string>
+#include <sstream>
 
-class Logger: public ILogger
-{
-    static Logger*          mInstance;
-    logger::LogLevel        mLogLevel;
-    logger::LogLevel        mNextMsgLogLevel;
-    std::ostream&           mStream;
+#include <unistd.h>
 
-    Logger();
-    Logger( const logger::LogLevel& aLevel );
+/*
+Logger::info.log(x).log(y).log(z).end();
+*/
+
+
+class Logger {
+public:
+    enum Level {
+        DEBUG,
+        INFO,
+        WARNING,
+        ERROR,
+        FATAL
+    };
+    class File;
+
+    static  Level   level;
+    static  File    debug;
+    static  File    info;
+    static  File    warn;
+    static  File    error;
+    static  File    fatal;
+
+
+
+
+    class   File {
+        Level               msg_level;
+        int                 fd;
+        std::ostringstream  ss;
+        std::string         slvl;
+
+        File& operator=(const File& file);
+        File(const File& file);
     public:
+        File(Level lvl, int fd);
+        ~File();
 
-        static ILogger& getInstance( const logger::LogLevel& aLevel = logger::warning );
-        void            setLogLevel( const logger::LogLevel& aLevel );
+        template<typename T>
+        File&   operator()(const T& msg) {
+            if (level > msg_level) return (*this);
 
-        Logger&         operator<<(const std::string& aMessage);
-        Logger&         operator<<(const logger::LogLevel& aLevel);
-        Logger&         operator<<(const logger::endl_t& endl);
-        Logger&         operator<<(const logger::flush_t& flush);
+            ss << msg;
+            return (*this);
+        }
 
-        ~Logger();
+        File&   r();
+        File&   l();
 
+        template<typename T>
+        File&   w(uint n, const T& msg) {
+            if (level > msg_level) return (*this);
+
+            ss << std::setw(n) << msg;
+            return (*this);
+        }
+
+        void    flush();
+    };
 };
 
-#define INFO(x) Logger::getInstance() << logger::info << x
 #endif

@@ -28,6 +28,7 @@
 #include "ClientSocket.hpp"
 
 #include "Utils.hpp"
+#include "Logger.hpp"
 
 class ServerSocket : public IServerSocket {
   int             mID;
