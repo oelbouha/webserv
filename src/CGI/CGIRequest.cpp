@@ -9,7 +9,7 @@
 
 #include "CGIRequest.hpp"
 
-CGIRequest::CGIRequest(int fd, IRequest& req) :
+CGIRequest::CGIRequest(int fd, Request& req) :
     mOutputFd(fd),
     mRequest(req)
 {

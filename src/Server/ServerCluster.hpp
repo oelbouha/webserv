@@ -15,42 +15,39 @@
 
 #include <iostream>
 #include <utility>
+#include <cstring>
 
-// #include "src/Response/Response.hpp"
+
+
+#include "src/Server/Server.hpp"
+#include "src/Server/Result.hpp"
+#include "src/Server/ErrorPage.hpp"
 #include "src/Request/Request.hpp"
-
 #include "src/CGI/ProxyPair.hpp"
-
 #include "src/CGI/CGIResponse.hpp"
 #include "src/CGI/CGIRequest.hpp"
-
 #include "src/DataTypes/Config.hpp"
-#include "src/Server/Server.hpp"
-#include "src/Server/ErrorPage.hpp"
 
-#include "Result.hpp"
 
-#include <cstring>
 
 
 class ServerCluster
 {
 	std::vector<Server *>	servers;
 	ErrorPage				error_pages;
-	unsigned int 			KeepAlive;
 
 	ServerCluster( const ServerCluster& s );
 	ServerCluster&	operator=( const ServerCluster& s );
 
 	bool			isServerMatched(const Server&, unsigned int ip, unsigned int port);
 	void			SetupServers(Config* config);
-	Server*			getMatchedServer(const IRequest &);
+	Server*			getMatchedServer(const Request &);
 
 public:
 	ServerCluster(Config *config);
 	~ServerCluster();
 
-	Result  			handle(IRequest& request);
+	Result  			handle(Request& request);
 
 	std::vector<std::pair<unsigned int, unsigned int> >	getServersIPPortPairs() const;
 };

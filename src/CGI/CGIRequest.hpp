@@ -14,21 +14,28 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "src/Interfaces/IRequest.hpp"
+#include "src/Interfaces/IClient.hpp"
+
+#include "src/Request/Request.hpp"
 
 #include "IProxyRequest.hpp"
 
 class CGIRequest : public IProxyRequest
 {
     int             mOutputFd;
-    IRequest&       mRequest; 
+    Request&        mRequest; 
     std::string     mBuffer;
+
+public:
+    IClient*        client;
+
+public:
 
 	CGIRequest( const CGIRequest& d);
 	CGIRequest&	operator=( const CGIRequest& d );
 
 public:
-	CGIRequest(int fd, IRequest& req);
+	CGIRequest(int fd, Request& req);
 	~CGIRequest();
 
     int     getOutputFd() const;

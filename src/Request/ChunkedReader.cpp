@@ -4,13 +4,13 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ChunkedRequestReader.cpp 
+ *			File: ChunkedReader.cpp 
  */
 
-#include "ChunkedRequestReader.hpp"
+#include "ChunkedReader.hpp"
 #define CRLF  "\r\n"
 
-ChunkedRequestReader::ChunkedRequestReader(IClientSocket& sock):
+ChunkedReader::ChunkedReader(IClientSocket& sock):
     mSocket(sock),
     mBuffer(CRLF),
     mContentLength(0),
@@ -20,14 +20,14 @@ ChunkedRequestReader::ChunkedRequestReader(IClientSocket& sock):
     mTrailer(false)
 {}
 
-size_t  ChunkedRequestReader::getContentLength() const
+size_t  ChunkedReader::getContentLength() const
 {
     return (mContentLength);
 }
 
 /**/
 
-std::string ChunkedRequestReader::read()
+std::string ChunkedReader::read()
 {
     if (mEof)
         return "";
@@ -102,7 +102,7 @@ std::string ChunkedRequestReader::read()
 }
 
 
-bool    ChunkedRequestReader::parseChunkHeader(std::string& buffer)
+bool    ChunkedReader::parseChunkHeader(std::string& buffer)
 {
     size_t  pos = buffer.find(CRLF);
 
@@ -128,7 +128,7 @@ bool    ChunkedRequestReader::parseChunkHeader(std::string& buffer)
     return (true);
 }
 
-bool	ChunkedRequestReader::eof() const
+bool	ChunkedReader::eof() const
 {
     return (mEof);
 }

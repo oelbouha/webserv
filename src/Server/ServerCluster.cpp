@@ -81,12 +81,12 @@ bool    ServerCluster::isServerMatched(const Server& server, unsigned int ip, un
     return false;
 }
 
-Server*	ServerCluster::getMatchedServer(const IRequest &req)
+Server*	ServerCluster::getMatchedServer(const Request &req)
 {
     std::vector<Server *>           matchedServers;
 
     for (unsigned int i = 0; i < servers.size(); ++i)
-        if (isServerMatched(*servers[i], req.getIncomingIP(), req.getIncomingPort()))
+        if (isServerMatched(*servers[i], req.incomingIP, req.incomingPort))
             matchedServers.push_back(servers[i]);
 
     if (matchedServers.size() > 1)
@@ -113,7 +113,7 @@ Server*	ServerCluster::getMatchedServer(const IRequest &req)
     return (matchedServers.front());
 }
 
-Result  ServerCluster::handle(IRequest& request)
+Result  ServerCluster::handle(Request& request)
 {
     Server* server = getMatchedServer(request);
     return (server->handle(request));

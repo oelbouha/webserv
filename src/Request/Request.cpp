@@ -17,15 +17,15 @@
 Request::Request(IClientSocket &aSocket, int aIncomingIP, int aIncomingPort):
     mSocket(aSocket),
     mReader(NULL),
-    mIncommingIP(aIncomingIP),
-    mIncommingPort(aIncomingPort)
+    incomingIP(aIncomingIP),
+    incomingPort(aIncomingPort)
 {}
 
 Request::Request(const Request &r) :
     mSocket(r.mSocket),
     mReader(NULL),
-    mIncommingIP(r.mIncommingIP),
-    mIncommingPort(r.mIncommingPort),
+    incomingIP(r.incomingIP),
+    incomingPort(r.incomingPort),
     mMethod(r.mMethod),
     mUri(r.mUri),
     mQuery(r.mQuery),
@@ -60,10 +60,6 @@ const IClientSocket &Request::getSocket() const { return mSocket; }
 
 int Request::getSocketFd() const { return mSocket.getSocketFd(); }
 
-unsigned int Request::getIncomingIP() const { return mIncommingIP; }
-
-unsigned int Request::getIncomingPort() const { return mIncommingPort; }
-
 const std::string&  Request::getMethod() const { return (mMethod); }
 
 const std::string&  Request::getURI() const { return (mUri); }
@@ -93,11 +89,11 @@ void Request::build()
 
         string_string_map::iterator te = mHeaders.find("transfer-encoding");
         if (te != mHeaders.end() && te->second == "chunked")
-            mReader = new ChunkedRequestReader(mSocket);
+            mReader = new ChunkedReader(mSocket);
         else {
             string_string_map::iterator cl = mHeaders.find("content-length");
             unsigned int content_length = cl==mHeaders.end()?0:utils::string_to_uint(cl->second);
-            mReader = new DefaultRequestReader(mSocket, content_length);
+            mReader = new DefaultReader(mSocket, content_length);
         }
     }
     catch (const SocketException& e)

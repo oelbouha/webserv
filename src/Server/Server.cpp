@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/14 12:42:04 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/15 06:55:53 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ bool	Server::findBestMatch(const string& reqURI, string routeURI)
     return (false);
 }
 
-Route*	Server::getMatchedRoute(const IRequest& req)
+Route*	Server::getMatchedRoute(const Request& req)
 {
 	Route* ret = NULL;
     const string& reqUri = req.getURI();
@@ -129,7 +129,7 @@ Route*	Server::getMatchedRoute(const IRequest& req)
     return (ret);
 }
 
-Result  Server::handle(IRequest& request)
+Result  Server::handle(Request& request)
 {
 	if (isRequestProperlyStructured(request) == false)
     {
@@ -157,7 +157,7 @@ Result  Server::handle(IRequest& request)
 
 
 
-bool	Server::isRequestProperlyStructured(const IRequest &req)
+bool	Server::isRequestProperlyStructured(const Request &req)
 {
     const string& transfer_encoding  = req.getHeader("transfer-encoding");
     if (!transfer_encoding.empty() && transfer_encoding != "chunked")

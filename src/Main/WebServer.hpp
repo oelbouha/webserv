@@ -26,7 +26,6 @@
 #include "src/Multiplexer/SelectMultiplexer.hpp"
 #include "src/Client/Client.hpp"
 #include "src/Request/Request.hpp"
-// #include "src/Response/Response.hpp"
 #include "src/Socket/ClientSocket.hpp"
 #include "src/Socket/ServerSocket.hpp"
 #include "src/DataTypes/ConfigException.hpp"
@@ -57,7 +56,7 @@ private:
     void  readFromReadyProxyResponses();
     void  sendReadyProxyResponses();
 
-    void  handleClientRequest(Client* client, IRequest* request);
+    void  handleClientRequest(Client* client, Request* request);
     void  disconnectClient(Client& client);
     
     void  cleanup();

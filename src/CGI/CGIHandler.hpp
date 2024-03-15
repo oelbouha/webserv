@@ -16,20 +16,20 @@
 
 #include <unistd.h>
 
-#include "src/Interfaces/IRequest.hpp"
-
 #include "IProxyHandler.hpp"
 #include "ProxyPair.hpp"
 #include "CGIRequest.hpp"
 #include "CGIResponse.hpp"
 
+#include "src/Request/Request.hpp"
+
 class CGIHandler
 {
 private:
-	static std::vector<std::string>	compileEnv(IRequest& req);
+	static std::vector<std::string>	compileEnv(Request& req);
 	CGIHandler();
 public:
 
-    static ProxyPair   handle(IRequest* request, const std::string& path);
+    static ProxyPair   handle(Request* request, const std::string& path);
 };
 #endif

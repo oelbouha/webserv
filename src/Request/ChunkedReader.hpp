@@ -4,12 +4,12 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ChunkedRequestReader.hpp 
+ *			File: ChunkedReader.hpp 
  */
 
 #pragma once
-#ifndef CHUNKEDREQUESTREADER_HPP
-#define CHUNKEDREQUESTREADER_HPP
+#ifndef ChunkedReader_HPP
+#define ChunkedReader_HPP
 
 #include <iostream>
 #include <string>
@@ -22,7 +22,7 @@
 
 #include "Utils.hpp"
 
-class ChunkedRequestReader : public IRequestReader
+class ChunkedReader : public IRequestReader
 {
 	IClientSocket&	mSocket;
 	std::string		mBuffer;
@@ -37,7 +37,7 @@ class ChunkedRequestReader : public IRequestReader
 	bool			parseChunkHeader(std::string& buffer);
 
 public:
-	ChunkedRequestReader(IClientSocket& sock);
+	ChunkedReader(IClientSocket& sock);
 
 	std::string	read();
 	bool		eof() const;

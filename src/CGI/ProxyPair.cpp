@@ -36,7 +36,6 @@ ProxyPair&	ProxyPair::operator=( const ProxyPair& p )
     {
         request = p.request;
         response = p.response;
-        // client = p.client;
         mPID = p.mPID;
     }
 	return (*this);

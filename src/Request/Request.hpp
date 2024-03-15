@@ -17,16 +17,16 @@
 #include <sstream>
 #include <string>
 
-#include "IClientSocket.hpp"
-#include "IRequest.hpp"
-#include "RequestException.hpp"
-#include "Utils.hpp"
+#include "src/Interfaces/IClientSocket.hpp"
+#include "src/Interfaces/IRequest.hpp"
 
-#include "DefaultRequestReader.hpp"
-#include "ChunkedRequestReader.hpp"
+#include "src/Request/DefaultReader.hpp"
+#include "src/Request/ChunkedReader.hpp"
+#include "src/Request/RequestException.hpp"
 
 #include "src/Socket/SocketException.hpp"
 
+#include "Utils.hpp"
 #include "Types.hpp"
 #include "Logger.hpp"
 
@@ -35,9 +35,11 @@ class Request : public IRequest
     IClientSocket&  mSocket;
     IRequestReader* mReader;
 
-    int             mIncommingIP;
-    int             mIncommingPort;
+public:
+    const int             incomingIP;
+    const int             incomingPort;
 
+private:
     std::string         mMethod;
     std::string         mUri;
     std::string         mQuery;
@@ -53,8 +55,6 @@ public:
     const IClientSocket&    getSocket() const;
     int                     getSocketFd() const;
 
-    unsigned int        getIncomingIP() const;
-    unsigned int        getIncomingPort() const;
     const std::string&  getMethod() const;
     const std::string&  getURI() const;
     const std::string&  getHttpVersion() const;

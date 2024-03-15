@@ -95,6 +95,8 @@ IClientSocket *ServerSocket::accept() const
 
     Logger::info ("Accepted: ")( utils::ip(ntohl(addr.sin_addr.s_addr)) )
         (":")( ntohs(addr.sin_port) )(" on ")( utils::ip(ntohl(mIP)) ).flush();
+    Logger::debug ("Accepted: ")( utils::ip(ntohl(addr.sin_addr.s_addr)) )
+        (":")( ntohs(addr.sin_port) )(" on ")( utils::ip(ntohl(mIP)) ).flush();
 
     return (new ClientSocket(id));
 }

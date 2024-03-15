@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/14 15:04:19 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/15 06:54:18 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,13 +64,13 @@ public:
 	const ErrorPage& 	getErrorPage() const;
 	bool				IsMethodAllowed(const std::string& method);
 
-	Result  			handle(IRequest&);
+	Result  			handle(Request&);
 
 private:
-	IResponse*  			makeFileResponseFromPath(const IRequest& request, const std::string& path);
-	IResponse*				handleRequestToFile(const IRequest&);
-	Result					handleRequestToCgi(IRequest&);
-	IResponse*				makeDirectoryListingResponse(const IRequest& request, const std::string& path);
+	IResponse*  			makeFileResponseFromPath(const Request& request, const std::string& path);
+	IResponse*				handleRequestToFile(const Request&);
+	Result					handleRequestToCgi(Request&);
+	IResponse*				makeDirectoryListingResponse(const Request& request, const std::string& path);
 	std::vector<DirLisingItem> 	ReadDirectory(const std::string& path);
 	bool					isRequestToCgi(const std::string & );
 };

@@ -4,23 +4,23 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: DefaultRequestReader.cpp 
+ *			File: DefaultReader.cpp 
  */
 
-#include "DefaultRequestReader.hpp"
+#include "DefaultReader.hpp"
 
-DefaultRequestReader::DefaultRequestReader(IClientSocket& sock, size_t contentLength):
+DefaultReader::DefaultReader(IClientSocket& sock, size_t contentLength):
     mSocket(sock),
     mContentLength(contentLength),
     mRead(0)
 {}
 
-size_t  DefaultRequestReader::getContentLength() const
+size_t  DefaultReader::getContentLength() const
 {
     return (mContentLength);
 }
 
-std::string	DefaultRequestReader::read()
+std::string	DefaultReader::read()
 {
     if (eof())
         return ("");
@@ -32,7 +32,7 @@ std::string	DefaultRequestReader::read()
     return (ret);
 }
 
-bool	DefaultRequestReader::eof() const
+bool	DefaultReader::eof() const
 {
     return (mRead == mContentLength);
 }

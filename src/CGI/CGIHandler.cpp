@@ -12,7 +12,7 @@
 CGIHandler::CGIHandler()
 {}
 
-ProxyPair    CGIHandler::handle(IRequest* request, const std::string& path)
+ProxyPair    CGIHandler::handle(Request* request, const std::string& path)
 {
     std::string file = path;
     // setting up pipes
@@ -68,7 +68,7 @@ ProxyPair    CGIHandler::handle(IRequest* request, const std::string& path)
     return (ret);
 }
 
-std::vector<std::string>    CGIHandler::compileEnv(IRequest& req)
+std::vector<std::string>    CGIHandler::compileEnv(Request& req)
 {
     std::vector<std::string> env;
     // GATEWAY_INTERFACE
@@ -80,7 +80,7 @@ std::vector<std::string>    CGIHandler::compileEnv(IRequest& req)
     // SERVER_NAME
     env.push_back("SERVER_NAME=" + req.getHeader("host"));
     // SERVER_PORT
-    env.push_back("SERVER_PORT=" + utils::to_string(req.getIncomingPort()));
+    env.push_back("SERVER_PORT=" + utils::to_string(req.incomingPort));
     // REQUEST_METHOD
     env.push_back("REQUEST_METHOD=" + req.getMethod());
     // REQUEST_URI

@@ -27,8 +27,6 @@ CGIResponse::CGIResponse( const CGIResponse& p ):
 
 CGIResponse::~CGIResponse()
 {
-	// std::cout << mInputFd << " : closed\n";
-	// std::cout << mFile << " : closed\n";
 	::close(mInputFd);
 	::close(mFile);
 }
@@ -78,17 +76,17 @@ void	CGIResponse::read()
 			
 			bool	location = mResponseHeaders.find("location") != mResponseHeaders.end();
 			string_string_map::iterator it = mResponseHeaders.find("content-length");
+			// TODO: location with body (chunked)
 			if (location || it != mResponseHeaders.end()) {
 				if (!location)
 					mWriter = new DefaultWriter(mSocket, utils::string_to_uint(it->second));
 				else
 					mWriter = new DefaultWriter(mSocket, 0);
-				build();
 			} else {
 				mWriter = new ChunkedWriter(mSocket);
 				mResponseHeaders["transfer-encoding"] = "chunked";
-				build();
 			}
+			build();
 			
 			mWriter->setHeader(mHeader);
 			mWriter->append(body);

@@ -22,6 +22,7 @@
 
 #include "src/Interfaces/IClientSocket.hpp"
 #include "src/Interfaces/IProxyResponse.hpp"
+#include "src/Interfaces/IClient.hpp"
 #include "src/CGI/IResponseWriter.hpp"
 #include "src/CGI/DefaultWriter.hpp"
 #include "src/CGI/ChunkedWriter.hpp"
@@ -35,7 +36,6 @@ class CGIResponse : public IProxyResponse
     int                     mInputFd;
     const IClientSocket&    mSocket;
     std::string             mHeader;
-    // std::string             mBuffer;
     bool                    mEof;
     int                     mFile;
     bool                    mHeaderComplete;
@@ -44,7 +44,10 @@ class CGIResponse : public IProxyResponse
 
     IResponseWriter*        mWriter;
 
+public:
+    IClient*                client;
 
+private:
 	CGIResponse( const CGIResponse& p);
 	CGIResponse&	operator=( const CGIResponse& p );
 

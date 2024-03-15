@@ -62,16 +62,16 @@ bool    Client::hasRequest() const
 
 bool    Client::hasTimedOut() const
 {
-    if (status != Client::IDLE)
+    if (status != Client::IDLE && status != Client::CONNECTED)
         return false;
-        
+    
     long long inactiveTime = std::difftime(std::time(0), lastActivityEnd);
     return (inactiveTime >= Client::KeepAliveTimeout);
 }
 
 void Client::makeRequest()
 {
-    IRequest*   req;
+    Request*   req;
     try
     {
         req = new Request(*mSocket, mIncomingIP, mIncomingPort);
@@ -101,16 +101,22 @@ void Client::makeRequest()
     }
 }
 
-IRequest *Client::getRequest()
+Request *Client::getRequest()
 {
-  IRequest *ret = mRequest;
-  mRequest = NULL;
-  return (ret);
+    Request *ret = mRequest;
+    mRequest = NULL;
+    return (ret);
 }
 
 bool            Client::isKeptAlive() const
 {
     return status != Client::IDLE || mKeepAlive;
+}
+
+void            Client::resetTimeout()
+{
+    if (mKeepAlive)
+        lastActivityEnd = std::time(NULL);
 }
 
 void              Client::setResponseHeaders(IResponse* res) const

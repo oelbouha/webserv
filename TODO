@@ -1,0 +1,7 @@
+TODO: handle cgi local redirect
+TODO: handle response timeout
+TODO: handle cgi request/response timeout
+TODO: handle cgi error pages properly
+TODO: handle exception properly (there are some unhandled exceptions)
+TODO: handle max body size
+

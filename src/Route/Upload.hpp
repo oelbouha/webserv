@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:19 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/02/07 14:35:50 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/15 06:58:34 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ public:
 
 	void 			handle();
 	bool			done() const;
-	IRequest*		getRequest();
+	Request*		getRequest();
 	int				getSocketFd() const;
 
 

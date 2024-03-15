@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/14 12:34:53 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/15 06:57:22 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,7 @@ int	Upload::getSocketFd() const
 	return request->getSocketFd();
 }
 
-IRequest*		Upload::getRequest()
+Request*		Upload::getRequest()
 {
 	Request *req = new BufferRequest(*static_cast<Request*>(request), body);
     req->setHeader("x-upload", "false");

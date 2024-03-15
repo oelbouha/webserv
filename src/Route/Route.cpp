@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/14 13:29:09 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/15 06:54:02 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ std::vector<DirLisingItem>	Route::ReadDirectory(const std::string& path)
 	return list;
 }
 
-IResponse*			Route::makeDirectoryListingResponse(const IRequest& request, const std::string& path)
+IResponse*			Route::makeDirectoryListingResponse(const Request& request, const std::string& path)
 {	
 	std::vector<DirLisingItem> fileList = ReadDirectory(path);
 	
@@ -117,7 +117,7 @@ IResponse*			Route::makeDirectoryListingResponse(const IRequest& request, const 
 	return response;
 }
 
-IResponse*  		Route::makeFileResponseFromPath(const IRequest& request, const std::string& path) {
+IResponse*  		Route::makeFileResponseFromPath(const Request& request, const std::string& path) {
 	try
 	{
 		IResponse * response = new FileResponse(request.getSocket());
@@ -134,7 +134,7 @@ IResponse*  		Route::makeFileResponseFromPath(const IRequest& request, const std
 	}
 }
 
-IResponse*  		Route::handleRequestToFile(const IRequest& request)
+IResponse*  		Route::handleRequestToFile(const Request& request)
 {
 	std::string path = getAbsolutePath(request.getURI());
 
@@ -169,7 +169,7 @@ IResponse*  		Route::handleRequestToFile(const IRequest& request)
 	return makeFileResponseFromPath(request, path);
 }
 
-Result  			Route::handleRequestToCgi(IRequest& request)
+Result  			Route::handleRequestToCgi(Request& request)
 {
 	std::string path = getAbsolutePath(request.getURI());
 	
@@ -207,7 +207,7 @@ std::string 		Route::getAbsolutePath(std::string requri) {
 	return (root + requri);
 }
 
-Result  			Route::handle(IRequest& request)
+Result  			Route::handle(Request& request)
 {	
 	if (! IsMethodAllowed(request.getMethod()))
 		return (Result(error_pages.build(request, 405)));

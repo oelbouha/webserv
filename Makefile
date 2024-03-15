@@ -56,8 +56,8 @@ SOCKET_COMPONENT := Socket/ClientSocket.cpp \
 	Socket/SocketException.cpp
 
 REQUEST_COMPONENT := Request/Request.cpp \
-	Request/DefaultRequestReader.cpp \
-	Request/ChunkedRequestReader.cpp \
+	Request/DefaultReader.cpp \
+	Request/ChunkedReader.cpp \
 	Request/BufferRequest.cpp \
 	Request/RequestException.cpp
 

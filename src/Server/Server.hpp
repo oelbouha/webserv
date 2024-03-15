@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/14 13:46:17 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/15 06:56:10 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ class Server
 	bool							is_default;
 	
 	bool			findBestMatch(const string& , string );
-	Route*			getMatchedRoute(const IRequest& req);
+	Route*			getMatchedRoute(const Request& req);
 
-	bool			isRequestProperlyStructured(const IRequest &);
+	bool			isRequestProperlyStructured(const Request &);
 	bool			containsValidCharacters(string uri);
 
 	
@@ -70,7 +70,7 @@ public:
 	const ErrorPage& 					getErrorPage() const;
 
 	
-	Result		handle(IRequest& );
+	Result		handle(Request& );
 };
 
 #endif
