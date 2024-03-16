@@ -122,7 +122,7 @@ void WebServer::acceptNewClients()
 
 void WebServer::handleClientRequest(Client* client, Request* request)
 {
-    // request->dump();
+    request->dump();
     mMux->remove(client);
 
     Result result = mServers->handle(*request);

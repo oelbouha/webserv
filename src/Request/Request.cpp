@@ -18,7 +18,8 @@ Request::Request(IClientSocket &aSocket, int aIncomingIP, int aIncomingPort):
     mSocket(aSocket),
     mReader(NULL),
     incomingIP(aIncomingIP),
-    incomingPort(aIncomingPort)
+    incomingPort(aIncomingPort),
+    error(false)
 {}
 
 Request::Request(const Request &r) :
@@ -26,6 +27,7 @@ Request::Request(const Request &r) :
     mReader(NULL),
     incomingIP(r.incomingIP),
     incomingPort(r.incomingPort),
+    error(false),
     mMethod(r.mMethod),
     mUri(r.mUri),
     mQuery(r.mQuery),
@@ -77,15 +79,8 @@ const std::string&  Request::getHeader(const std::string &aKey) const
 }
 
 size_t  Request::getContentLength() const 
-{ 
-    return (mReader->getContentLength());
-}
-
-void    Request::readHeader()
 {
-    mBuffer = mSocket.readHeaderOnly();
-    if (mBuffer.empty())
-        throw RequestException("Incomplete Header");
+    return (mReader->getContentLength());
 }
 
 void Request::build()
@@ -108,17 +103,14 @@ void Request::build()
             mReader = new DefaultReader(mSocket, content_length);
         }
     }
-    catch (const SocketException& e)
-    {
-        throw RequestException(RequestException::CONNECTION_CLOSED);
-    }
     catch (const std::exception&)
     {
-        throw RequestException(RequestException::BAD_REQUEST);
+        error = true;
     }
 }
 
-std::string Request::read() {
+std::string Request::read()
+{
     return (mReader->read());
 }
 
@@ -129,7 +121,6 @@ bool      Request::done() const
 
 void Request::parse()
 {
-    // Logger::debug ("Request buffer: ")(mBuffer).flush();
     std::istringstream ss(mBuffer);
     std::string line;
 

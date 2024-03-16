@@ -10,8 +10,7 @@
 #include "RequestException.hpp"
 
 RequestException::RequestException() :
-    mMessage("Request Exception"),
-    error(DEFAULT)
+    mMessage("Request Exception")
 {
     Logger::debug (mMessage).flush();
 }

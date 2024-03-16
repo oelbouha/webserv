@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/16 11:13:18 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/16 11:47:27 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,7 +210,10 @@ bool				Route::isRequestToCgi(const std::string & aUri)
 }
 
 Result  			Route::handle(Request& request)
-{	
+{
+	if (request.error)
+		return (Result(error_pages.build(request, 400)));
+		
 	if (! isMethodAllowed(request.getMethod()))
 		return (Result(error_pages.build(request, 405)));
 	

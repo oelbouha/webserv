@@ -24,13 +24,12 @@ class RequestException : public std::exception {
 public:
   enum Error {
       CONNECTION_CLOSED,
-      BAD_REQUEST,
-      DEFAULT
+      BAD_REQUEST
   };
 
 public:
   RequestException();
-  RequestException(const std::string& aMessage, Error error = DEFAULT);
+  RequestException(const std::string& aMessage, Error error = BAD_REQUEST);
   RequestException(Error error);
 
   ~RequestException() throw();

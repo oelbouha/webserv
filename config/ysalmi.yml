@@ -30,7 +30,7 @@ cluster:
         - 500
         - 501
     error_page:
-      file: /4xxx.html
+      file: /4xx.html
       codes:
         - 418
         - 404
