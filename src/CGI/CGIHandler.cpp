@@ -62,7 +62,7 @@ ProxyPair    CGIHandler::handle(Request* request, const std::string& path)
     close(output[1]);
 
     IProxyRequest*  req = new CGIRequest(input[1], *request);
-    IProxyResponse* res = new CGIResponse(output[0], request->getSocket());
+    IProxyResponse* res = new CGIResponse(output[0], request);
     ProxyPair      ret(pid, req, res);
     
     return (ret);

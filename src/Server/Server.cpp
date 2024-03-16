@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/15 06:55:53 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/16 08:15:26 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,17 +71,9 @@ Server::Server(Config& serverConfig, ErrorPage& pages) :
 
 const std::vector<unsigned int>& Server::getPorts() const  { return ports; }
 
-unsigned int Server::getStatusCode() const  { return statusCode; }
-
 unsigned int Server::getIP() const  { return ip; }
 
 const std::vector<string>& Server::getNames() const  { return names; }
-
-const string& Server::getRoot() const  { return root; }
-
-const string& Server::getHost() const  { return host; }
-
-const ErrorPage& 	Server::getErrorPage() const { return error_pages; }
 
 bool 	Server::isDefault() const { return is_default; }
 

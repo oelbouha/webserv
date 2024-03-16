@@ -20,11 +20,18 @@ class ResponseException : public std::exception
 	std::string	mMessage;
 
 public:
+  enum Error {
+      FILE_NOT_FOUND,
+      PERMISSION_DENIED
+  };
+  Error error;
+  
+public:
 	ResponseException();
-	ResponseException( const std::string& aMessage );
+	ResponseException( const std::string& msg, Error error = FILE_NOT_FOUND );
+	ResponseException( Error error );
 	~ResponseException() throw();
 	const char*	what() const throw();
-
 };
 
 #endif

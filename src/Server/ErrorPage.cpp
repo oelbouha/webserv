@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 22:39:26 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/14 13:23:41 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/16 08:05:56 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,22 @@
 #include "ErrorPage.hpp"
 
 ErrorPage::ErrorPage(){}
-	
-bool	ErrorPage::HasErrorPageFor(unsigned int stscode) const
-{
-	try{
-		error_pages.at(utils::to_string(stscode));
-		return true;
-	}
-	catch(...){
-		return false;
-	}
-}
 
-bool	ErrorPage::hasErrorCode(std::string code) const
-{
-	try{
-		error_pages.at(code);
+/*
+	bool	ErrorPage::contains(unsigned int code) const
+	{
+		string_string_map::const_iterator	it = error_pages.find(utils::to_string(code));
+		if (it == error_pages.end()) return false;
 		return true;
 	}
-	catch(...){
-		return false;
+
+	bool	ErrorPage::contains(std::string code) const
+	{
+		string_string_map::const_iterator	it = error_pages.find(code);
+		if (it == error_pages.end()) return false;
+		return true;
 	}
-}
+*/
 
 void	ErrorPage::setErrorPage(const std::vector<Config *>& error_pages_config, const std::string& root)
 {
@@ -65,39 +59,25 @@ void	ErrorPage::setErrorPage(const std::vector<Config *>& error_pages_config, co
 	}
 }
 
-std::string   	ErrorPage::getErrorPagePath(unsigned int stsCode) const
-{
-	std::string code = utils::to_string(stsCode);
-	return error_pages.at(code);
-}
-
 IResponse*      ErrorPage::build(const IRequest& request, unsigned int status_code) const
 {
 	try {
+		const std::string& error_page_path = error_pages.at(utils::to_string(status_code));
 		IResponse*	response = new FileResponse(request.getSocket());
-		response->setStatusCode(status_code);
-		
-		std::string	error_page_path = error_pages.at(utils::to_string(status_code));
-		response->setBody(error_page_path)
-			.build();
+		response->setStatusCode(status_code).setBody(error_page_path);
 		
 		return (response);
-	} catch (const std::exception& e)
+	}
+	catch (const std::exception& e)
 	{
 		IResponse*	response = new BufferResponse(request.getSocket());
-		response->setStatusCode(status_code);
-
-		// Logger::Error( )
 		
 		std::string	body = CUSTOM_PAGE_BODY;
-		
 		utils::replace(body, "::title::", AResponse::StatusCodes.at(status_code));
 		utils::replace(body, "::code::", utils::to_string(status_code));
 		utils::replace(body, "::message::", AResponse::StatusCodes.at(status_code));
 		
-		response->setBody(body)
-			.build();
-			
+		response->setStatusCode(status_code).setBody(body);
 		return (response);
 	}
 }

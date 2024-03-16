@@ -88,11 +88,10 @@ void Client::makeRequest()
     catch(const RequestException& e)
     {
         if (e.error == RequestException::CONNECTION_CLOSED)
-        {
             status = Client::DISCONNECTED;
-        }
         else {
             Logger::warn (e.what()).flush();
+            throw e;
         }
         delete req;
     } catch (const SocketException &e)

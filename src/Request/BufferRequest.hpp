@@ -18,12 +18,13 @@
 
 class BufferRequest : public Request
 {
-	std::string	mBuffer;
+	// std::string	mBody;
 
 	BufferRequest( const BufferRequest& b);
 	BufferRequest&	operator=( const BufferRequest& b );
 public:
 	BufferRequest(const Request& request, const std::string& buffer);
+	BufferRequest(const Request& request, const std::string& header, const std::string& body);
 	~BufferRequest();
 
 	int			getSocketFd() const;

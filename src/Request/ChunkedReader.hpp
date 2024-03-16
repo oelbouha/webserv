@@ -20,6 +20,7 @@
 
 #include "RequestException.hpp"
 
+#include "Logger.hpp"
 #include "Utils.hpp"
 
 class ChunkedReader : public IRequestReader

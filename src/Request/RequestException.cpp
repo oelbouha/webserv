@@ -10,24 +10,25 @@
 #include "RequestException.hpp"
 
 RequestException::RequestException() :
-    mMessage(""),
+    mMessage("Request Exception"),
     error(DEFAULT)
-{}
+{
+    Logger::debug (mMessage).flush();
+}
 
 RequestException::RequestException(const std::string &aMessage, RequestException::Error error) :
     mMessage(aMessage),
     error(error)
-{}
-
-RequestException::RequestException(const std::string &aMessage) :
-    mMessage(aMessage),
-    error(DEFAULT)
-{}
+{
+    Logger::debug (aMessage).flush();
+}
 
 RequestException::RequestException(RequestException::Error error) :
-    mMessage(""),
+    mMessage("Request Exception Error"),
     error(error)
-{}
+{
+    Logger::debug (mMessage).flush();
+}
 
 RequestException::~RequestException() throw() {}
 

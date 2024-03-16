@@ -9,10 +9,17 @@
 
 #include "ResponseException.hpp"
 
-ResponseException::ResponseException() : mMessage("")
+ResponseException::ResponseException() : mMessage("Response Error")
 {}
 
-ResponseException::ResponseException( const std::string& aMessage ) : mMessage(aMessage)
+ResponseException::ResponseException( const std::string& msg, ResponseException::Error err ) :
+	mMessage(msg),
+	error(err)
+{}
+
+ResponseException::ResponseException( ResponseException::Error err ) :
+	mMessage("Response Error"),
+	error(err)
 {}
 
 ResponseException::~ResponseException() throw()

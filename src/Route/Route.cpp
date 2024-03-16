@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/15 06:54:02 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/16 11:13:18 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,9 @@ Route&	Route::operator=( const Route& s ) {
 
 Route::~Route() {}
 
-const ErrorPage& 	Route::getErrorPage() const { return error_pages; }
-
 const std::string&	Route::getURI() const{ return uri; }
 
-bool				Route::IsMethodAllowed(const std::string& method)
+bool				Route::isMethodAllowed(const std::string& method)
 {
 	for(size_t i = 0; i < allowedMethods.size(); ++i) {
 		if (method == allowedMethods[i])
@@ -69,7 +67,7 @@ bool				Route::IsMethodAllowed(const std::string& method)
 	return false;
 }
 
-std::vector<DirLisingItem>	Route::ReadDirectory(const std::string& path)
+std::vector<DirLisingItem>	Route::readDirectory(const std::string& path)
 {
 	std::vector<DirLisingItem> list;
 
@@ -92,7 +90,7 @@ std::vector<DirLisingItem>	Route::ReadDirectory(const std::string& path)
 
 IResponse*			Route::makeDirectoryListingResponse(const Request& request, const std::string& path)
 {	
-	std::vector<DirLisingItem> fileList = ReadDirectory(path);
+	std::vector<DirLisingItem> fileList = readDirectory(path);
 	
 	std::string body = DIR_LISTING_START;
 	for (size_t i = 0; i < fileList.size(); ++i)
@@ -110,10 +108,8 @@ IResponse*			Route::makeDirectoryListingResponse(const Request& request, const s
 	body += DIR_LISTING_END;
 
 	IResponse * response = new BufferResponse(request.getSocket());
-	response->setHeader("content-type", "text/html")
-		.setStatusCode(200)
-		.setBody(body)
-		.build();
+	response->setStatusCode(200).setBody(body)
+		.setHeader("content-type", "text/html");
 	return response;
 }
 
@@ -121,15 +117,12 @@ IResponse*  		Route::makeFileResponseFromPath(const Request& request, const std:
 	try
 	{
 		IResponse * response = new FileResponse(request.getSocket());
-		response->setHeader("connection", request.getHeader("Connection"))
-			.setStatusCode(200)
-			.setBody(path)
-			.build();
+		response->setStatusCode(200).setBody(path);
 		return response;
 	}
-	catch(...)
+	catch(const ResponseException& e)
 	{
-		int status_code = errno == EACCES ? 403 : 404;
+		int status_code = e.error == ResponseException::PERMISSION_DENIED ? 403 : 404;
 		return (error_pages.build(request, status_code));
 	}
 }
@@ -174,14 +167,10 @@ Result  			Route::handleRequestToCgi(Request& request)
 	std::string path = getAbsolutePath(request.getURI());
 	
 	if ( ::access(path.c_str(), F_OK) == -1)
-	{
 		return (Result(error_pages.build(request, 404)));
-	}
 	
 	if ( ::access(path.c_str(), R_OK | X_OK) == -1 )
-	{
 		return (Result(error_pages.build(request, 500)));
-	}
 	
 	if (
 		request.getMethod() == "POST" &&
@@ -192,33 +181,44 @@ Result  			Route::handleRequestToCgi(Request& request)
 		return (Result(new Upload(&request, uploadPath)));
 
 	ProxyPair	pair = CGIHandler::handle(&request, path);
-	
-	if (pair.request != NULL)
-		return (Result(pair));
-		
+
+	if (pair.request != NULL) return Result(pair);
+
+	Logger::debug ("Sending 400 Response").flush();
+
 	return (Result(error_pages.build(request, 400)));
 }
 
-std::string 		Route::getAbsolutePath(std::string requri) {
-	requri = utils::decode_url(requri);
-	requri.erase(0, uri.length());
-	if (!requri.empty() && requri.front() != '/')
-		requri = "/" + requri;
-	return (root + requri);
+std::string 		Route::getAbsolutePath(std::string req_uri)
+{
+	req_uri = utils::decode_url(req_uri);
+	req_uri.erase(0, uri.length());
+	if (!req_uri.empty() && req_uri.front() != '/')
+		req_uri = "/" + req_uri;
+	return (root + req_uri);
+}
+
+bool				Route::isRequestToCgi(const std::string & aUri)
+{
+	if (CGIExtensions.empty()) return false;
+
+	std::string extension = '.' + utils::getExtension(aUri);
+
+	if (std::find(CGIExtensions.begin(), CGIExtensions.end(), extension) != CGIExtensions.end())
+		return true;
+	return false;
 }
 
 Result  			Route::handle(Request& request)
 {	
-	if (! IsMethodAllowed(request.getMethod()))
+	if (! isMethodAllowed(request.getMethod()))
 		return (Result(error_pages.build(request, 405)));
 	
 	if (!redirect.empty())
 	{
 		BufferResponse* response = new BufferResponse(request.getSocket());
-		response->setHeader("location", location)
-			.setStatusCode(code)
-			.setBody("")
-			.build();
+		response->setStatusCode(code).setBody("")
+			.setHeader("location", location);
 		return Result(response);
 	}
 	
@@ -231,15 +231,4 @@ Result  			Route::handle(Request& request)
 	}
 	
 	return (Result(error_pages.build(request, 415)));
-}
-
-bool				Route::isRequestToCgi(const std::string & aUri) {
-	if (!CGIExtensions.empty())
-	{
-		std::string extension = utils::getExtension(aUri);
-		extension.insert(extension.begin(), '.');
-		if (std::find(CGIExtensions.begin(), CGIExtensions.end(), extension) != CGIExtensions.end())
-			return true;
-	}
-	return false;
 }

@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/15 06:56:10 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/16 08:15:53 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ class Server
 	
 	bool			findBestMatch(const string& , string );
 	Route*			getMatchedRoute(const Request& req);
-
 	bool			isRequestProperlyStructured(const Request &);
 	bool			containsValidCharacters(string uri);
 
@@ -62,12 +61,8 @@ public:
 	const std::vector<unsigned int>&	getPorts() const;
 	const std::vector<string>&			getNames() const;
 	unsigned int 						getIP() const;
-	unsigned int 						getStatusCode() const ;
-	const string&						getHost() const ;
-	const string&						getRoot() const ;
 	const string&						getURI() const ;
 	bool								isDefault() const;
-	const ErrorPage& 					getErrorPage() const;
 
 	
 	Result		handle(Request& );

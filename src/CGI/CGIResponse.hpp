@@ -19,6 +19,8 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include "Logger.hpp"
+
 
 #include "src/Interfaces/IClientSocket.hpp"
 #include "src/Interfaces/IProxyResponse.hpp"
@@ -37,7 +39,6 @@ class CGIResponse : public IProxyResponse
     const IClientSocket&    mSocket;
     std::string             mHeader;
     bool                    mEof;
-    int                     mFile;
     bool                    mHeaderComplete;
     int                     mSent;
     string_string_map       mResponseHeaders;
@@ -46,6 +47,7 @@ class CGIResponse : public IProxyResponse
 
 public:
     IClient*                client;
+    IRequest*               request;
 
 private:
 	CGIResponse( const CGIResponse& p);
@@ -54,13 +56,16 @@ private:
     void    parseHeader();
     
 public:
-    CGIResponse(int fd, const IClientSocket& sock);
+    CGIResponse(int fd, IRequest* request);
 	~CGIResponse();
 
     int     getInputFd() const;
     int     getSocketFd() const;
 
     void    build();
+
+    bool    isLocalRedirection() const;
+    std::string getRedirectionLocation() const;
 
     void    read();
     void    send();

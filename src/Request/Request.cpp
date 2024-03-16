@@ -81,11 +81,23 @@ size_t  Request::getContentLength() const
     return (mReader->getContentLength());
 }
 
+void    Request::readHeader()
+{
+    mBuffer = mSocket.readHeaderOnly();
+    if (mBuffer.empty())
+        throw RequestException("Incomplete Header");
+}
+
 void Request::build()
 {
     try
     {
+        mBuffer = mSocket.readHeaderOnly();
+        if (mBuffer.empty())
+            throw RequestException("Incomplete Header");
+
         parse();
+        mBuffer.clear();
 
         string_string_map::iterator te = mHeaders.find("transfer-encoding");
         if (te != mHeaders.end() && te->second == "chunked")
@@ -100,6 +112,10 @@ void Request::build()
     {
         throw RequestException(RequestException::CONNECTION_CLOSED);
     }
+    catch (const std::exception&)
+    {
+        throw RequestException(RequestException::BAD_REQUEST);
+    }
 }
 
 std::string Request::read() {
@@ -111,13 +127,10 @@ bool      Request::done() const
     return (mReader->eof());
 }
 
-void Request::parse() {
-    std::string header = mSocket.readHeaderOnly();
-
-    if (header.empty())
-        throw RequestException("Incomplete Header");
-
-    std::istringstream ss(header);
+void Request::parse()
+{
+    // Logger::debug ("Request buffer: ")(mBuffer).flush();
+    std::istringstream ss(mBuffer);
     std::string line;
 
     std::getline(ss, line);
@@ -150,7 +163,8 @@ void Request::parseRequestLine(const std::string &aRequestLine) {
     mHttpVersion = word.substr(word.find("/") + 1);
 }
 
-void Request::parseHeaderProperty(const std::string &aHeaderLine) {
+void Request::parseHeaderProperty(const std::string &aHeaderLine)
+{
     std::string key, value;
 
     size_t collonPos = aHeaderLine.find(":");
@@ -170,6 +184,16 @@ void Request::parseHeaderProperty(const std::string &aHeaderLine) {
         throw RequestException(aHeaderLine + "Unkown header format");
 
     mHeaders[key] = value;
+}
+
+std::string Request::getRawHeader() const
+{
+    std::string raw_header = mMethod + " " + mUri + " " + mQuery + " HTTP/1.1\r\n";
+
+    string_string_map::const_iterator it = mHeaders.begin();
+    for (; it != mHeaders.end(); ++it)
+        raw_header += it->first + ": " + it->second + "\r\n";
+    return (raw_header);
 }
 
 void Request::dump(bool colors) const

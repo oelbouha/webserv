@@ -9,10 +9,20 @@
 
 #include "BufferRequest.hpp"
 
-BufferRequest::BufferRequest(const Request& request, const std::string& buffer) :
-	Request(request),
-	mBuffer(buffer)
-{}
+BufferRequest::BufferRequest(const Request& request, const std::string& body) :
+	Request(request)
+{
+	mBuffer = body;
+}
+
+BufferRequest::BufferRequest(const Request& request, const std::string& header, const std::string& body) :
+	Request(const_cast<IClientSocket&>(request.getSocket()), request.incomingIP, request.incomingPort)
+{
+	mBuffer = header;
+	parse();
+	mBuffer = body;
+	mReader = new DefaultReader(mSocket, body.length());
+}
 
 BufferRequest::BufferRequest( const BufferRequest& b ): Request(b)
 {}

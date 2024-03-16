@@ -16,6 +16,8 @@
 #include <string>
 
 
+#include "Logger.hpp"
+
 class RequestException : public std::exception {
   std::string mMessage;
 
@@ -28,8 +30,7 @@ public:
 
 public:
   RequestException();
-  RequestException(const std::string& aMessage, Error error);
-  RequestException(const std::string &aMessage);
+  RequestException(const std::string& aMessage, Error error = DEFAULT);
   RequestException(Error error);
 
   ~RequestException() throw();

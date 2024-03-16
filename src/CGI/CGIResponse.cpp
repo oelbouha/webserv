@@ -9,14 +9,14 @@
 
 #include "CGIResponse.hpp"
 
-CGIResponse::CGIResponse(int fd, const IClientSocket& sock):
+CGIResponse::CGIResponse(int fd, IRequest* req) :
 	mInputFd(fd),
-	mSocket(sock),
+	mSocket(req->getSocket()),
 	mEof(false),
-	mFile(-1),
 	mHeaderComplete(false),
 	mSent(0),
-	mWriter(NULL)
+	mWriter(NULL),
+	request(req)
 {}
 
 CGIResponse::CGIResponse( const CGIResponse& p ):
@@ -28,7 +28,6 @@ CGIResponse::CGIResponse( const CGIResponse& p ):
 CGIResponse::~CGIResponse()
 {
 	::close(mInputFd);
-	::close(mFile);
 }
 
 CGIResponse&	CGIResponse::operator=( const CGIResponse& p )
@@ -113,6 +112,12 @@ void	CGIResponse::build()
 	//	if location
 	string_string_map::iterator it = mResponseHeaders.find("location");
 	if (it != mResponseHeaders.end()) {
+		const std::string& location = it->second;
+
+		if (location[0] == '/') {
+			if (mResponseHeaders.size() > 1) {/*err*/}
+			return ;
+		}
 		if (mResponseHeaders.size() > 1) {/*err*/}
 		mHeader = "HTTP/1.1 302 Found\r\ncontent-length: 0\r\n";
 		mHeader += it->first + ": " + it->second + "\r\n\r\n";
@@ -142,7 +147,29 @@ void	CGIResponse::build()
 	mHeader += "\r\n";
 }
 
+bool	CGIResponse::isLocalRedirection() const
+{
+	if (! mHeaderComplete) return false;
 
+	string_string_map::const_iterator	it = mResponseHeaders.find("location");
+
+	if (it == mResponseHeaders.end()) return false;
+
+	const std::string& location = it->second;
+
+	Logger::debug ("cgi redir: ")(location.at(0) == '/'?"local redir":"server redir").flush();
+
+	return location.at(0) == '/';
+}
+
+std::string	CGIResponse::getRedirectionLocation() const
+{
+	string_string_map::const_iterator it = mResponseHeaders.find("location");
+
+	if (it == mResponseHeaders.end()) return "";
+
+	return it->second;
+}
 
 void	CGIResponse::send()
 {

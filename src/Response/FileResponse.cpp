@@ -9,11 +9,13 @@
 
 #include "FileResponse.hpp"
 
+int	FileResponse::bufferSize = 250000;
+
 FileResponse::FileResponse(const IClientSocket &aSocket) :
 	AResponse(aSocket),
 	mFile(-1),
 	mCursor(0),
-	isComplete(false)
+	mEOF(false)
 {}
 
 FileResponse::FileResponse(const FileResponse &aFileResponse) :
@@ -35,8 +37,11 @@ FileResponse &FileResponse::operator=(const FileResponse &aFileResponse)
 FileResponse &FileResponse::setBody(const std::string &aFileName)
 {
 	mFile = ::open(aFileName.c_str(), O_RDONLY);
-	if (mFile < 0)
-		throw ResponseException("file " + aFileName + " could not be openned");
+	if (mFile < 0) {
+		if (::access(aFileName.c_str(), F_OK) != 0)
+			throw ResponseException(aFileName);
+		throw ResponseException(aFileName, ResponseException::PERMISSION_DENIED);
+	}
 
 	std::ifstream file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
 	std::string contentLength = utils::to_string(file.tellg());
@@ -48,12 +53,6 @@ FileResponse &FileResponse::setBody(const std::string &aFileName)
 
 	return *this;
 }
-
-// FileResponse &FileResponse::setBodyFile(const std::string &aFileName)
-// {
-// 	setBody(aFileName);
-// 	return *this;
-// }
 
 FileResponse &FileResponse::build()
 {
@@ -71,29 +70,29 @@ void FileResponse::send()
 {
 	try
 	{
-		size_t bufferSize = 250000;
 		int r = 0;
-		if (mRawResponse.length() < bufferSize)
+		if (mRawResponse.length() < static_cast<size_t>(FileResponse::bufferSize))
 		{
-			char readBuffer[bufferSize];
-			r = ::read(mFile, readBuffer, bufferSize - 1);
-			readBuffer[r] = 0;
+			char readBuffer[FileResponse::bufferSize];
+
+			r = ::read(mFile, readBuffer, FileResponse::bufferSize);
+			if (r < FileResponse::bufferSize)
+				mEOF = true;
+
 			mRawResponse += std::string(readBuffer, r);
 		}
 
 		mCursor = mSocket.write(mRawResponse);
 		mRawResponse.erase(0, mCursor);
-		if (static_cast<size_t>(r) < bufferSize - 1 && mRawResponse.empty())
-			isComplete = true;
 	}
 	catch (const SocketException &e)
 	{
-		std::cerr << e.what() << std::endl;
-		isComplete = true;
+		mEOF = true;
+		mRawResponse.clear();
 	}
 }
 
 bool FileResponse::done() const
 {
-	return (isComplete);
+	return (mEOF && mRawResponse.empty());
 }

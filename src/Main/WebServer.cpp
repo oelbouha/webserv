@@ -122,7 +122,7 @@ void WebServer::acceptNewClients()
 
 void WebServer::handleClientRequest(Client* client, Request* request)
 {
-    request->dump();
+    // request->dump();
     mMux->remove(client);
 
     Result result = mServers->handle(*request);
@@ -154,17 +154,11 @@ void WebServer::handleClientRequest(Client* client, Request* request)
         cgi_request->client = client;
         cgi_response->client = client;
 
-        // if (pair.request == NULL || pair.response == NULL) delete make 500 response
-
+        mMux->add(pair.request, IMultiplexer::WRITE);
         if (pair.request->getSocketFd() != -1 && request->getMethod() != "GET")
             mMux->add(pair.request, IMultiplexer::READ);
         else
             mMux->add(client);
-
-        mMux->add(pair.request, IMultiplexer::WRITE);
-
-        mMux->add(pair.response, IMultiplexer::READ);
-        mMux->add(pair.response, IMultiplexer::WRITE);
     }
     else if (result.type == Result::UPLOAD)
     {
@@ -252,14 +246,13 @@ void WebServer::readFromReadyProxyRequests()
 {
     std::queue<IProxyRequest *> qpreqs = mMux->getReadyForReadingProxyRequests();
 
+    // Logger::debug ("Active cgi requests (read): ")(qpreqs.size()).flush();
+
     while (qpreqs.size())
     {
         CGIRequest *req = static_cast<CGIRequest*>(qpreqs.front());
 
-        try
-        {
-            req->read();
-        }
+        try { req->read(); }
         catch (const RequestException &e)
         {
             Logger::debug ("cgi request error ")( e.what() ).flush();
@@ -270,6 +263,11 @@ void WebServer::readFromReadyProxyRequests()
                 // bad request;
             }
         }
+        catch (const SocketException& e)
+        {
+            Logger::debug ("cgi request error ")( e.what() ).flush();
+            disconnectClient(*static_cast<Client*>(req->client));
+        }
 
         qpreqs.pop();
     }
@@ -278,6 +276,8 @@ void WebServer::readFromReadyProxyRequests()
 void WebServer::sendReadyProxyRequests()
 {
     std::queue<IProxyRequest *> qpreqs = mMux->getReadyForWritingProxyRequests();
+
+    // Logger::debug ("Active cgi requests (write): ")(qpreqs.size()).flush();
 
     while (qpreqs.size())
     {
@@ -295,6 +295,9 @@ void WebServer::sendReadyProxyRequests()
                 client.activeProxyPair.request = NULL;
                 mMux->add(&client);
                 delete req;
+
+                mMux->add(client.activeProxyPair.response, IMultiplexer::READ);
+                mMux->add(client.activeProxyPair.response, IMultiplexer::WRITE);
             }
         }
         catch (const std::exception &e)
@@ -352,10 +355,32 @@ void WebServer::readFromReadyProxyResponses()
     std::queue<IProxyResponse *> qpres = mMux->getReadyForReadingProxyResponses();
     while (qpres.size())
     {
-        IProxyResponse *res = qpres.front();
+        CGIResponse *res = static_cast<CGIResponse*>(qpres.front());
         try
         {
             res->read();
+            if (res->isLocalRedirection()) {
+                Client*     client = static_cast<Client*>(res->client);
+                Request*    req = static_cast<Request*>(res->request);
+                const std::string& location = res->getRedirectionLocation();
+                std::string raw_req_header = req->getRawHeader();
+                raw_req_header.erase(0, raw_req_header.find("\r\n") + 2);
+                raw_req_header = "GET " + location + " HTTP/1.1\r\n" + raw_req_header;
+                
+                BufferRequest* redir_request = new BufferRequest(*req, raw_req_header, "");
+
+                mMux->remove(res, IMultiplexer::READ);
+                mMux->remove(res, IMultiplexer::WRITE);
+
+                client->activeProxyPair.setChildFree();
+                client->activeProxyPair.response = NULL;
+
+                Logger::debug ("handling local redir").flush();
+                handleClientRequest(client, redir_request);
+
+                delete res->request;
+                delete res;
+            }
         }
         catch (const std::exception &e)
         {

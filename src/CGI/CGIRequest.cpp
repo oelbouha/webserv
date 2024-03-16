@@ -13,7 +13,7 @@ CGIRequest::CGIRequest(int fd, Request& req) :
     mOutputFd(fd),
     mRequest(req)
 {
-    if (req.getSocketFd() == -1)
+    if (req.getSocketFd() != -1)
         mBuffer = req.read();
 }
 
@@ -25,9 +25,7 @@ CGIRequest::CGIRequest( const CGIRequest& d )
 
 CGIRequest::~CGIRequest()
 {
-    // std::cout << mOutputFd << " : closed\n";
     ::close(mOutputFd);
-    delete &mRequest;
 }
 
 CGIRequest&	CGIRequest::operator=( const CGIRequest& d )

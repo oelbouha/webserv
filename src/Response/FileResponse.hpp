@@ -18,16 +18,18 @@ class FileResponse : public AResponse
 	int			mFile;
 	std::string	mRawResponse;
 	size_t		mCursor;
-	bool		isComplete;
+	bool		mEOF;
+
+	static int	bufferSize;
 
 	FileResponse(const FileResponse &aFileResponse);
 	FileResponse&	operator=(const FileResponse &aFileResponse);
+
 public:
 	FileResponse(const IClientSocket &aSocket);
 	~FileResponse();
 
 	FileResponse&	setBody(const std::string &aBody);
-	// FileResponse&	setBodyFile(const std::string &aFileName);
 	FileResponse&	build();
 
 	void send();

@@ -25,8 +25,6 @@ size_t  ChunkedReader::getContentLength() const
     return (mContentLength);
 }
 
-/**/
-
 std::string ChunkedReader::read()
 {
     if (mEof)
@@ -34,16 +32,15 @@ std::string ChunkedReader::read()
     
     std::string ret;
 
-    mBuffer += mSocket.readAll();
+    mBuffer += mSocket.readTo("\r\n\r\n");
+
+    // Logger::debug ("Chunked reader buffer: ")(mBuffer).flush();
 
     if (mTrailer)
     {
         size_t  pos = mBuffer.find("\r\n\r\n");
         if (pos != std::string::npos)
-        {
             mEof = true;
-            // mSocket.retake(buffer.substr(pos + 4))
-        }
         return ("");
     }
 
@@ -84,14 +81,12 @@ std::string ChunkedReader::read()
             if (mBuffer.find(CRLF) == (size_t)0)
             {
                 mEof = true;
-                // mSocket.retake(mBuffer.substr(2))
                 return (ret);
             }
             else {
                 size_t  pos = mBuffer.find("\r\n\r\n");
                 if (pos != std::string::npos)
                     mEof = true;
-                    // mSocket.retake(mBuffer.substr(pos + 4))
                 else
                     mTrailer = true;
                 return (ret);
@@ -107,10 +102,8 @@ bool    ChunkedReader::parseChunkHeader(std::string& buffer)
     size_t  pos = buffer.find(CRLF);
 
     if (pos == std::string::npos)
-    {
-        // mBuffer = buffer;
         return (false);
-    }
+
 
     std::string line = buffer.substr(0, pos);
     buffer.erase(0, pos + 2);
@@ -123,8 +116,6 @@ bool    ChunkedReader::parseChunkHeader(std::string& buffer)
         mCurrentChunkSize = utils::hex_to_uint(line);
     else
         mCurrentChunkSize = utils::hex_to_uint(line.substr(pos));
-
-
     return (true);
 }
 

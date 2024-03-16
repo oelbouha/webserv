@@ -32,8 +32,10 @@
 
 class Request : public IRequest
 {
+protected:
     IClientSocket&  mSocket;
     IRequestReader* mReader;
+    std::string     mBuffer;
 
 public:
     const int             incomingIP;
@@ -63,13 +65,15 @@ public:
     void                setHeader(const std::string& key, const std::string& val);
     size_t              getContentLength() const;
 
+    void                readHeader();
     void                build();
     std::string         read();
     bool                done() const;
+    std::string         getRawHeader() const;
     virtual void        dump( bool colors = true ) const;
 
 
-private:
+protected:
     Request &operator=(const Request &aRequest);
 
     void parse();

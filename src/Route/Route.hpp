@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/15 06:54:18 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/16 09:29:02 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,7 @@ public:
 	
 	const string&		getURI() const;
 	std::string 		getAbsolutePath(std::string requri);
-	const ErrorPage& 	getErrorPage() const;
-	bool				IsMethodAllowed(const std::string& method);
+	bool				isMethodAllowed(const std::string& method);
 
 	Result  			handle(Request&);
 
@@ -71,7 +70,7 @@ private:
 	IResponse*				handleRequestToFile(const Request&);
 	Result					handleRequestToCgi(Request&);
 	IResponse*				makeDirectoryListingResponse(const Request& request, const std::string& path);
-	std::vector<DirLisingItem> 	ReadDirectory(const std::string& path);
+	std::vector<DirLisingItem> 	readDirectory(const std::string& path);
 	bool					isRequestToCgi(const std::string & );
 };
 

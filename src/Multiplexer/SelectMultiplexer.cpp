@@ -43,6 +43,7 @@ void SelectMultiplexer::remove(IServerSocket *sock)
   {
     serverSockets.erase(it);
     FD_CLR(sock->getSocketFd(), &mReadfds);
+    FD_CLR(sock->getSocketFd(), &mReadfdsTmp);
     if (sock->getSocketFd() == mMaxfd - 1)
       updateMaxFd();
   }
@@ -86,6 +87,7 @@ void SelectMultiplexer::remove(IClient *client)
   {
     clients.erase(it);
     FD_CLR(client->getSocketFd(), &mReadfds);
+    FD_CLR(client->getSocketFd(), &mReadfdsTmp);
     if (client->getSocketFd() == mMaxfd - 1)
       updateMaxFd();
   }
@@ -127,6 +129,7 @@ void SelectMultiplexer::remove(IResponse *res)
   {
     responses.erase(it);
     FD_CLR(res->getSocketFd(), &mWritefds);
+    FD_CLR(res->getSocketFd(), &mWritefdsTmp);
     if (res->getSocketFd() == mMaxfd - 1)
       updateMaxFd();
   }
@@ -168,6 +171,7 @@ void  SelectMultiplexer::remove(IUpload *upload)
   {
     uploads.erase(it);
     FD_CLR(upload->getSocketFd(), &mWritefds);
+    FD_CLR(upload->getSocketFd(), &mWritefdsTmp);
 
      if (upload->getSocketFd() == mMaxfd - 1)
       updateMaxFd();
@@ -226,6 +230,7 @@ void  SelectMultiplexer::remove(IProxyRequest* req, IMultiplexer::mod_t mod)
         if (req->getSocketFd() == -1) return;
 
         FD_CLR(req->getSocketFd(), &mReadfds);
+        FD_CLR(req->getSocketFd(), &mReadfdsTmp);
         // Logger::debug (req->getSocketFd())(" : (r) removed").flush();
 
         if (!FD_ISSET(req->getOutputFd(), &mWritefds)) {
@@ -239,6 +244,7 @@ void  SelectMultiplexer::remove(IProxyRequest* req, IMultiplexer::mod_t mod)
     }
 
     FD_CLR(req->getOutputFd(), &mWritefds);
+    FD_CLR(req->getOutputFd(), &mWritefdsTmp);
     // Logger::debug (req->getOutputFd())(" : (w) removed").flush();
 
     if (req->getSocketFd() == -1 || !FD_ISSET(req->getSocketFd(), &mReadfds)) {
@@ -279,6 +285,7 @@ void  SelectMultiplexer::remove(IProxyResponse* res, IMultiplexer::mod_t mod)
     if (mod == IMultiplexer::READ)
     {
         FD_CLR(res->getInputFd(), &mReadfds);
+        FD_CLR(res->getInputFd(), &mReadfdsTmp);
         // Logger::debug (res->getInputFd())(" : (r) removed").flush();
 
         if (!FD_ISSET(res->getSocketFd(), &mWritefds)) {
@@ -291,6 +298,7 @@ void  SelectMultiplexer::remove(IProxyResponse* res, IMultiplexer::mod_t mod)
     }
 
     FD_CLR(res->getSocketFd(), &mWritefds);
+    FD_CLR(res->getSocketFd(), &mWritefdsTmp);
     // Logger::debug (res->getSocketFd())(" : (w) removed").flush();
 
     if (!FD_ISSET(res->getInputFd(), &mReadfds)) {
