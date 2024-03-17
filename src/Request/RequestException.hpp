@@ -23,8 +23,8 @@ class RequestException : public std::exception {
 
 public:
   enum Error {
-      CONNECTION_CLOSED,
-      BAD_REQUEST
+      BAD_REQUEST = 400,
+      HEADER_TOO_LARGE = 431
   };
 
 public:

@@ -41,7 +41,7 @@ class ServerCluster
 
 	bool			isServerMatched(const Server&, unsigned int ip, unsigned int port);
 	void			SetupServers(Config* config);
-	Server*			getMatchedServer(const Request &);
+	Server*			getMatchedServer(Request &);
 
 public:
 	ServerCluster(Config *config);

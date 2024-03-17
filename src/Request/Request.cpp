@@ -12,8 +12,6 @@
 #include <string>
 #include <cctype>
 
-/* need to somewhere else*/
-
 Request::Request(IClientSocket &aSocket, int aIncomingIP, int aIncomingPort):
     mSocket(aSocket),
     mReader(NULL),
@@ -83,30 +81,43 @@ size_t  Request::getContentLength() const
     return (mReader->getContentLength());
 }
 
+void Request::readHeader()
+{
+    mBuffer = mSocket.readHeaderOnly();
+    if (mBuffer.empty())
+        throw RequestException("Incomplete Header");
+
+    size_t pos = mBuffer.find("\r\n");
+    std::string line = mBuffer.substr(0, pos);
+    mBuffer.erase(0, pos + 2);
+    parseRequestLine(line);
+}
+
 void Request::build()
 {
-    try
-    {
-        mBuffer = mSocket.readHeaderOnly();
-        if (mBuffer.empty())
-            throw RequestException("Incomplete Header");
+    if (mBuffer.empty()) return;
+    try {
+        std::istringstream ss(mBuffer);
+        std::string line;
 
-        parse();
         mBuffer.clear();
+        while (std::getline(ss, line))
+            parseHeaderProperty(line);
 
         string_string_map::iterator te = mHeaders.find("transfer-encoding");
         if (te != mHeaders.end() && te->second == "chunked")
             mReader = new ChunkedReader(mSocket);
         else {
             string_string_map::iterator cl = mHeaders.find("content-length");
-            unsigned int content_length = cl==mHeaders.end()?0:utils::string_to_uint(cl->second);
+            unsigned int content_length = 0;
+            if (cl != mHeaders.end())
+                content_length = utils::string_to_uint(cl->second);
+            
             mReader = new DefaultReader(mSocket, content_length);
         }
     }
-    catch (const std::exception&)
-    {
-        error = true;
-    }
+    catch (const std::exception& )
+    { throw RequestException(RequestException::BAD_REQUEST); }
 }
 
 std::string Request::read()
@@ -123,9 +134,6 @@ void Request::parse()
 {
     std::istringstream ss(mBuffer);
     std::string line;
-
-    std::getline(ss, line);
-    parseRequestLine(line);
 
     while (std::getline(ss, line))
         parseHeaderProperty(line);

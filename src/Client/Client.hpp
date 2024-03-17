@@ -39,6 +39,7 @@ public:
         IDLE,
         EXCHANGING,
         RECEIVING,
+        SENDING,
         DISCONNECTED
     };
 

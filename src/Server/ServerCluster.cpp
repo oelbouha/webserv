@@ -81,7 +81,7 @@ bool    ServerCluster::isServerMatched(const Server& server, unsigned int ip, un
     return false;
 }
 
-Server*	ServerCluster::getMatchedServer(const Request &req)
+Server*	ServerCluster::getMatchedServer(Request &req)
 {
     std::vector<Server *>           matchedServers;
 
@@ -91,6 +91,7 @@ Server*	ServerCluster::getMatchedServer(const Request &req)
 
     if (matchedServers.size() > 1)
     {
+        req.build();
         string reqHost = req.getHeader("host");
         int pos = reqHost.rfind(":");
         reqHost = reqHost.substr(0, pos);
@@ -107,7 +108,6 @@ Server*	ServerCluster::getMatchedServer(const Request &req)
         for (unsigned int i = 0; i < matchedServers.size(); ++i)
             if (matchedServers[i]->isDefault())
                 return (matchedServers[i]);
-
     }
 
     return (matchedServers.front());
@@ -115,7 +115,12 @@ Server*	ServerCluster::getMatchedServer(const Request &req)
 
 Result  ServerCluster::handle(Request& request)
 {
-    Server* server = getMatchedServer(request);
-    return (server->handle(request));
+    try {
+        Server* server = getMatchedServer(request);
+        return (server->handle(request));
+    }
+    catch ( const RequestException& e ) {
+        return Result(error_pages.build(request, e.error));
+    }
 }
 

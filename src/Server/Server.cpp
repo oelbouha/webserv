@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/16 08:15:26 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/17 13:50:21 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,31 +123,19 @@ Route*	Server::getMatchedRoute(const Request& req)
 
 Result  Server::handle(Request& request)
 {
-	if (isRequestProperlyStructured(request) == false)
-    {
-        Logger::debug (" Request not properly structered ... ")(statusCode).flush();
-        IResponse*  res = error_pages.build(request, statusCode);
-        return (Result(res));
-    }
-	
-	route = getMatchedRoute(request);
-	if (route == NULL)
-	{
-		Logger::debug ("No route matched uri ... <")( request.getURI() ).flush();
-		statusCode = 404;
-		IResponse*	res = error_pages.build(request, statusCode);
-		return (Result(res));
+	try {
+		request.build();
+		if (isRequestProperlyStructured(request) == false)
+			return (Result(error_pages.build(request, statusCode)));
+
+		route = getMatchedRoute(request);
+		if (route == NULL)
+			return (Result(error_pages.build(request, statusCode)));
+		return (route->handle(request));
+	} catch ( const RequestException& e ) {
+		return Result(error_pages.build(request, e.error));
 	}
-	// else if (route->hasRedirection())
-	// {
-	// 	RedirectRoute redirect(*route, error_pages);
-	// 	IResponse*	res = redirect.handle(request);
-	// 	return (Result(res));
-	// }
-	return (route->handle(request));
 }
-
-
 
 bool	Server::isRequestProperlyStructured(const Request &req)
 {

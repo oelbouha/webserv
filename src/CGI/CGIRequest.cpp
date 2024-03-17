@@ -13,8 +13,8 @@ CGIRequest::CGIRequest(int fd, Request& req) :
     mOutputFd(fd),
     mRequest(req)
 {
-    if (req.getSocketFd() != -1)
-        mBuffer = req.read();
+    // Logger::debug ("CGI Request reading...").flush();
+    // mBuffer = req.read();
 }
 
 CGIRequest::CGIRequest( const CGIRequest& d )

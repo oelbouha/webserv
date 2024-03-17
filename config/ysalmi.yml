@@ -19,11 +19,12 @@ cluster:
 
   server:
     root: /Users/ysalmi/code/in_progress/webserv/pages
-    # upload: /Users/ysalmi/code/in_progress/webserv/upload
+    upload: /Users/ysalmi/code/in_progress/webserv/upload
     host: 0.0.0.0
     ports:
       - 8000
-      # - 8080
+    names:
+      - localhost
     error_page:
       file: /50x.html
       codes:
@@ -76,21 +77,48 @@ cluster:
         - DELETE
         - GET
 
- 
   server:
-    host: 10.30.252.176
-    index: index.html
     root: /Users/ysalmi/code/in_progress/webserv/pages
     upload: /Users/ysalmi/code/in_progress/webserv/upload
+    host: 0.0.0.0
     ports:
-      - 8001
+      - 8000
+    names:
+      - 127.0.0.1
     error_page:
-      file: /40x.html
+      file: /50x.html
+      codes:
+        - 500
+        - 501
+    error_page:
+      file: /4xx.html
       codes:
         - 418
+        - 404
         - 400
     route:
       uri: /
+      root: /Users/ysalmi/code/in_progress/webserv/pages
+      autoindex: yes
       allowed_methods:
-        - GET
         - POST
+        - DELETE
+        - GET
+
+  # server:
+  #   host: 10.30.252.176
+  #   index: index.html
+  #   root: /Users/ysalmi/code/in_progress/webserv/pages
+  #   upload: /Users/ysalmi/code/in_progress/webserv/upload
+  #   ports:
+  #     - 8001
+  #   error_page:
+  #     file: /40x.html
+  #     codes:
+  #       - 418
+  #       - 400
+  #   route:
+  #     uri: /
+  #     allowed_methods:
+  #       - GET
+  #       - POST

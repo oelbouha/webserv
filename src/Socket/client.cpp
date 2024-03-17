@@ -18,28 +18,39 @@
 
 #include "ClientSocket.hpp"
 
-int main()
+int main(int c, char* v[])
 {
+	if (c != 2) return 1;
+
+	
 	ClientSocket	sock((::socket(AF_INET, SOCK_STREAM, 0)));
 
 	struct sockaddr_in addr;
   	std::size_t addr_len = sizeof(addr);
-
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(127 << 24 | 1);
-	addr.sin_port = htons(8000);
+	addr.sin_port = htons(std::atoi(v[1]));
 	::connect(sock.getSocketFd(), (sockaddr*)&addr, addr_len);
 
-	std::string	resp = "GET /pages HTTP/1.1\r\n";
-	resp += "host: localhost:8000\r\n";
-	// resp += "content-length: 11\r\n";
+	std::string	resp = "POST /main.py HTTP/1.1\r\n";
+	resp += "host: localhost:" + std::string(v[1]) + "\r\n";
+	resp += "transfer-encoding: chunked\r\n";
+	// resp += "content-length: 0\r\n";
 	resp += "\r\n";
 
     std::cout << resp;
+	sock.write(resp);
+
+	// sleep(1);
+
+	resp = "5\r\nhell\r\n0\r\n\r\n";
+    std::cout << resp;
+	sock.write(resp);
+
+	// return 0;
+
 
 	sock.setNonBlocking();
-	
-	sock.write(resp);
 
     sleep(1);
 

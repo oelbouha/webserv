@@ -15,7 +15,7 @@ CGIHandler::CGIHandler()
 ProxyPair    CGIHandler::handle(Request* request, const std::string& path)
 {
     std::string file = path;
-    // setting up pipes
+    
     int input[2];
     int output[2];
 
@@ -26,38 +26,35 @@ ProxyPair    CGIHandler::handle(Request* request, const std::string& path)
     if (err)
         return ProxyPair();
 
-    // forking for cgi process
     int pid = fork();
     if (pid < 0)
         return ProxyPair();
     
-    // cgi porcess
     if (pid == 0)
     {
         std::vector<std::string> args, env = compileEnv(*request);
 
         close(input[1]);
         close(output[0]);
-
         dup2(input[0], 0);
         dup2(output[1], 1);
-
         close(input[0]);
         close(output[1]);
 
-        // cd to path
-        err = chdir("/Users/ysalmi/code/in_progress/webserv/pages");
+        err = chdir(path.substr(0, path.rfind("/") + 1).c_str());
         if (err)
             exit(1);
+
         args.push_back(file);
-        // excute script;
-        execve(file.c_str(), utils::vector_to_cstring_array(args), utils::vector_to_cstring_array(env));
+        execve(
+            file.c_str(),
+            utils::vector_to_cstring_array(args),
+            utils::vector_to_cstring_array(env)
+        );
         perror("cgi");
         exit(1);
     }
 
-    // main process - webserv
-    //
     close(input[0]);
     close(output[1]);
 
@@ -130,14 +127,3 @@ std::vector<std::string>    CGIHandler::compileEnv(Request& req)
     
     return (env);
 }
-
-
-/*
-
-request_uri = /tester.py/upload/dir
-script_name = /tester.py
-path_info = /upload/dir
-path_translated = root + path_info
-document_root = root
-
-*/

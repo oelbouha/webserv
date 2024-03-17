@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/16 11:47:27 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/17 15:04:00 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,11 +182,16 @@ Result  			Route::handleRequestToCgi(Request& request)
 
 	ProxyPair	pair = CGIHandler::handle(&request, path);
 
-	if (pair.request != NULL) return Result(pair);
+	if (pair.request == NULL) (Result(error_pages.build(request, 500)));
 
-	Logger::debug ("Sending 400 Response").flush();
-
-	return (Result(error_pages.build(request, 400)));
+	try { pair.request->read(); }
+	catch ( const RequestException& e )
+	{
+		pair.setChildFree();
+		return Result(error_pages.build(request, e.error));
+	}
+	
+	return Result(pair);
 }
 
 std::string 		Route::getAbsolutePath(std::string req_uri)
@@ -211,13 +216,10 @@ bool				Route::isRequestToCgi(const std::string & aUri)
 
 Result  			Route::handle(Request& request)
 {
-	if (request.error)
-		return (Result(error_pages.build(request, 400)));
-		
-	if (! isMethodAllowed(request.getMethod()))
+	if ( ! isMethodAllowed(request.getMethod()) )
 		return (Result(error_pages.build(request, 405)));
 	
-	if (!redirect.empty())
+	if ( ! redirect.empty() )
 	{
 		BufferResponse* response = new BufferResponse(request.getSocket());
 		response->setStatusCode(code).setBody("")
@@ -225,13 +227,13 @@ Result  			Route::handle(Request& request)
 		return Result(response);
 	}
 	
-	if (isRequestToCgi(request.getURI()))
+	if ( isRequestToCgi(request.getURI()) )
 		return handleRequestToCgi(request);
 		
-	if (request.getMethod() == "GET") {
+	if ( request.getMethod() == "GET" ) {
 		IResponse *res = handleRequestToFile(request);
 		return (Result(res));		
 	}
 	
-	return (Result(error_pages.build(request, 415)));
+	return (Result(error_pages.build(request, 501)));
 }

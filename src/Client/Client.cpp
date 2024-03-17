@@ -75,7 +75,7 @@ void Client::makeRequest()
     try
     {
         req = new Request(*mSocket, mIncomingIP, mIncomingPort);
-        req->build();
+        req->readHeader();
         mRequest = req;
 
         if (!mKeepAlive && Client::KeepAliveCount < Client::KeepAliveMax)
@@ -85,19 +85,8 @@ void Client::makeRequest()
             Client::KeepAliveCount++;
         }
     }
-    catch(const RequestException& e)
-    {
-        if (e.error == RequestException::CONNECTION_CLOSED)
-            status = Client::DISCONNECTED;
-        else {
-            Logger::warn (e.what()).flush();
-            throw e;
-        }
-        delete req;
-    } catch (const SocketException &e)
-    {
-        delete req;
-    }
+    catch ( const RequestException& e ) { delete req; }
+    catch ( const SocketException &e ) { delete req; throw e; }
 }
 
 Request *Client::getRequest()

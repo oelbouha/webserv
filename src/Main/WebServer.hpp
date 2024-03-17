@@ -18,6 +18,7 @@
 #include "Logger.hpp"
 
 #include "src/DataTypes/Config.hpp"
+#include "src/DataTypes/ConfigException.hpp"
 
 #include "src/Interfaces/IServerSocket.hpp"
 #include "src/Interfaces/IMultiplexer.hpp"
@@ -26,11 +27,11 @@
 #include "src/Multiplexer/SelectMultiplexer.hpp"
 #include "src/Client/Client.hpp"
 #include "src/Request/Request.hpp"
+#include "src/Request/BufferRequest.hpp"
 #include "src/Socket/ClientSocket.hpp"
 #include "src/Socket/ServerSocket.hpp"
-#include "src/DataTypes/ConfigException.hpp"
 
-#include "src/Request/BufferRequest.hpp"
+
 
 
 class WebServer
@@ -38,12 +39,8 @@ class WebServer
     Config*                       mConfig;
     std::vector<ServerSocket>     mSockets;
     IMultiplexer*                 mMux;
-    ServerCluster                 *mServers;
+    ServerCluster*                mCluster;
     std::vector<Client*>          mClients;
-    std::vector<IResponse *>      mResponses;
-    // unsigned int                  mAliveClientsCount;
-    // unsigned int                  mAliveClientMax;
-    // unsigned int                  mAliveTimeout;
 
 
 private:

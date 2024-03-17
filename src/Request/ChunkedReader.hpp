@@ -34,7 +34,7 @@ class ChunkedReader : public IRequestReader
 	bool			mTrailer;
 
 	// size_t			hexToInt(const std::string& raw) const;
-	// std::string		unchunk(std::string& buffer);
+	std::string		unchunk();
 	bool			parseChunkHeader(std::string& buffer);
 
 public:
