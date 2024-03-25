@@ -18,7 +18,7 @@
 
 class BufferRequest : public Request
 {
-	// std::string	mBody;
+	std::string	mBody;
 
 	BufferRequest( const BufferRequest& b);
 	BufferRequest&	operator=( const BufferRequest& b );

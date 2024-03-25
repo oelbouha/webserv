@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:19 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/15 06:58:34 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/23 18:15:09 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,9 @@
 #include "src/Request/BufferRequest.hpp"
 #include "src/DataTypes/Config.hpp"
 
+#include "src/Server/ErrorPages.hpp"
 
+#include "Logger.hpp"
 #include "Utils.hpp"
 
 
@@ -44,6 +46,7 @@ class Upload : public IUpload
 	std::string 	file_content_type;
 	std::string 	file_path;
 	unsigned int	count;
+	const ErrorPages*		error_pages;
 	
 public:
 	IClient*		client;
@@ -52,10 +55,12 @@ public:
 	Upload(IRequest *request, const string& upload_path);
 	~Upload();
 
+	int				getSocketFd() const;
+	void			setErrorPages(const ErrorPages* error_pages);
 	void 			handle();
 	bool			done() const;
 	Request*		getRequest();
-	int				getSocketFd() const;
+	IResponse*		buildErrorPage(int code) const;
 
 
 private:
@@ -64,8 +69,9 @@ private:
 	
 	void			createTmpFile();
 	void			buildUploadRequest();
-	bool			search(const string& buff, const string & line);
-	string 			getFieldName(const std::string& name, const std::string& del);
+	// bool			search(const string& buff, const string & line);
+	std::string 	getFieldName(const std::string& name, const std::string& del);
+	std::string 	getNextTmpName();
 };
 
 

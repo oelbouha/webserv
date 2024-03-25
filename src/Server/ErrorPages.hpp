@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ErrorPage.hpp                                      :+:      :+:    :+:   */
+/*   ErrorPages.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ERRORPAGE_HPP
-#define ERRORPAGE_HPP
+#ifndef ErrorPages_HPP
+#define ErrorPages_HPP
 
 
 #include <iostream>
@@ -25,14 +25,14 @@
 #include "Utils.hpp"
 #include "Types.hpp"
 
-class    ErrorPage
+class    ErrorPages
 {
     string_string_map    error_pages;
 
 public:
-    ErrorPage();
+    ErrorPages();
 
-    void            setErrorPage(const std::vector<Config *>& error_page, const std::string& root);
+    void            setErrorPages(const std::vector<Config *>& error_page, const std::string& root);
     IResponse*      build(const IRequest& request, unsigned int status_code) const;
     void            dump();
 };

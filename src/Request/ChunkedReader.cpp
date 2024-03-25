@@ -42,67 +42,6 @@ std::string ChunkedReader::read()
     }
 
     return unchunk();
-    std::string ret;
-    while (!mBuffer.empty() && mBuffer != CRLF)
-    {
-    // there is an unfinished chunk
-        if (mCurrentChunkSize - mCurrentChunkRead)
-        {
-            if (mBuffer.length() <= mCurrentChunkSize - mCurrentChunkRead)
-            {
-                ret += mBuffer;
-                mBuffer.clear();
-                mCurrentChunkRead += mBuffer.length();
-                break;
-            }
-            ret += mBuffer.substr(0, mCurrentChunkSize - mCurrentChunkRead);
-            mBuffer.erase(0, mCurrentChunkSize - mCurrentChunkRead);
-            mCurrentChunkSize = 0;
-            mCurrentChunkRead = 0;
-
-            if (mBuffer == CRLF)
-                break;
-        }
-
-    // no unfinished chunk
-        // CRLF from previous chunk
-        if (mBuffer[0] != '\r' || mBuffer[1] != '\n') {
-            std::string s = mBuffer;
-            for (unsigned int i = 0; i < s.length(); ++i)
-            {
-                if (s[i] < 32 && s[i] != 10)
-                    std::cout << '[' << (int)s[i] << ']';
-                else
-                    std::cout << s[i];
-            }
-            std::cout << std::endl;
-            throw RequestException("Bad Request 1", RequestException::BAD_REQUEST);
-        }
-        mBuffer.erase(0, 2);
-
-        if ( ! parseChunkHeader(mBuffer) )
-            return (ret);
-
-        if (mCurrentChunkSize == (size_t)-1)
-            throw RequestException("Bad Request 2", RequestException::BAD_REQUEST);
-        else if (mCurrentChunkSize == 0)
-        {
-            if (mBuffer.find(CRLF) == (size_t)0)
-            {
-                mEof = true;
-                return (ret);
-            }
-            else {
-                size_t  pos = mBuffer.find("\r\n\r\n");
-                if (pos != std::string::npos)
-                    mEof = true;
-                else
-                    mTrailer = true;
-                return (ret);
-            }
-        }
-    }
-    return (ret);
 }
 
 std::string ChunkedReader::unchunk()

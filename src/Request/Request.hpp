@@ -49,6 +49,7 @@ private:
     std::string         mHttpVersion;
     string_string_map   mHeaders;
     std::string         mNoHeader;
+    uint                mMaxBodySize;
 
 public:
     Request(IClientSocket &mSocket, int aIncomingIP, int aIncomingPort);
@@ -64,8 +65,8 @@ public:
     const std::string&  getQuery() const;
     const std::string&  getHeader(const std::string &aKey) const;
     void                setHeader(const std::string& key, const std::string& val);
-    size_t              getContentLength() const;
 
+    void                setMaxBodySize(uint size);
     void                readHeader();
     void                build();
     std::string         read();

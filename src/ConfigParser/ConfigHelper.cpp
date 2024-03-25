@@ -63,6 +63,7 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"default_mime",
 			"mime_types",
 			"keep_alive",
+			"keep_alive_timeout",
 			"server_props",
 			"error_page",
 			"server",

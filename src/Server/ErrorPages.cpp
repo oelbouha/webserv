@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ErrorPage.cpp                                      :+:      :+:    :+:   */
+/*   ErrorPages.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -11,19 +11,19 @@
 /* ************************************************************************** */
 
 
-#include "ErrorPage.hpp"
+#include "ErrorPages.hpp"
 
-ErrorPage::ErrorPage(){}
+ErrorPages::ErrorPages(){}
 
 /*
-	bool	ErrorPage::contains(unsigned int code) const
+	bool	ErrorPages::contains(unsigned int code) const
 	{
 		string_string_map::const_iterator	it = error_pages.find(utils::to_string(code));
 		if (it == error_pages.end()) return false;
 		return true;
 	}
 
-	bool	ErrorPage::contains(std::string code) const
+	bool	ErrorPages::contains(std::string code) const
 	{
 		string_string_map::const_iterator	it = error_pages.find(code);
 		if (it == error_pages.end()) return false;
@@ -31,7 +31,7 @@ ErrorPage::ErrorPage(){}
 	}
 */
 
-void	ErrorPage::setErrorPage(const std::vector<Config *>& error_pages_config, const std::string& root)
+void	ErrorPages::setErrorPages(const std::vector<Config *>& error_pages_config, const std::string& root)
 {
 	if (error_pages_config.empty())
 		return ;
@@ -59,7 +59,7 @@ void	ErrorPage::setErrorPage(const std::vector<Config *>& error_pages_config, co
 	}
 }
 
-IResponse*      ErrorPage::build(const IRequest& request, unsigned int status_code) const
+IResponse*      ErrorPages::build(const IRequest& request, unsigned int status_code) const
 {
 	try {
 		const std::string& error_page_path = error_pages.at(utils::to_string(status_code));
@@ -82,7 +82,7 @@ IResponse*      ErrorPage::build(const IRequest& request, unsigned int status_co
 	}
 }
 
-void	ErrorPage::dump()
+void	ErrorPages::dump()
 {
 	string_string_map::iterator	it = error_pages.begin();
 	

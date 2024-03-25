@@ -31,24 +31,21 @@ class Client : public IClient
     IClientSocket*  mSocket;
     Request*        mRequest;
     bool            mKeepAlive;
+    time_t          mLastActivityEnd;
 
 public:
     enum  Status
     {
         CONNECTED,
-        IDLE,
-        EXCHANGING,
-        RECEIVING,
-        SENDING,
-        DISCONNECTED
+        ACTIVE,
+        IDLE
     };
 
     IResponse*      activeResponse;
     Upload*         activeUpload;
     ProxyPair       activeProxyPair;
-
     Status          status;
-    time_t          lastActivityEnd;
+    
 
 public:
     Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort);
@@ -61,19 +58,16 @@ public:
     virtual bool      hasRequest() const;
     virtual void      makeRequest();
     bool              hasTimedOut() const;
-    bool              isKeptAlive() const;
     void              setResponseHeaders(IResponse* res) const;
     void              setResponseHeaders(IProxyResponse* res) const;
     void              resetTimeout();
+    void              setKeepAlive( std::string connection );
 
-    virtual const IClientSocket&  getSocket() const;
 
-// static Props and Methods
 private:
     static int KeepAliveCount;
     static int KeepAliveMax;
     static int KeepAliveTimeout;
-
 public:
     static void setKeepAlive(int maxConnections, int timeout);
 };

@@ -43,6 +43,8 @@ ProxyPair&	ProxyPair::operator=( const ProxyPair& p )
 
 void    ProxyPair::setChildFree()
 {
+    if (mPID == -1) return;
+    
     int ret = ::waitpid(mPID, NULL, WNOHANG);
     if (ret == -1)
         perror("proxy pair");
@@ -51,6 +53,6 @@ void    ProxyPair::setChildFree()
         kill(mPID, SIGKILL);
         ::waitpid(mPID, NULL, 0);
     }
-
+    mPID = -1;
 }
 

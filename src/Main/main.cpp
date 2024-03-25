@@ -16,25 +16,21 @@
 
 int main(int c, char *v[])
 {
-	std::string	configFilePath("config/example.yml");
-	signal(SIGPIPE, SIG_IGN);
-
-	if (c > 1)
-		configFilePath = v[1];
-	
+	std::string	configFilePath("config/ysalmi.yml");
+	if (c > 1) configFilePath = v[1];
 
 	try
 	{
-		Config	*config = factory::makeConfigParser(configFilePath)->parse();
-
+		IConfigParser*	parser = factory::makeConfigParser(configFilePath);
+		Config*			config = parser->parse();
 		WebServer		server(config);
 
+		signal(SIGPIPE, SIG_IGN);
 		server.start();
 		server.loop();
+
+		return (0);
 	}
 	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << "\n";
-	}
-	return (0);
+	{ Logger::error (e.what()).flush(); return 1; }
 }

@@ -12,10 +12,7 @@
 CGIRequest::CGIRequest(int fd, Request& req) :
     mOutputFd(fd),
     mRequest(req)
-{
-    // Logger::debug ("CGI Request reading...").flush();
-    // mBuffer = req.read();
-}
+{}
 
 CGIRequest::CGIRequest( const CGIRequest& d )
     : mRequest(d.mRequest)
@@ -44,6 +41,16 @@ int     CGIRequest::getSocketFd() const
     return (mRequest.getSocketFd());
 }
 
+void    CGIRequest::setErrorPages( const ErrorPages* error_pages )
+{
+    mErrorPages = error_pages;
+}
+
+IResponse*  CGIRequest::buildErrorPage(int code) const
+{
+    return (mErrorPages->build(mRequest, code));
+}
+
 bool    CGIRequest::done() const
 {
     return (mRequest.done() && mBuffer.empty());
@@ -53,6 +60,7 @@ void    CGIRequest::read()
 {
     if (!mRequest.done())
         mBuffer += mRequest.read();
+    Logger::debug ("cgi request read: ")(mBuffer).flush();
 }
 
 void    CGIRequest::send()
@@ -62,7 +70,9 @@ void    CGIRequest::send()
 
     int r = ::write(mOutputFd, mBuffer.data(), mBuffer.length());
 
-    if (r > 0)
-        mBuffer.erase(0, r);
+    if (r < 0)
+        throw std::invalid_argument("invalid");
+
+    mBuffer.erase(0, r);
 }
 

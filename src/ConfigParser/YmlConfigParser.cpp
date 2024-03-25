@@ -16,24 +16,17 @@ YmlConfigParser::YmlConfigParser()
 YmlConfigParser::YmlConfigParser( const YmlConfigParser& c )
 {(void)c;}
 
-//TODO: Throw ParserException instead of std::invalid_argument.
 YmlConfigParser::YmlConfigParser( const string& aConfigFile ) :
 	mFileName(aConfigFile),
 	mLineNumber(0)
 {
 	mFileStream.open(aConfigFile.c_str());
 	mFileStream.peek();
-	if (mFileStream.fail())
-	{
-		// throw ParserException("File could NOT be opened");
-		throw std::invalid_argument("File could NOT be opened");
 
-	}
+	if (mFileStream.fail())
+		throw ParserException(mFileName, "File could NOT be opened");
 	else if (mFileStream.eof())
-	{
-		//throw ParserException("File Empy")
-		throw std::invalid_argument("File Empy");
-	}
+		throw ParserException(mFileName, "Empy File");
 }
 
 YmlConfigParser::~YmlConfigParser()

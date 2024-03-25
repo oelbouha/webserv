@@ -24,7 +24,8 @@ class RequestException : public std::exception {
 public:
   enum Error {
       BAD_REQUEST = 400,
-      HEADER_TOO_LARGE = 431
+      HEADER_TOO_LARGE = 431,
+      CLIENT_BODY_TOO_LARGE = 413
   };
 
 public:

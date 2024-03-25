@@ -20,7 +20,7 @@ class Result
 public:
     Result(IResponse* res);
     Result(ProxyPair pair);
-    Result(Upload* upload); //for upload
+    Result(Upload* upload);
     
     Result(const Result& result);
     ~Result();

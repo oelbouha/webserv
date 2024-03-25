@@ -4,25 +4,25 @@
  *	 / /_/ (__  ) /_/ / / / / / / / / 
  *	 \__, /____/\__,_/_/_/ /_/ /_/_/ 
  *	/____/	User: Youssef Salmi
- *			File: ServerCluster.cpp 
+ *			File: Cluster.cpp 
  */
 
-#include "ServerCluster.hpp"
+#include "Cluster.hpp"
 
 
-ServerCluster::ServerCluster( const ServerCluster& s ) {(void)s;}
+Cluster::Cluster( const Cluster& s ) {(void)s;}
 
-ServerCluster&	ServerCluster::operator=( const ServerCluster& s )
+Cluster&	Cluster::operator=( const Cluster& s )
 {
     (void)s;
 	return (*this);
 }
 
 
-ServerCluster::ServerCluster(Config* cluster)
+Cluster::Cluster(Config* cluster)
 {    
     std::string root = cluster->getInlineConfigOr("root", CLUSTER_DEFAULT_ROOT);
-    error_pages.setErrorPage(cluster->getBlockConfigIfExist("error_page"), root);
+    error_pages.setErrorPages(cluster->getBlockConfigIfExist("error_page"), root);
 
     std::vector<Config *> ServersConfig = cluster->getBlockConfigIfExist("server");
     std::vector<Config *>::iterator it = ServersConfig.begin();
@@ -39,18 +39,18 @@ ServerCluster::ServerCluster(Config* cluster)
     }
 }
 
-ServerCluster::~ServerCluster()
+Cluster::~Cluster()
 {
     for(size_t i = 0; i < servers.size(); ++i)
         delete servers[i];
 }
 
 
-std::vector<std::pair<unsigned int, unsigned int> >
-ServerCluster::getServersIPPortPairs() const
+std::set<std::pair<unsigned int, unsigned int> >
+Cluster::getServersIPPortPairs() const
 {
-    std::vector<std::pair<unsigned int, unsigned int> >  pairs;
-    std::pair<unsigned int, unsigned int>                pair;
+    std::set<std::pair<unsigned int, unsigned int> >  pairs;
+    std::pair<unsigned int, unsigned int>             pair;
 
     for (unsigned int i = 0; i < servers.size(); ++i)
     {
@@ -62,13 +62,13 @@ ServerCluster::getServersIPPortPairs() const
         for (unsigned int j = 0; j < ports.size(); ++j)
         {
             pair.second = ports[j];
-            pairs.push_back(pair);
+            pairs.insert(pair);
         }
     }
     return (pairs);
 }
 
-bool    ServerCluster::isServerMatched(const Server& server, unsigned int ip, unsigned int port)
+bool    Cluster::isServerMatched(const Server& server, unsigned int ip, unsigned int port)
 {
     const std::vector<unsigned int>& ports = server.getPorts();
 
@@ -81,7 +81,7 @@ bool    ServerCluster::isServerMatched(const Server& server, unsigned int ip, un
     return false;
 }
 
-Server*	ServerCluster::getMatchedServer(Request &req)
+Server*	Cluster::getMatchedServer(Request &req)
 {
     std::vector<Server *>           matchedServers;
 
@@ -113,7 +113,7 @@ Server*	ServerCluster::getMatchedServer(Request &req)
     return (matchedServers.front());
 }
 
-Result  ServerCluster::handle(Request& request)
+Result  Cluster::handle(Request& request)
 {
     try {
         Server* server = getMatchedServer(request);

@@ -8,17 +8,16 @@
  */
 
 #include "Client.hpp"
-#include <ctime>
 
-int Client::KeepAliveMax = 2;
+int Client::KeepAliveMax = 60;
 int Client::KeepAliveCount = 0;
 int Client::KeepAliveTimeout = 40;
 
-void Client::setKeepAlive(int maxConnections, int timeout) {
+void Client::setKeepAlive(int maxConnections, int timeout)
+{
     Client::KeepAliveMax = maxConnections;
     Client::KeepAliveTimeout = timeout;
 }
-
 
 Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort) :
     mIncomingIP(aIncomingIP),
@@ -26,10 +25,10 @@ Client::Client(IClientSocket *aSocket, int aIncomingIP, int aIncomingPort) :
     mSocket(aSocket),
     mRequest(NULL),
     mKeepAlive(false),
+    mLastActivityEnd(std::time(NULL)),
     activeResponse(NULL),
     activeUpload(NULL),
-    status(Client::CONNECTED),
-    lastActivityEnd(std::time(NULL))
+    status(Client::CONNECTED)
 {}
 
 Client::~Client() {
@@ -45,11 +44,6 @@ bool    Client::operator==(const IClient& client) const
     return (getSocketFd() == client.getSocketFd());
 }
 
-const IClientSocket&    Client::getSocket() const
-{
-    return (*mSocket);
-}
-
 int     Client::getSocketFd() const
 {
     return mSocket->getSocketFd();
@@ -62,52 +56,66 @@ bool    Client::hasRequest() const
 
 bool    Client::hasTimedOut() const
 {
-    if (status != Client::IDLE && status != Client::CONNECTED)
-        return false;
+    if (status == Client::ACTIVE) return false;
+    if (status == Client::IDLE && !mKeepAlive) return true;
     
-    long long inactiveTime = std::difftime(std::time(0), lastActivityEnd);
+    long long inactiveTime = std::difftime(std::time(0), mLastActivityEnd);
     return (inactiveTime >= Client::KeepAliveTimeout);
 }
 
-void Client::makeRequest()
+void    Client::makeRequest()
 {
-    Request*   req;
     try
     {
-        req = new Request(*mSocket, mIncomingIP, mIncomingPort);
-        req->readHeader();
-        mRequest = req;
-
-        if (!mKeepAlive && Client::KeepAliveCount < Client::KeepAliveMax)
-        {
-            std::string connection = req->getHeader("connection");
-            mKeepAlive = utils::str_to_lower(connection) == "keep-alive";
-            Client::KeepAliveCount++;
-        }
+        mRequest = new Request(*mSocket, mIncomingIP, mIncomingPort);
+        mRequest->readHeader();
     }
-    catch ( const RequestException& e ) { delete req; }
-    catch ( const SocketException &e ) { delete req; throw e; }
+    catch ( const RequestException& e ) { delete mRequest; mRequest = NULL; }
+    catch ( const SocketException &e ) { delete mRequest; mRequest = NULL; throw e; }
 }
 
-Request *Client::getRequest()
+void    Client::setKeepAlive( std::string connection )
+{
+    if (!mKeepAlive && Client::KeepAliveCount < Client::KeepAliveMax)
+    {
+        mKeepAlive = utils::str_to_lower(connection) == "keep-alive";
+        Client::KeepAliveCount++;
+    }
+    else if (mKeepAlive && utils::str_to_lower(connection) == "close")
+    {
+        mKeepAlive = false;
+        Client::KeepAliveCount--;
+    }
+    
+}
+
+Request* Client::getRequest()
 {
     Request *ret = mRequest;
     mRequest = NULL;
     return (ret);
 }
 
-bool            Client::isKeptAlive() const
-{
-    return status != Client::IDLE || mKeepAlive;
-}
-
-void            Client::resetTimeout()
+void    Client::resetTimeout()
 {
     if (mKeepAlive)
-        lastActivityEnd = std::time(NULL);
+        mLastActivityEnd = std::time(NULL);
 }
 
-void              Client::setResponseHeaders(IResponse* res) const
+
+
+void    Client::setResponseHeaders(IResponse* res) const
+{
+    if (mKeepAlive) {
+        Logger::debug ("response Keep-Alive").flush();
+        res->setHeader("connection", "keep-alive");
+        return;
+    }
+    res->setHeader("connection", "close");
+    Logger::debug ("response Close").flush();
+}
+
+void              Client::setResponseHeaders(IProxyResponse* res) const
 {
     if (mKeepAlive) {
         res->setHeader("connection", "keep-alive");
@@ -115,12 +123,3 @@ void              Client::setResponseHeaders(IResponse* res) const
     }
     res->setHeader("connection", "close");
 }
-
-// void              Client::setClientHeaders(IProxyResponse* res) const
-// {
-//     if (mKeepAlive) {
-//         res->setHeader("connection", "keep-alive");
-//         return;
-//     }
-//     res->setHeader("connection", "close");
-// }

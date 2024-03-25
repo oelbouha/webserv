@@ -23,7 +23,7 @@
 #include "src/Interfaces/IServerSocket.hpp"
 #include "src/Interfaces/IMultiplexer.hpp"
 
-#include "src/Server/ServerCluster.hpp"
+#include "src/Server/Cluster.hpp"
 #include "src/Multiplexer/SelectMultiplexer.hpp"
 #include "src/Client/Client.hpp"
 #include "src/Request/Request.hpp"
@@ -31,7 +31,7 @@
 #include "src/Socket/ClientSocket.hpp"
 #include "src/Socket/ServerSocket.hpp"
 
-
+#include "Utils.hpp"
 
 
 class WebServer
@@ -39,7 +39,7 @@ class WebServer
     Config*                       mConfig;
     std::vector<ServerSocket>     mSockets;
     IMultiplexer*                 mMux;
-    ServerCluster*                mCluster;
+    Cluster*                mCluster;
     std::vector<Client*>          mClients;
 
 

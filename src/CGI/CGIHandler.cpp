@@ -14,6 +14,7 @@ CGIHandler::CGIHandler()
 
 ProxyPair    CGIHandler::handle(Request* request, const std::string& path)
 {
+    Logger::debug ("handling cgi").flush();
     std::string file = path;
     
     int input[2];
@@ -103,7 +104,6 @@ std::vector<std::string>    CGIHandler::compileEnv(Request& req)
     const std::string& content_length = req.getHeader("content-length");
     if (!content_length.empty())
         env.push_back("CONTENT_LENGTH=" + content_length);
-
 
     // HTTP_ACCEPT
     const std::string& accept = req.getHeader("accept");

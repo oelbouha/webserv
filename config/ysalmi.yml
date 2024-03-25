@@ -7,7 +7,8 @@ cluster:
   mime_types:
     jpg: image/jpeg
     jpeg: image/jpeg
-  keep_alive:	65
+  keep_alive:	1
+  keep_alive_timeout: 60
   server_props: no
 
   error_page:

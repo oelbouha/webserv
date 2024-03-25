@@ -28,12 +28,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-
-using std::string;
-using std::endl;
-
 namespace utils
 {
+	using std::string;
+	
 	//	Ntrings
 	std::string&	replace(std::string& str, const std::string& old_word, const std::string& new_word);
 	std::string&	replace_all(std::string& str, const std::string& old_word, const std::string& new_word);
@@ -55,6 +53,7 @@ namespace utils
 	}
 
 	//	Numbers
+	int				string_to_int(const std::string& str);
 	unsigned int	string_to_uint(const std::string& str);
 	unsigned int	hex_to_uint(const std::string& str);
 	std::string		uint_to_hex(uint n);
@@ -72,7 +71,6 @@ namespace utils
 	bool					is_directory(string uri);
 	bool	 				is_valid_number(std::string line);
 	int						get_exit_status(pid_t pid);
-	int						string_to_int(std::string str);
 	int 					min(int a, int b);
 	
 }

@@ -34,9 +34,11 @@ struct ProxyPair
 	ProxyPair&	operator=( const ProxyPair& p );
 
     void    setChildFree();
+    // IRepsonse*   buildErrorPages(int code) const;
 
 private:
     int                 mPID;
+    // const ErrorPagess* const       mErrorPagess;
 
 };
 #endif

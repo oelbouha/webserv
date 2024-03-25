@@ -37,12 +37,6 @@ BufferResponse&	BufferResponse::setBody(const std::string &aBody)
 	return (*this);
 }
 
-// BufferResponse&	BufferResponse::setBodyFile(const std::string &aFileName)
-// {
-// 	(void)aFileName;
-// 	return *this;
-// }
-
 BufferResponse&	BufferResponse::build()
 {
 	mRawResponse = "HTTP/1.1 " + AResponse::StatusCodes.at(mStatusCode) + "\r\n";

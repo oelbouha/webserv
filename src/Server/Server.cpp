@@ -6,14 +6,14 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/17 13:50:21 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/17 17:53:02 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <iostream>
 
-Server::Server(Config& serverConfig, ErrorPage& pages) :
+Server::Server(Config& serverConfig, ErrorPages& pages) :
 	error_pages(pages),
 	route(NULL)
 {
@@ -46,7 +46,7 @@ Server::Server(Config& serverConfig, ErrorPage& pages) :
 
 	root = serverConfig.getInlineConfigIfExist("root");
 	
-	error_pages.setErrorPage(serverConfig.getBlockConfigIfExist("error_page"), root);
+	error_pages.setErrorPages(serverConfig.getBlockConfigIfExist("error_page"), root);
 
 	std::vector<Config*> routeBlockConfig = serverConfig.getBlockConfig("route");
 	std::vector<Config*>::iterator it = routeBlockConfig.begin();

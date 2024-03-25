@@ -26,6 +26,19 @@ mLine(aLine)
 					+ mError;
 }
 
+ParserException::ParserException( const std::string& aFileName, const std::string& aError ) :
+mFileName(aFileName),
+mError(aError)
+{
+	if (mFileName.empty())
+		mMessage = std::string("\e[1m\e[31mconfig error\e[0m : ConfigParser error");
+	else
+		mMessage = "\e[1m\e[31mconfig error\e[0m: "
+					+ mFileName
+					+ ":\n\t"
+					+ mError;
+}
+
 ParserException::~ParserException( void ) throw ()
 {}
 

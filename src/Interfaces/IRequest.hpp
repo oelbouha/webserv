@@ -28,8 +28,8 @@ public:
     virtual const std::string&      getHttpVersion() const = 0;
     virtual const std::string&      getHeader( const std::string& key ) const = 0;
     virtual const std::string&      getQuery() const = 0;
-    virtual size_t                  getContentLength() const = 0;
 
+    virtual void                setMaxBodySize(unsigned int size) = 0;
     virtual void                build() = 0;
     
     virtual std::string         read() = 0;

@@ -23,6 +23,5 @@ class IClient {
         virtual bool                    hasRequest() const = 0;
         virtual IRequest*               getRequest() = 0;
         virtual int                     getSocketFd() const = 0;
-        virtual const IClientSocket&    getSocket() const = 0;
 };
 #endif

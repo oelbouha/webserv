@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/16 08:15:53 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/17 17:53:02 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
 #include "src/Route/Route.hpp"
-#include "src/Server/ErrorPage.hpp"
+#include "src/Server/ErrorPages.hpp"
 #include "src/Interfaces/IServer.hpp"
 #include "src/Interfaces/IHandler.hpp"
 #include "Utils.hpp"
@@ -38,7 +38,7 @@ class Server
 	std::vector<Route*>				routes;
 	std::vector<unsigned int>		ports;
 	std::vector<string>				names;
-	ErrorPage						error_pages;
+	ErrorPages						error_pages;
 	Route*							route;
 	unsigned int					ip;
 	unsigned int					statusCode;
@@ -54,7 +54,7 @@ class Server
 
 	
 public:
-	Server(Config& config, ErrorPage& errorPage);
+	Server(Config& config, ErrorPages& ErrorPages);
 	Server&	operator=( const Server& s );
 	~Server();
 

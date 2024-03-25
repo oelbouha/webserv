@@ -6,13 +6,13 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/17 15:04:00 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/23 18:13:24 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Route.hpp"
 
-Route::Route(Config* config, ErrorPage& pages): error_pages(pages)
+Route::Route(Config* config, ErrorPages& pages): error_pages(pages)
 {
 	redirect = config->getBlockConfigIfExist("redirect");
 
@@ -184,12 +184,10 @@ Result  			Route::handleRequestToCgi(Request& request)
 
 	if (pair.request == NULL) (Result(error_pages.build(request, 500)));
 
-	try { pair.request->read(); }
-	catch ( const RequestException& e )
-	{
-		pair.setChildFree();
-		return Result(error_pages.build(request, e.error));
-	}
+	CGIRequest* req = static_cast<CGIRequest*>(pair.request);
+	req->setErrorPages(&error_pages);
+	CGIResponse* res = static_cast<CGIResponse*>(pair.response);
+	res->setErrorPages(&error_pages);
 	
 	return Result(pair);
 }
@@ -216,6 +214,8 @@ bool				Route::isRequestToCgi(const std::string & aUri)
 
 Result  			Route::handle(Request& request)
 {
+	// request.setMaxBodySize(100);
+	
 	if ( ! isMethodAllowed(request.getMethod()) )
 		return (Result(error_pages.build(request, 405)));
 	

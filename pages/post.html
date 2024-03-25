@@ -65,12 +65,25 @@
                 border-radius: 8px;
                 outline: none;
             }
+            input[type="color"] {
+                height: 64px;
+                width: 64px;
+            }
         </style>
     </head>
     <body>
 
         <h1>Forms</h1>
         <main>
+            <div class="form">
+                <label>Data</label>
+                <form action="/parsed.py" method="POST">
+                    <label for="bg_color">Choose Color:</label>
+                    <input type="color" name="bg_color" id="name">
+                
+                    <input type="submit" value="Send">
+                </form>
+            </div>
             <div class="form">
                 <label>Data</label>
                 <form action="/main.py" method="POST">

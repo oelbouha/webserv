@@ -6,12 +6,11 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/15 06:57:22 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/23 18:14:56 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Upload.hpp"
-#include <iostream>
 
 Upload::Upload(IRequest *request, const string& upload_path) : 
 	request(request),
@@ -35,11 +34,6 @@ Upload::Upload(IRequest *request, const string& upload_path) :
 
 Upload::Upload(const Upload& obj){ (void)obj; }
 
-bool Upload::done() const
-{
-	return is_done;
-}
-
 Upload& Upload::operator=(const Upload& obj) {
 	(void)obj;
 	return *this;
@@ -50,11 +44,22 @@ Upload::~Upload()
 	delete request;
 }
 
-bool Upload::search(const string& buff, const string & line) {
-	return (buff.find(line) >= 0);
+
+
+// bool 		Upload::search(const string& buff, const string & line) {
+// 	return (buff.find(line) >= 0);
+// }
+
+void		Upload::setErrorPages(const ErrorPages* err_pages)
+{ error_pages = err_pages; }
+
+bool 		Upload::done() const
+{
+	Logger::debug ("is done: ")(is_done?"Yes":"No").flush();
+	return is_done;
 }
 
-string getNextTmpName()
+std::string	Upload::getNextTmpName()
 {
     static int  n;
 
@@ -64,7 +69,7 @@ string getNextTmpName()
     return ss.str();
 }
 
-void	Upload::createTmpFile()
+void		Upload::createTmpFile()
 {
 	name = getFieldName("name=\"", "\";");
 	file_name = getFieldName("filename=\"", "\"");
@@ -94,7 +99,7 @@ void	Upload::createTmpFile()
 	}
 }
 
-void	Upload::buildUploadRequest()
+void		Upload::buildUploadRequest()
 {
 	size_t pos = buff.find(boundry);
 	if (pos != std::string::npos)
@@ -122,7 +127,7 @@ std::string Upload::getFieldName(const std::string& name, const std::string& del
 	return  (buff.substr(pos + name.length(), end - pos - name.length()));
 }
 
-void	Upload::handle()
+void		Upload::handle()
 {
 	buff += request->read();
 
@@ -163,14 +168,19 @@ void	Upload::handle()
 	}
 }
 
-int	Upload::getSocketFd() const
+int			Upload::getSocketFd() const
 {
 	return request->getSocketFd();
 }
 
-Request*		Upload::getRequest()
+Request*	Upload::getRequest()
 {
 	Request *req = new BufferRequest(*static_cast<Request*>(request), body);
     req->setHeader("x-upload", "false");
 	return req;
+}
+
+IResponse*	Upload::buildErrorPage(int code) const
+{
+	return error_pages->build(*request, code);
 }

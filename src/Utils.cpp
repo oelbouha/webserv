@@ -150,7 +150,21 @@ namespace utils
 		ss >> res;
 		ss >> rest;
 		if (! rest.empty() || !std::isdigit(trimmed[0]) || res > UINT_MAX)
-			throw std::invalid_argument("argument is not an unsigned integer value");
+			throw std::invalid_argument("argument is not a positive integer");
+		return (res);
+	}
+	
+	int				string_to_int(const std::string& str)
+	{
+		std::string			trimmed = trim_spaces(str);
+		std::stringstream	ss(trimmed);
+		long int			res;
+		std::string			rest;
+
+		ss >> res;
+		ss >> rest;
+		if (! rest.empty() || res > UINT_MAX)
+			throw std::invalid_argument("argument is not an integer");
 		return (res);
 	}
 	

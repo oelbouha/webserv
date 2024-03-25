@@ -17,7 +17,8 @@ Request::Request(IClientSocket &aSocket, int aIncomingIP, int aIncomingPort):
     mReader(NULL),
     incomingIP(aIncomingIP),
     incomingPort(aIncomingPort),
-    error(false)
+    error(false),
+    mMaxBodySize(0)
 {}
 
 Request::Request(const Request &r) :
@@ -30,7 +31,8 @@ Request::Request(const Request &r) :
     mUri(r.mUri),
     mQuery(r.mQuery),
     mHttpVersion(r.mHttpVersion),
-    mHeaders(r.mHeaders)
+    mHeaders(r.mHeaders),
+    mMaxBodySize(r.mMaxBodySize)
 {}
 
 Request::~Request() 
@@ -76,9 +78,9 @@ const std::string&  Request::getHeader(const std::string &aKey) const
     return val->second;
 }
 
-size_t  Request::getContentLength() const 
+void            Request::setMaxBodySize(uint size)
 {
-    return (mReader->getContentLength());
+    mMaxBodySize = size;
 }
 
 void Request::readHeader()
@@ -112,7 +114,6 @@ void Request::build()
             unsigned int content_length = 0;
             if (cl != mHeaders.end())
                 content_length = utils::string_to_uint(cl->second);
-            
             mReader = new DefaultReader(mSocket, content_length);
         }
     }
@@ -122,7 +123,10 @@ void Request::build()
 
 std::string Request::read()
 {
-    return (mReader->read());
+    std::string ret = mReader->read();
+    if (mMaxBodySize && mReader->getContentLength() > mMaxBodySize)
+        throw RequestException(RequestException::CLIENT_BODY_TOO_LARGE);
+    return (ret);
 }
 
 bool      Request::done() const
@@ -169,7 +173,7 @@ void Request::parseHeaderProperty(const std::string &aHeaderLine)
     size_t collonPos = aHeaderLine.find(":");
 
     if (collonPos == std::string::npos)
-        throw RequestException(aHeaderLine + "Unkown header format");
+        throw RequestException(aHeaderLine + " : Unkown header format");
 
     key = aHeaderLine.substr(0, collonPos);
     value = aHeaderLine.substr(collonPos + 1);
@@ -177,10 +181,9 @@ void Request::parseHeaderProperty(const std::string &aHeaderLine)
     utils::trim_spaces(key);
     utils::trim_spaces(value);
 
-    utils::str_to_lower(key);
-
     if (key.empty())
         throw RequestException(aHeaderLine + "Unkown header format");
+    utils::str_to_lower(key);
 
     mHeaders[key] = value;
 }

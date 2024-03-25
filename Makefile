@@ -22,7 +22,7 @@ INC := -I. \
 #TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
 TMP :=
 
-CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) -fsanitize=address -g 
+CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) #-fsanitize=address -g 
 
 LINKER := -L/goinfre/ysalmi/brew/opt/llvm/lib/c++ \
 		-Wl,-rpath,/goinfre/ysalmi/brew/opt/llvm/lib/c++
@@ -76,9 +76,9 @@ CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
 
 SERVER_COMPONENT := Server/Result.cpp \
-	Server/ServerCluster.cpp \
+	Server/Cluster.cpp \
 	Server/Server.cpp \
-	Server/ErrorPage.cpp \
+	Server/ErrorPages.cpp \
 	Server/MimeTypes.cpp \
 	Route/Upload.cpp \
 	Route/Route.cpp

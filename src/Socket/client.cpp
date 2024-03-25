@@ -41,7 +41,7 @@ int main(int c, char* v[])
     std::cout << resp;
 	sock.write(resp);
 
-	// sleep(1);
+	sleep(2);
 
 	resp = "5\r\nhell\r\n0\r\n\r\n";
     std::cout << resp;

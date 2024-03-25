@@ -20,6 +20,7 @@ public:
 	virtual	std::string	read() = 0;
 	virtual bool		eof() const = 0;
     virtual size_t      getContentLength() const = 0;
+	
 
 };
 #endif

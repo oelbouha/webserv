@@ -17,6 +17,7 @@
 #include "src/Interfaces/IClient.hpp"
 
 #include "src/Request/Request.hpp"
+#include "src/Server/ErrorPages.hpp"
 
 #include "IProxyRequest.hpp"
 
@@ -25,6 +26,8 @@ class CGIRequest : public IProxyRequest
     int             mOutputFd;
     Request&        mRequest; 
     std::string     mBuffer;
+    const ErrorPages* mErrorPages;
+
 
 public:
     IClient*        client;
@@ -40,6 +43,9 @@ public:
 
     int     getOutputFd() const;
     int     getSocketFd() const;
+    void    setErrorPages( const ErrorPages* error_pages );
+
+    IResponse*  buildErrorPage(int code) const;
 
     void    read();
     void    send();

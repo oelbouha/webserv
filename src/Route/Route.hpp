@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/16 09:29:02 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/17 17:53:02 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include "src/Response/BufferResponse.hpp"
 #include "src/Request/Request.hpp"
 #include "src/DataTypes/Config.hpp"
-#include "src/Server/ErrorPage.hpp"
+#include "src/Server/ErrorPages.hpp"
 #include "src/Route/Upload.hpp"
 #include "src/CGI/CGIHandler.hpp"
 #include "Utils.hpp"
@@ -45,7 +45,7 @@ class Route {
 	std::vector<string> 	allowedMethods;
 	std::vector<string> 	CGIExtensions;
 	std::vector<Config*> 	redirect;
-	ErrorPage&				error_pages;
+	ErrorPages&				error_pages;
 	bool					autoindex;
 	string					uri;
 	string					location;
@@ -55,7 +55,7 @@ class Route {
 	unsigned int			code;
 
 public:
-	Route(Config * config, ErrorPage& pages);
+	Route(Config * config, ErrorPages& pages);
 	Route&	operator=( const Route& s );
 	~Route();
 	

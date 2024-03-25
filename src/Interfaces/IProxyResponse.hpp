@@ -19,13 +19,14 @@ public:
     virtual int         getInputFd() const = 0;
     virtual int         getSocketFd() const = 0;
 
+    virtual void        setHeader(const std::string& header, const std::string& value) = 0;
     virtual void        build() = 0;
 
     virtual void        read() = 0;
     virtual void        send() = 0;
     virtual bool        done() const = 0;
-    virtual bool        error() const = 0;
     virtual bool        sent() const = 0;
+    virtual bool        error() = 0;
 
 };
 #endif

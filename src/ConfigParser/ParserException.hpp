@@ -28,6 +28,7 @@ class ParserException : public std::exception
 	public:
 		ParserException();
 		ParserException( const std::string& aFileName, const std::string& aError, int aLine );
+		ParserException( const std::string& aFileName, const std::string& aError );
 		~ParserException() throw ();
 		const char*	what( void ) const throw();
 
