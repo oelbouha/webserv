@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:11 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/23 18:14:56 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/28 22:47:27 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ Upload::Upload(IRequest *request, const string& upload_path) :
 	count(0),
 	client(NULL)
 {
-	if (upload_dir.back() != '/')
+	if (upload_dir[upload_dir.length() - 1] != '/')
 		upload_dir += "/";
 
 	std::string type = request->getHeader("content-type");
@@ -78,6 +78,8 @@ void		Upload::createTmpFile()
 	
 	file_path = upload_dir + utils::to_string(time(0)) + utils::to_string(count++);
 	file_stream.open(file_path);
+	if (file_stream.bad())
+		throw RequestException(RequestException::FORBIDEN);
 	buff.erase(0, buff.find("\r\n\r\n") + 4);
 
 	size_t pos = buff.find(boundry);

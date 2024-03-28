@@ -1,3 +1,1 @@
-#!//usr/local/bin/python3
-
-exit()
+#!/usr/local/bin/python3

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Error </title>
+        <link rel="stylesheet" href="public/style.css" />
+    </head>
+    <body>
+        <div tal:condition="data['logged']">
+            <h1>Error</h1>
+            <p>${messag}</p>
+        </div>
+    </body>
+</html>

@@ -35,12 +35,13 @@ class Session:
         return self.data[key]
 
     def save(self) -> None:
-        writer = csv.writer(self.file)
+        file = open(self.dir + self.key, mode='w')
+        writer = csv.writer(file)
         for key in self.data:
             writer.writerow([key, self.data[key]])
         self.file.flush()
     
-    def get_session_header(self) -> str:
-        header = "Set-Cookie: session_id=%s; Max-Age=20\r" % self.key
+    def get_session_cookie(self) -> str:
+        header = "session_id=%s; Max-Age=20\r" % self.key
         return header
 

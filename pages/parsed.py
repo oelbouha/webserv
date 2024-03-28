@@ -1,4 +1,4 @@
-#!//usr/local/bin/python3
+#!/usr/local/bin/python3
 import os
 import sys
 import fileinput
@@ -41,7 +41,7 @@ body_temp = '''<!DOCTYPE html>
                 <li>i guess</li>
                 %s
             </ul>
-                <img src="/file.jpeg">
+                <img src="/images/file.jpeg">
         </body>
     </html>'''
 
@@ -59,23 +59,17 @@ if (method == "GET"):
     print("content-type: text/html\r")
     print("content-length: ", end="")
     print(len(body), end="\r\n")
-
     print("\r")
     print(body)
 
 elif (method == "POST"):
     decoded = urllib.parse.unquote(input)
     res = urllib.parse.parse_qs(decoded)
-    print(res["bg_color"][0], file=sys.stderr)
-    body = body_temp % (res["bg_color"][0], decoded)
-
+    body = "<h1>Redirected</h1>"
     setcookie = "Set-Cookie: bg_color=%s\r" % res["bg_color"][0]
-
-    print("Status: 201 Created\r")
-    print("content-type: text/html\r")
-    print("content-length: ", end="")
-    print(len(body), end="\r\n")
+    print("Status: 302 Found\r")
+    print("location: http://%s%s\r"%(os.getenv("SERVER_NAME"), os.getenv("REQUEST_URI")))
+    print("Content-Type: text/html\r")
     print(setcookie)
-
     print("\r")
     print(body)

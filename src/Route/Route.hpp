@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/17 17:53:02 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/28 22:40:25 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ class Route {
 	string					indexfile;
 	string  				uploadPath;
 	unsigned int			code;
+	unsigned int			max_body_size;
 
 public:
 	Route(Config * config, ErrorPages& pages);
@@ -66,12 +67,15 @@ public:
 	Result  			handle(Request&);
 
 private:
-	IResponse*  			makeFileResponseFromPath(const Request& request, const std::string& path);
-	IResponse*				handleRequestToFile(const Request&);
-	Result					handleRequestToCgi(Request&);
-	IResponse*				makeDirectoryListingResponse(const Request& request, const std::string& path);
+	IResponse* 	makeFileResponseFromPath(const Request& request, const std::string& path);
+	IResponse*	handleRequestToFile(const Request&);
+	Result		handleRequestToCgi(Request&);
+	IResponse*	makeDirectoryListingResponse(const Request& request, const std::string& path);
+	bool		isRequestToCgi(const std::string & );
+	bool		isMethodImplemented(const std::string& );
+	bool		isUpload(const Request&);
+	std::string	getAllowedMethods() const;
 	std::vector<DirLisingItem> 	readDirectory(const std::string& path);
-	bool					isRequestToCgi(const std::string & );
 };
 
 #define DIR_LISTING_START "\

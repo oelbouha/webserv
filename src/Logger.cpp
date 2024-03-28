@@ -9,7 +9,7 @@
 
 #include "Logger.hpp"
 
-Logger::Level   Logger::level = Logger::DEBUG;
+Logger::Level   Logger::level = Logger::INFO;
 Logger::File    Logger::debug(Logger::DEBUG, 1);
 Logger::File    Logger::info(Logger::INFO, 1);
 Logger::File    Logger::warn(Logger::WARNING, 2);
@@ -58,7 +58,6 @@ Logger::File&   Logger::File::operator=(const File& file)
     if (this != &file) {
         msg_level = file.msg_level;
         fd = file.fd;
-        // ss = new std::stringstream();
     }
     return (*this);
 }

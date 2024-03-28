@@ -2,21 +2,46 @@
 <html>
     <head>
         <title>pages</title>
+        <style>
+            body {
+                margin:0;
+                background-color: black;
+                color:white;
+            }
+            #wrapper {
+                display: flex;
+                flex-direction: column;
+                width: 1200px;
+                max-width: 100%;
+                margin: 0 auto;
+            }
+            a {
+                color: gold;
+                padding: 12px;
+                background-color: rgba(255, 255, 255, 0.125);
+                text-align: center;
+                text-decoration: none;
+                border-radius: 8px;
+                margin-bottom: 12px;
+            }
+            a:hover {
+                background-color: purple;
+            }
+            img {
+                background-color: silver;
+                padding: 8px;
+                padding-bottom: 32px;
+                margin-bottom: 12px;
+            }
+        </style>
     </head>
-    <body style="margin:0; background-color: black;color:white;">
-        <h1>This is a title</h1>
-        <ul>
-            <li>this is workin</li>
-            <li>i guess</li>
-            <form action="/tester.py" method="post" enctype="multipart/form-data">
-                <input type="text" name="username">
-                <input type="text" name="password">
-                <input type="submit" value="send">
-                <input type="file" name="uimage">
-                <input type="file" name="ufile">
-            </form>
-
-            <img src="index.jpeg" >
-        </ul>
+    <body>
+        <div id="wrapper">
+            <h1>This is a Home page</h1>
+            <a href="/post.html">Go to Forms</a>
+            <a href="cgi tests">Go to CGI Home page</a>
+            <img src="/images/file.jpeg" >
+            <img src="/images/index.jpeg" >
+        </div>
     </body>
 </html>

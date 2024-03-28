@@ -6,13 +6,15 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/23 18:13:24 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/28 22:49:20 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Route.hpp"
 
-Route::Route(Config* config, ErrorPages& pages): error_pages(pages)
+Route::Route(Config* config, ErrorPages& pages) :
+	error_pages(pages),
+	max_body_size(0)
 {
 	redirect = config->getBlockConfigIfExist("redirect");
 
@@ -35,14 +37,27 @@ Route::Route(Config* config, ErrorPages& pages): error_pages(pages)
 			throw ConfigException("Not a Valid Redirect Code Number", "code", prop);
 		}
 	}
-
+	
+	try {
+		max_body_size = utils::string_to_uint(
+			config->getInlineConfigOr("max_body_size", "0")
+		);
+	} catch (const std::exception&) {
+		throw ConfigException(
+			"Not a Valid Number",
+			"max_body_size",
+			config->getInlineConfig("max_body_size"));
+	}
+	
+	
 	autoindex = config->getInlineConfigOr("autoindex", "no") == "yes";
 	
 	uri = config->getInlineConfigIfExist("uri");
-	if (uri.back() == '/')
-		uri.erase(uri.length() - 1);
+	if (uri[uri.length() - 1] == '/') uri.erase(uri.length() - 1);
 
 	root = config->getInlineConfigIfExist("root");
+	if (root[root.length() - 1] == '/') root.pop_back();
+	
 	uploadPath = config->getInlineConfigIfExist("upload");
 	indexfile = config->getInlineConfigIfExist("index");
 	allowedMethods = config->getListConfigIfExist("allowed_methods");
@@ -57,6 +72,76 @@ Route&	Route::operator=( const Route& s ) {
 Route::~Route() {}
 
 const std::string&	Route::getURI() const{ return uri; }
+
+Result  			Route::handle(Request& request)
+{
+	request.setMaxBodySize(max_body_size);
+
+	if (! isMethodImplemented(request.getMethod()))
+		return (Result(error_pages.build(request, 501)));
+	
+	if ( ! isMethodAllowed(request.getMethod()) ) {
+		IResponse* res = error_pages.build(request, 405);
+		res->setHeader("Allow", getAllowedMethods());
+		return Result(res);
+	}
+	
+	if ( ! redirect.empty() )
+	{
+		BufferResponse* response = new BufferResponse(request.getSocket());
+		response->setStatusCode(code).setBody("")
+			.setHeader("Location", location);
+		return Result(response);
+	}
+	
+	if ( isRequestToCgi(request.getURI()) )
+		return handleRequestToCgi(request);
+		
+	if ( request.getMethod() == "GET" ) {
+		IResponse *res = handleRequestToFile(request);
+		return (Result(res));		
+	}
+	IResponse* res = error_pages.build(request, 405);
+	res->setHeader("Allow", "GET");
+	return Result(res);
+}
+
+bool				Route::isMethodImplemented(const std::string& method)
+{
+	if (method == "GET") return true;
+	if (method == "POST") return true;
+	if (method == "DELETE") return true;
+	return false;
+}
+
+std::string 		Route::getAbsolutePath(std::string req_uri)
+{
+	std::string uri_tmp = req_uri;
+	req_uri.erase(0, uri.length());
+	
+	std::string path = root + req_uri;
+	
+	if (uri_tmp[uri_tmp.length() - 1] == '/') uri_tmp.pop_back();
+
+	bool trailing_slash = path[path.length() - 1] == '/';
+
+	if (utils::is_directory(path) && uri_tmp == uri && trailing_slash && !indexfile.empty())
+		path += indexfile;
+	return (path);
+}
+
+std::string			Route::getAllowedMethods() const
+{
+	std::string	allowed_methods;
+	std::vector<std::string>::const_iterator it = allowedMethods.begin();
+	while (true) {
+		allowed_methods += *it;
+		if (++it == allowedMethods.end())
+			break;
+		allowed_methods += ", ";
+	}
+	return allowed_methods;
+}
 
 bool				Route::isMethodAllowed(const std::string& method)
 {
@@ -91,8 +176,8 @@ std::vector<DirLisingItem>	Route::readDirectory(const std::string& path)
 IResponse*			Route::makeDirectoryListingResponse(const Request& request, const std::string& path)
 {	
 	std::vector<DirLisingItem> fileList = readDirectory(path);
+	std::string 				body = DIR_LISTING_START;
 	
-	std::string body = DIR_LISTING_START;
 	for (size_t i = 0; i < fileList.size(); ++i)
 	{
 		DirLisingItem& item = fileList[i];
@@ -109,7 +194,7 @@ IResponse*			Route::makeDirectoryListingResponse(const Request& request, const s
 
 	IResponse * response = new BufferResponse(request.getSocket());
 	response->setStatusCode(200).setBody(body)
-		.setHeader("content-type", "text/html");
+		.setHeader("Content-Type", "text/html");
 	return response;
 }
 
@@ -133,28 +218,24 @@ IResponse*  		Route::handleRequestToFile(const Request& request)
 
 	if (utils::is_directory(path))
 	{
-		if (path.back() != '/')
+		if (path[path.length() - 1] != '/')
 		{
 			const string& uri = request.getURI();
+			const string& host = request.getHeader("host");
+			const string& query = request.getQuery();
+			string location = "http://" + host + uri + "/";
+			if (!query.empty()) location += "?" + query;
 			IResponse * response = new BufferResponse(request.getSocket());	
-			response->setHeader("Location", "http://" + request.getHeader("host") + uri + "/")
+			response->setStatusCode(301)
 				.setHeader("Content-Length", "0")
-				.setStatusCode(301)
-				.build();
+				.setHeader("Location", location);
 			return (response);
 		}
-		else if (!indexfile.empty())
-			return (makeFileResponseFromPath(request, path + indexfile));
 		else if (autoindex)
 		{
-			try
-			{
-				IResponse *response = makeDirectoryListingResponse(request, path);
-				return response;
-			}
+			try { return makeDirectoryListingResponse(request, path); }
 			catch(...){
-				// return (error_pages.build(request, 403));
-				// log error
+				return (error_pages.build(request, 403));
 			}
 		}
 		return (error_pages.build(request, 403));
@@ -172,13 +253,11 @@ Result  			Route::handleRequestToCgi(Request& request)
 	if ( ::access(path.c_str(), R_OK | X_OK) == -1 )
 		return (Result(error_pages.build(request, 500)));
 	
-	if (
-		request.getMethod() == "POST" &&
-		!uploadPath.empty() &&
-		request.getHeader("content-type").find("multipart/form-data") != std::string::npos &&
-        request.getHeader("x-upload") != "false"
-	)
+	if (isUpload(request)) {
+		if ( ::access(uploadPath.c_str(), F_OK | W_OK) == -1)
+			return (Result(error_pages.build(request, 403)));
 		return (Result(new Upload(&request, uploadPath)));
+	}
 
 	ProxyPair	pair = CGIHandler::handle(&request, path);
 
@@ -192,48 +271,23 @@ Result  			Route::handleRequestToCgi(Request& request)
 	return Result(pair);
 }
 
-std::string 		Route::getAbsolutePath(std::string req_uri)
+bool	Route::isUpload(const Request& request)
 {
-	req_uri = utils::decode_url(req_uri);
-	req_uri.erase(0, uri.length());
-	if (!req_uri.empty() && req_uri.front() != '/')
-		req_uri = "/" + req_uri;
-	return (root + req_uri);
+	bool is_upload = request.getMethod() == "POST";
+	is_upload = is_upload && !uploadPath.empty();
+
+	const std::string& ct = request.getHeader("content-type");
+	is_upload = is_upload && ct.find("multipart/form-data") != std::string::npos;
+    is_upload = is_upload && request.getHeader("x-upload") != "false";
+	return is_upload;
 }
 
 bool				Route::isRequestToCgi(const std::string & aUri)
 {
 	if (CGIExtensions.empty()) return false;
-
-	std::string extension = '.' + utils::getExtension(aUri);
-
+	
+	std::string extension = '.' + utils::getExtension(getAbsolutePath(aUri));
 	if (std::find(CGIExtensions.begin(), CGIExtensions.end(), extension) != CGIExtensions.end())
 		return true;
 	return false;
-}
-
-Result  			Route::handle(Request& request)
-{
-	// request.setMaxBodySize(100);
-	
-	if ( ! isMethodAllowed(request.getMethod()) )
-		return (Result(error_pages.build(request, 405)));
-	
-	if ( ! redirect.empty() )
-	{
-		BufferResponse* response = new BufferResponse(request.getSocket());
-		response->setStatusCode(code).setBody("")
-			.setHeader("location", location);
-		return Result(response);
-	}
-	
-	if ( isRequestToCgi(request.getURI()) )
-		return handleRequestToCgi(request);
-		
-	if ( request.getMethod() == "GET" ) {
-		IResponse *res = handleRequestToFile(request);
-		return (Result(res));		
-	}
-	
-	return (Result(error_pages.build(request, 501)));
 }

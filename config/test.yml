@@ -11,7 +11,7 @@ cluster:
     Default: yes
     host: localhost
     port: 8000
-    names: 
+    names:
       - localhost
       - test.y
     root: /Users/ysalmi/code/in_progress/webserv/YoupiBanane

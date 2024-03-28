@@ -33,6 +33,7 @@ Cluster::Cluster(Config* cluster)
 
 		serverConfig.addListIfExist(*cluster, "cgi");
         serverConfig.addInlineIfNotExist(*cluster, "root");
+        serverConfig.addInlineIfNotExist(*cluster, "max_body_size");
 
         servers.push_back(new Server(serverConfig, error_pages));
         ++it;

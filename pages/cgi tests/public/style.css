@@ -14,6 +14,9 @@ body {
     width: 1080px;
     max-width: 100%;
     margin: 0 auto;
+    height: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 ul {
@@ -23,4 +26,24 @@ ul {
 
 img {
     max-width: 100%;
+}
+
+#links {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+}
+
+#links a {
+    color: gold;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.125);
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+#links a:hover {
+    background-color: purple;
 }

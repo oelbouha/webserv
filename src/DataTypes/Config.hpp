@@ -62,8 +62,6 @@ class Config
 		void				addInLineIfExist(Config& config, const string& prop);
 		void				addBlockIfExist(Config& config, string prop);
 		void				addListIfExist(Config& server, const string& prop);
-
-		// void				IsValidDirective(const std::string & property);
 	
 		void	dump(int indent = 0) const;
 };

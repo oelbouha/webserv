@@ -161,12 +161,8 @@ void	CGIResponse::build()
 		const std::string& location = it->second;
 
 		if (location[0] == '/') { // local redirect
-			Logger::debug ("response headers size = ")(mResponseHeaders.size()).flush();
 			if ( mResponseHeaders.size() > 1 ) mError = true;
 			else if ( ! mEof || ! mBody.empty() ) mError = true;
-			Logger::debug ("mError: ")(mError?"True":"False").flush();
-			Logger::debug ("mEof: ")(mEof?"True":"False").flush();
-			Logger::debug ("mbody: *")(mBody)('*').flush();
 		}
 		else { // client redirect
 			it = mResponseHeaders.find("status");

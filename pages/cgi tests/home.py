@@ -1,95 +1,71 @@
-#!//usr/local/bin/python3
+#!/usr/local/bin/python3
 
+from chameleon import PageTemplateLoader
 from cgi.session import Session
+from cgi.response import Response
 from cgi.session import new_session
 from cgi.cookie import parse_cookie
+from cgi.forms import parse_urlencoded_form_data
 import config
 import os
-import fileinput
-import urllib.parse
-import sys
 
+path = os.path.dirname(__file__)
+templates = PageTemplateLoader(os.path.join(path, "templates"))
+template = templates['home.pt']
+
+response = Response()
+data = {
+    "links": [
+        "home.php",
+        "server_redir.py",
+        "client_redir.py",
+        "client_redir_body.py",
+        "instant_exit.py",
+        "infinite_loop.py",
+        "not_executable.py"
+    ]
+}
 
 def home_get():
     cookies = parse_cookie(os.getenv("HTTP_COOKIE") or "")
-    print(cookies, file=sys.stderr)
-    print(cookies.keys(), file=sys.stderr)
     if "session_id" in cookies.keys():
-        print("it is there", file=sys.stderr)
         session = Session(cookies["session_id"], config.get("SESSION_DIR"))
-        name = session.get("name")
+        data["name"] = session.get("name")
+        data["logged"] = True
 
-        print("Status: 200 Ok\r")
-        print("Content-Type: text/html\r")
-        print("\r")
-
-        print('''
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>cgi test - parset.py </title>
-        <link rel="stylesheet" href="public/style.css" />
-    </head>
-    <body>
-        <h1>Hello %s</h1>
-    </body>
-</html>
-        ''' % name)
+        response.setHeader("Status", "200 Ok")
+        response.setHeader("Content-Type", "text/html")
+        response.setBody(template(data=data))
+        response.send()
     else:
-        print("Status: 200 Ok\r")
-        print("Content-Type: text/html\r")
-        print("\r")
-
-        print('''
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>cgi test - parset.py </title>
-        <link rel="stylesheet" href="public/style.css" />
-    </head>
-    <body>
-        <h1>Set Your Name</h1>
-        <form method="POST" action="home.py">
-            <input type="text" name="name" placeholder="Type Your Name...">
-            <button>submit</button>
-        </form>
-    </body>
-</html>
-        ''')
+        data["logged"] = False
+        response.setHeader("Status", "200 Ok")
+        response.setHeader("Content-Type", "text/html")
+        response.setBody(template(data=data))
+        response.send()
 
 def home_post():
     cookies = parse_cookie(os.getenv("HTTP_COOKIE") or "")
-    input = ""
-    for line in fileinput.input():
-        input += line
-    form_data = urllib.parse.parse_qs(urllib.parse.unquote(input))
+    form_data = parse_urlencoded_form_data()
 
-    print("Status: 200 Created\r")
-    print("content-type: text/html\r")
-    user_session=""
+    data["logged"] = True
     if "session_id" in cookies.keys():
         user_session = Session(cookies["session_id"], config.get("SESSION_DIR"))
+        user_session.set("name", form_data["name"][0])
+        data["name"] = user_session.get("name")
     else:
         user_session_id = new_session(config.get("SESSION_DIR"))
         user_session = Session(user_session_id, config.get("SESSION_DIR"))
-        set_session = user_session.get_session_header()
-        print(set_session)
+        user_session.set("name", form_data["name"][0])
+        session_cookie = user_session.get_session_cookie()
+        data["name"] = user_session.get("name")
+        response.setHeader("Set-Cookie", session_cookie)
 
-    user_session.set("name", form_data["name"][0])
-    print("\r")
-    print('''
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>cgi test - parset.py </title>
-        <link rel="stylesheet" href="public/style.css" />
-    </head>
-    <body>
-        <h1>Hello %s</h1>
-    </body>
-</html>
-        ''' % user_session.get("name"))
+    response.setHeader("Status", "200 Ok")
+    response.setHeader("Content-Type", "text/html")
+    response.setBody(template(data=data))
     user_session.save()
+    response.send()
         
 
 
@@ -97,4 +73,10 @@ if (os.getenv("REQUEST_METHOD") == "GET"):
     home_get()
 elif (os.getenv("REQUEST_METHOD") == "POST"):
     home_post()
+else:
+    template = templates["error.pt"]
+    response.setHeader("Status", "405 Not Allowed")
+    response.setHeader("Content-Type", "text/html")
+    response.setBody(template(message = "This method is not allowed here"))
+    response.send()
     

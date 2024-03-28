@@ -54,6 +54,7 @@ private:
     void  sendReadyProxyResponses();
 
     void  handleClientRequest(Client* client, Request* request);
+    void  setupRespnose(Client* client, IResponse* response);
     void  disconnectClient(Client& client);
     
     void  cleanup();

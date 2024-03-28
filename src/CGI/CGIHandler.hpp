@@ -16,7 +16,6 @@
 
 #include <unistd.h>
 
-#include "IProxyHandler.hpp"
 #include "ProxyPair.hpp"
 #include "CGIRequest.hpp"
 #include "CGIResponse.hpp"

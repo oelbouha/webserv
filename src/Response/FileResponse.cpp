@@ -46,10 +46,10 @@ FileResponse &FileResponse::setBody(const std::string &aFileName)
 	std::ifstream file(aFileName.data(), std::ifstream::ate | std::ifstream::binary);
 	std::string contentLength = utils::to_string(file.tellg());
 	file.close();
-	setHeader("content-length", contentLength);
+	setHeader("Content-Length", contentLength);
 
 	const std::string &extension = utils::getExtension(aFileName);
-	setHeader("content-type", MimeTypes::getMimeType(extension));
+	setHeader("Content-Type", MimeTypes::getMimeType(extension));
 
 	return *this;
 }

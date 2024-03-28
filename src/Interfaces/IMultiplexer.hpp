@@ -8,7 +8,6 @@
  */
 
 #pragma once
-#include "IProxiedResponse.hpp"
 #ifndef IMULTIPLEXER_HPP
 #define IMULTIPLEXER_HPP
 
@@ -21,8 +20,6 @@
 #include "IProxyResponse.hpp"
 #include "IUpload.hpp"
 
-// implement with time efficiency in mind
-// we are only using one thread of execution
 class IMultiplexer {
 public:
   typedef enum {
@@ -36,15 +33,12 @@ public:
   virtual void wait(unsigned long int timeout) = 0;
   virtual bool ready() const = 0;
 
-  // server sockets used only to listen for new Clients
   virtual void add(IServerSocket *aServer) = 0;
   virtual void remove(IServerSocket *aServer) = 0;
 
-  // client sockets used only to listen for new Requests
   virtual void add(IClient *aClient) = 0;
   virtual void remove(IClient *aClient) = 0;
 
-  // response socket used only to listen if the client is ready to receive data
   virtual void add(IResponse *aResponse) = 0;
   virtual void remove(IResponse *aResponse) = 0;
 

@@ -7,7 +7,7 @@ cluster:
   mime_types:
     jpg: image/jpeg
     jpeg: image/jpeg
-  keep_alive:	1
+  keep_alive:	5
   keep_alive_timeout: 60
   server_props: no
 
@@ -31,16 +31,12 @@ cluster:
       codes:
         - 500
         - 501
-    error_page:
-      file: /4xx.html
-      codes:
-        - 418
-        - 404
-        - 400
     cgi:
       - .py
+      - .php
+    max_body_size: 0
     route:
-      uri: /test
+      uri: /redir_test
       root: /Users/ysalmi/code/in_progress/webserv/pages
       redirect:
         code: 301
@@ -48,31 +44,21 @@ cluster:
       allowed_methods:
         - POST
         - DELETE
-        - GET
     route:
       uri: /
       cgi:
-        - .ph
         - .py
-        - .phg
-        - .gf
       root: /Users/ysalmi/code/in_progress/webserv/pages
       autoindex: yes
-      allowed_methods:
-        - POST
-        - DELETE
-        - GET
-    route:
-      uri: /pages/
-      root: /Users/ysalmi/code/in_progress/webserv/pages
-      allowed_methods:
-        - POST
-        - DELETE
-        - GET
-    route:
-      uri: /pages
-      root: /Users/ysalmi/code/in_progress/webserv/pages
       index: index.html
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+    route:
+      uri: /cgi tests/
+      index: home.py
+      root: /Users/ysalmi/code/in_progress/webserv/pages/cgi tests
       allowed_methods:
         - POST
         - DELETE

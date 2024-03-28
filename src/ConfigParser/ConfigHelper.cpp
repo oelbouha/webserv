@@ -28,6 +28,7 @@ const string	ConfigHelper::sInlineConfigs[] = {
 	"code",
 	"location",
 	"default_mime",
+	"max_body_size",
 	LIST_END
 };
 
@@ -67,6 +68,7 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"server_props",
 			"error_page",
 			"server",
+			"max_body_size",
 
 		"mime_types:",
 			"*",
@@ -84,6 +86,7 @@ AllowedValues	ConfigHelper::initAllowedValues(){
 			"index",
 			"error_page",
 			"default",
+			"max_body_size",
 
 		"default:",
 			"yes",
@@ -154,7 +157,7 @@ bool	ConfigHelper::isBlockConfig(const string& aConfig)
 bool	ConfigHelper::isValueAllowed(const string& aConfig, const string& aValue)
 {
     try{
-	    vector<string>	properties = ConfigHelper::sAllowedValues.at(aConfig); // m['server']
+	    vector<string>	properties = ConfigHelper::sAllowedValues.at(aConfig);
 
 	    if (std::find(properties.begin(), properties.end(), aValue) != properties.end())
 		    return true;
@@ -169,7 +172,7 @@ bool	ConfigHelper::isValueAllowed(const string& aConfig, const string& aValue)
 bool	ConfigHelper::doesConfigAcceptAll(const string& aConfig)
 {
     try {
-	    vector<string>	properties = ConfigHelper::sAllowedValues.at(aConfig); // m['server']
+	    vector<string>	properties = ConfigHelper::sAllowedValues.at(aConfig); 
 		std::string		aValue = "*";
 
 	    if (std::find(properties.begin(), properties.end(), aValue) != properties.end())

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>cgi test - parset.py </title>
+        <link rel="stylesheet" href="public/style.css" />
+    </head>
+    <body>
+        <div tal:condition="data['logged']">
+            <h1>Hello ${data["name"]} :)</h1>
+        </div>
+        <div tal:condition="data['logged'] == False">
+            <h1>- Set Your Name -</h1>
+            <form method="POST" action="home.py">
+                <input type="text" name="name" placeholder="Type Your Name...">
+                <button>submit</button>
+            </form>
+        </div>
+        <div id="links">
+            <a tal:repeat="link data['links']" tal:content="link" tal:attributes="href link" />
+        </div>
+    </body>
+</html>

@@ -159,7 +159,7 @@ void Request::parseRequestLine(const std::string &aRequestLine) {
         queryStart = uriEnd;
     }
 
-    mUri = word.substr(0, uriEnd);
+    mUri = utils::decode_url(word.substr(0, uriEnd));
     mQuery = word.substr(queryStart);
 
     ss >> word;

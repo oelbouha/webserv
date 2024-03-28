@@ -102,24 +102,20 @@ void    Client::resetTimeout()
         mLastActivityEnd = std::time(NULL);
 }
 
-
-
 void    Client::setResponseHeaders(IResponse* res) const
 {
     if (mKeepAlive) {
-        Logger::debug ("response Keep-Alive").flush();
-        res->setHeader("connection", "keep-alive");
+        res->setHeader("Connection", "keep-alive");
         return;
     }
-    res->setHeader("connection", "close");
-    Logger::debug ("response Close").flush();
+    res->setHeader("Connection", "close");
 }
 
-void              Client::setResponseHeaders(IProxyResponse* res) const
+void    Client::setResponseHeaders(IProxyResponse* res) const
 {
     if (mKeepAlive) {
-        res->setHeader("connection", "keep-alive");
+        res->setHeader("Connection", "keep-alive");
         return;
     }
-    res->setHeader("connection", "close");
+    res->setHeader("Connection", "close");
 }

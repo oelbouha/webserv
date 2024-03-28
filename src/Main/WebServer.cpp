@@ -137,6 +137,18 @@ void WebServer::acceptNewClients()
     }
 }
 
+void WebServer::setupRespnose(Client* client, IResponse* res)
+{
+    AResponse* response = static_cast<AResponse*>(res);
+    client->setResponseHeaders(response);
+    response->build();
+    mMux->add(response);
+
+    response->client = client;
+    client->status = Client::ACTIVE;
+    client->activeResponse = response;
+}
+
 void WebServer::handleClientRequest(Client* client, Request* request)
 {
     Result result = mCluster->handle(*request);
@@ -147,15 +159,7 @@ void WebServer::handleClientRequest(Client* client, Request* request)
 
     if (result.type == Result::RESPONSE)
     {
-        AResponse* response = static_cast<AResponse*>(result.response());
-        client->setResponseHeaders(response);
-        response->build();
-        mMux->add(response);
-
-        response->client = client;
-        client->status = Client::ACTIVE;
-        client->activeResponse = response;
-
+        setupRespnose(client, result.response());
         delete request;
     }
     else if (result.type == Result::PROXY_PAIR)
@@ -167,15 +171,8 @@ void WebServer::handleClientRequest(Client* client, Request* request)
         try { cgi_request->read(); }
         catch ( const RequestException& e )
         {
+            setupRespnose(client, cgi_request->buildErrorPage(e.error));
             pair.setChildFree();
-            AResponse* response = static_cast<AResponse*>(cgi_request->buildErrorPage(e.error));
-            client->setResponseHeaders(response);
-            response->build();
-            mMux->add(response);
-
-            response->client = client;
-            client->status = Client::ACTIVE;
-            client->activeResponse = response;
             client->activeProxyPair = ProxyPair();
             delete cgi_request;
             delete cgi_response;
@@ -239,17 +236,17 @@ void WebServer::sendResponses()
     std::queue<IResponse *> qr = mMux->getReadyResponses();
     while (qr.size())
     {
-        AResponse *res = static_cast<AResponse*>(qr.front());
+        AResponse*  res = static_cast<AResponse*>(qr.front());
+        Client*     client = static_cast<Client*>(res->client);
 
         res->send();
         if (res->done())
         {
-            Client& client = *static_cast<Client*>(res->client);
-            client.activeResponse = NULL;
-            client.status = Client::IDLE;
-            client.resetTimeout();
+            client->activeResponse = NULL;
+            client->status = Client::IDLE;
+            client->resetTimeout();
             mMux->remove(res);
-            mMux->add(&client);
+            mMux->add(client);
             delete res;
         }
         qr.pop();
@@ -262,7 +259,7 @@ void WebServer::handleUploads()
 
     while (qu.size())
     {
-        Upload *upload = static_cast<Upload*>(qu.front());
+        Upload* upload = static_cast<Upload*>(qu.front());
         Client* client = static_cast<Client*>(upload->client);
         try
         {
@@ -278,28 +275,19 @@ void WebServer::handleUploads()
         { disconnectClient(*client); delete client; }
         catch (const RequestException& e)
         {
-            AResponse *response = static_cast<AResponse*>(upload->buildErrorPage(e.error));
-
-            response->setHeader("Connection", "close").build();
             client->setKeepAlive("close");
-
             mMux->remove(upload);
-            mMux->add(response);
-
-            response->client = client;
-            client->status = Client::ACTIVE;
-            client->activeResponse = response;
+            setupRespnose(client, upload->buildErrorPage(e.error));
             client->activeUpload = NULL;
-
             delete upload;
         }
         catch(const std::exception& e)
         {
             mMux->remove(upload);
+            client->activeUpload = NULL;
             delete upload;
-            Logger::error (e.what() ).flush();
+            Logger::error ( e.what() ).flush();
         }
-        
         qu.pop();
     }
 }
@@ -319,24 +307,13 @@ void WebServer::readFromReadyProxyRequests()
             mMux->remove(req, IMultiplexer::WRITE);
             if (req->getSocketFd() != -1) mMux->remove(req, IMultiplexer::READ);
 
-            AResponse *response = static_cast<AResponse*>(req->buildErrorPage(e.error));
-
-            response->setHeader("Connection", "close");
-            response->build();
             client->setKeepAlive("close");
+            setupRespnose(client, req->buildErrorPage(e.error));
 
-            mMux->add(response);
-
-            response->client = client;
-            client->status = Client::ACTIVE;
-            client->activeResponse = response;
-
-            
             client->activeProxyPair.setChildFree();
             delete client->activeProxyPair.request;
             delete client->activeProxyPair.response;
-            client->activeProxyPair.request = NULL;
-            client->activeProxyPair.response = NULL;
+            client->activeProxyPair = ProxyPair();
         }
         catch (const SocketException& e)
         { disconnectClient(*client); delete client; }
@@ -351,55 +328,35 @@ void WebServer::sendReadyProxyRequests()
 
     while (qpreqs.size())
     {
-        CGIRequest *req = static_cast<CGIRequest*>(qpreqs.front());
+        CGIRequest* req = static_cast<CGIRequest*>(qpreqs.front());
+        Client*     client = static_cast<Client*>(req->client);
 
         try
         {
-            Logger::debug ("cgi request send").flush();
             req->send();
             if (req->done())
             {
-                Logger::debug ("cgi req done").flush();
                 mMux->remove(req, IMultiplexer::WRITE);
                 if (req->getSocketFd() != -1)
                     mMux->remove(req, IMultiplexer::READ);
-                Client &client = *static_cast<Client*>(req->client);
-                client.activeProxyPair.request = NULL;
-                mMux->add(&client);
+                client->activeProxyPair.request = NULL;
+                mMux->add(client);
                 delete req;
 
-                mMux->add(client.activeProxyPair.response, IMultiplexer::READ);
-                mMux->add(client.activeProxyPair.response, IMultiplexer::WRITE);
+                mMux->add(client->activeProxyPair.response, IMultiplexer::WRITE);
             }
         }
         catch (const std::exception &e)
         {
-            Logger::debug ("cgi ACTIVE error ")( e.what() ).flush();
+            if (client->activeProxyPair.request->getSocketFd() != -1)
+                mMux->remove(client->activeProxyPair.request, IMultiplexer::READ);
+            mMux->remove(client->activeProxyPair.request, IMultiplexer::WRITE);
+            client->activeProxyPair.setChildFree();
+            setupRespnose(client, req->buildErrorPage(502));
 
-            Client &client = *static_cast<Client*>(req->client);
-
-            if (client.activeProxyPair.request->getSocketFd() != -1)
-                mMux->remove(client.activeProxyPair.request, IMultiplexer::READ);
-            mMux->remove(client.activeProxyPair.request, IMultiplexer::WRITE);
-            client.activeProxyPair.setChildFree();
-
-            if (!client.activeProxyPair.response->sent()) // if nothing is sent to the client
-            {
-                AResponse *res = static_cast<AResponse*>(req->buildErrorPage(502));
-                res->client = &client;
-                
-                client.setResponseHeaders(res);
-                res->build();
-                mMux->add(res);
-
-                client.status = Client::ACTIVE;
-                client.activeResponse = res;
-            }
-
-            delete client.activeProxyPair.request;
-            client.activeProxyPair.request = NULL;
-            delete client.activeProxyPair.response;
-            client.activeProxyPair.response = NULL;
+            delete client->activeProxyPair.request;
+            delete client->activeProxyPair.response;
+            client->activeProxyPair = ProxyPair();
         }
 
         qpreqs.pop();
@@ -411,34 +368,40 @@ void WebServer::readFromReadyProxyResponses()
     std::queue<IProxyResponse *> qpres = mMux->getReadyForReadingProxyResponses();
     while (qpres.size())
     {
-        CGIResponse *res = static_cast<CGIResponse*>(qpres.front());
-        Client*     client = static_cast<Client*>(res->client);
+        CGIResponse* res = static_cast<CGIResponse*>(qpres.front());
+        Client*      client = static_cast<Client*>(res->client);
         try
         {
             res->read();
             if (res->isLocalRedirection()) {
-                Request*    req = static_cast<Request*>(res->request);
+                mMux->remove(res, IMultiplexer::READ);
+                mMux->remove(res, IMultiplexer::WRITE);
+                client->activeProxyPair.setChildFree();
+                client->activeProxyPair = ProxyPair();
+
+                Request*            req = static_cast<Request*>(res->request);
                 const std::string&  location = res->getRedirectionLocation();
                 std::string         raw_req_header = req->getRawHeader();
+
                 raw_req_header.erase(0, raw_req_header.find("\r\n") + 2);
                 raw_req_header = "GET " + location + " HTTP/1.1\r\n" + raw_req_header;
                 
                 BufferRequest* redir_request = new BufferRequest(*req, raw_req_header, "");
-
-                mMux->remove(res, IMultiplexer::READ);
-                mMux->remove(res, IMultiplexer::WRITE);
-
-                client->activeProxyPair.setChildFree();
-                client->activeProxyPair.response = NULL;
-
                 handleClientRequest(client, redir_request);
 
+                
                 delete res->request;
                 delete res;
             }
         }
         catch (const std::exception &e)
         {
+            client->activeProxyPair.setChildFree();
+            client->activeProxyPair = ProxyPair();
+            mMux->remove(res, IMultiplexer::READ);
+            mMux->remove(res, IMultiplexer::WRITE);
+            delete res->request;
+            delete res;
             Logger::warn ("cgi response error ")( e.what() ).flush();
         }
 
@@ -461,23 +424,10 @@ void WebServer::sendReadyProxyResponses()
             {
                 mMux->remove(res, IMultiplexer::READ);
                 mMux->remove(res, IMultiplexer::WRITE);
-
                 client->activeProxyPair.setChildFree();
-                client->activeProxyPair.response = NULL;
+                client->activeProxyPair = ProxyPair();
                 
-                if (res->error())
-                {
-                    AResponse* response = static_cast<AResponse*>(res->buildErrorPage(502));
-
-                    response->client = client;
-                    client->setResponseHeaders(response);
-                    response->build();
-
-                    mMux->add(response);
-
-                    client->status = Client::ACTIVE;
-                    client->activeResponse = response;
-                }
+                if (res->error()) setupRespnose(client, res->buildErrorPage(502));
                 else
                 {
                     mMux->add(client);
@@ -540,7 +490,7 @@ void WebServer::cleanup()
             delete client;
             it = tmp;
         }
-        if (client->activeProxyPair.response) {
+        else if (client->activeProxyPair.response) {
             CGIResponse* response = static_cast<CGIResponse*>(client->activeProxyPair.response);
             IRequest*    request = response->request;
             if (response->hasTimedOut()) {
@@ -555,20 +505,10 @@ void WebServer::cleanup()
                 else {
                     mMux->remove(response, IMultiplexer::READ);
                     mMux->remove(response, IMultiplexer::WRITE);
-
                     client->activeProxyPair.setChildFree();
-                    client->activeProxyPair.response = NULL;
-
-                    AResponse* res = static_cast<AResponse*>(response->buildErrorPage(504));
-
-                    res->client = client;
-                    client->setResponseHeaders(res);
-                    res->build();
-
-                    mMux->add(res);
-
-                    client->status = Client::ACTIVE;
-                    client->activeResponse = res;
+                    client->activeProxyPair = ProxyPair();
+                    setupRespnose(client, response->buildErrorPage(504));
+                    Logger::warn ("CGI script timed out").flush();
                     delete response;
                     delete request;
                 }

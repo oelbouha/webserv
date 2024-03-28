@@ -1,4 +1,4 @@
-#!//usr/local/bin/python3
+#!/usr/local/bin/python3
 import os
 
 body = '''<!DOCTYPE html>

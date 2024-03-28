@@ -33,7 +33,7 @@ BufferResponse&	BufferResponse::operator=(const BufferResponse&	aBufferResponse)
 BufferResponse&	BufferResponse::setBody(const std::string &aBody)
 {
 	mBody = aBody;
-	mHeaders["content-length"] = utils::to_string(mBody.length());
+	setHeader("Content-Length", utils::to_string(mBody.length()));
 	return (*this);
 }
 

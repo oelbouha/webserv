@@ -215,7 +215,7 @@ unsigned int	YmlConfigParser::countLeadingTabs_(const string& line) const
 {
 	int		count = 0;
 
-	if (line[0] == ' ')// using spaces - 2spaces = 1tab 15000
+	if (line[0] == ' ')// using spaces - 2spaces = 1tab
 	{
 		for(;;count += 2)
 		{

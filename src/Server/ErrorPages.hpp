@@ -42,13 +42,22 @@ public:
     <head>\
         <title>::title::</title>\
         <style>\
-            body {\
-                font-family: Arial, sans-serif;\
-                background-color: #f4f4f4;\
-                color: #333;\
-                text-align: center;\
-                padding: 50px;\
-            }\
+        body {\
+            font-family: Arial, sans-serif;\
+            background: #282828;\
+            padding: 10px; \
+            display: flex;\
+            flex-direction: column;\
+            justify-content: center;\
+            align-items: center;\
+            color: white;\
+            width: 1080px;\
+            max-width: 100%;\
+            margin: 0 auto;\
+            height: 100%;\
+            min-height: 100vh;\
+            box-sizing: border-box;\
+        }\
         .error-code { font-size: 120px; color: #d9534f;}\
         .error-message { font-size: 24px; margin-top: 20px; }\
         </style>\

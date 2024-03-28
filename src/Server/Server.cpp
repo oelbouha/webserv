@@ -6,7 +6,7 @@
 /*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/17 17:53:02 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/03/26 18:12:47 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ Server::Server(Config& serverConfig, ErrorPages& pages) :
 		routeConfig->addInlineIfNotExist(serverConfig, "root");
 		routeConfig->addInlineIfNotExist(serverConfig, "index");
 		routeConfig->addInlineIfNotExist(serverConfig, "upload");
+		routeConfig->addInlineIfNotExist(serverConfig, "max_body_size");
 
 		routeConfig->addBlockIfExist(serverConfig, "error_page");
 		routeConfig->addListIfExist(serverConfig, "cgi");
