@@ -16,17 +16,36 @@ cluster:
       - 401
       - 404
       - 416
-
   server:
-    root: /Users/oelbouha/Desktop/In_Progres/pages
-    upload: /Users/oelbouha/Desktop/In_Progres/upload
-    # default: yes
+    root: /Users/oelbouha/Desktop/webserv/pages
+    upload: /Users/oelbouha/Desktop/webserv/upload
     host: localhost
+    names: 
+      - localhost
     ports:
       - 8000
-      - 8080
-    # names:
-    #   - localhost
+    cgi:
+      - .py
+      - .php
+    error_page:
+      file: /50x.html
+      codes:
+        - 500
+        - 501
+    route:
+      uri: /
+      root: /Users/oelbouha/Desktop/webserv/pages
+      autoindex: yes
+      allowed_methods:
+        - POST
+        - DELETE
+        - GET
+  server:
+    root: /Users/oelbouha/Desktop/webserv
+    upload: /Users/oelbouha/Desktop/webserv/upload
+    host: 0.0.0.0
+    ports:
+      - 8000
     error_page:
       file: /50x.html
       codes:
@@ -41,59 +60,10 @@ cluster:
     cgi:
       - .h
     route:
-      uri: /test
-      root: /Users/oelbouha/Desktop/In_Progres/pages
-      redirect:
-        code: 301
-        location: /
-      allowed_methods:
-        - POST
-        - DELETE
-        - GET
-    route:
       uri: /
-      cgi:
-        - .ph
-        - .p
-        - .phg
-        - .gf
-      root: /Users/oelbouha/Desktop/In_Progres/pages
+      root: /Users/oelbouha/Desktop/webserv
       autoindex: yes
       allowed_methods:
         - POST
         - DELETE
         - GET
-    route:
-      uri: /pages/
-      root: /Users/oelbouha/Desktop/In_Progres/pages
-      allowed_methods:
-        - POST
-        - DELETE
-        - GET
-    route:
-      uri: /pages
-      root: /Users/oelbouha/Desktop/In_Progres/pages
-      index: index.html
-      allowed_methods:
-        - POST
-        - DELETE
-        - GET
-  
-  server:
-    host: 10.30.252.175
-    index: index.html
-    root: /Users/oelbouha/Desktop/In_Progres/pages
-    upload: /Users/oelbouha/Desktop/In_Progres/upload
-    ports:
-      - 8058
-    error_page:
-      file: /40x.html
-      codes:
-        - 418
-        # - 404
-        - 400
-    route:
-      uri: /
-      allowed_methods:
-        - GET
-        - POST

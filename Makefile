@@ -22,7 +22,7 @@ INC := -I. \
 #TMP := -I/goinfre/ysalmi/brew/opt/llvm/include
 TMP :=
 
-CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) #-fsanitize=address -g 
+CPPFLAGS := -Wall -Wextra -Werror $(INC) $(TMP) -fsanitize=address -g 
 
 LINKER := -L/goinfre/ysalmi/brew/opt/llvm/lib/c++ \
 		-Wl,-rpath,/goinfre/ysalmi/brew/opt/llvm/lib/c++
@@ -73,7 +73,7 @@ CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 	CGI/DefaultWriter.cpp \
 	CGI/ChunkedWriter.cpp
 
-MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp
+MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp Multiplexer/KqueueMultiplexer.cpp
 
 SERVER_COMPONENT := Server/Result.cpp \
 	Server/Cluster.cpp \

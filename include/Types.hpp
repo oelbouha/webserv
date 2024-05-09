@@ -15,6 +15,7 @@
 #include <string>
 
 typedef unsigned int ip_t;
+typedef unsigned int uint;
 
 typedef const std::string const_string;
 

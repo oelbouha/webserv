@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/28 22:49:20 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/05/07 16:46:16 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ Route::Route(Config* config, ErrorPages& pages) :
 		throw ConfigException("Webserv", "redirect", "Multiple Declaration");
 	if (redirect.size())
 	{
+
 		location = redirect.front()->getInlineConfigIfExist("location");
 		if (location.empty())
 			throw ConfigException("Webserv", "redirect", "redirect Block Without Location");
@@ -49,7 +50,6 @@ Route::Route(Config* config, ErrorPages& pages) :
 			config->getInlineConfig("max_body_size"));
 	}
 	
-	
 	autoindex = config->getInlineConfigOr("autoindex", "no") == "yes";
 	
 	uri = config->getInlineConfigIfExist("uri");
@@ -75,8 +75,9 @@ const std::string&	Route::getURI() const{ return uri; }
 
 Result  			Route::handle(Request& request)
 {
+	// std::cout << "req uri :: " << request.getURI() << std::endl; 
 	request.setMaxBodySize(max_body_size);
-
+	
 	if (! isMethodImplemented(request.getMethod()))
 		return (Result(error_pages.build(request, 501)));
 	
@@ -95,7 +96,10 @@ Result  			Route::handle(Request& request)
 	}
 	
 	if ( isRequestToCgi(request.getURI()) )
+	{
+		std::cout << "Requested To CGI !!" << std::endl;
 		return handleRequestToCgi(request);
+	}
 		
 	if ( request.getMethod() == "GET" ) {
 		IResponse *res = handleRequestToFile(request);
@@ -193,7 +197,7 @@ IResponse*			Route::makeDirectoryListingResponse(const Request& request, const s
 	body += DIR_LISTING_END;
 
 	IResponse * response = new BufferResponse(request.getSocket());
-	response->setStatusCode(200).setBody(body)
+	response->setStatusCode(200).setBody(body) /// ???
 		.setHeader("Content-Type", "text/html");
 	return response;
 }
@@ -225,7 +229,7 @@ IResponse*  		Route::handleRequestToFile(const Request& request)
 			const string& query = request.getQuery();
 			string location = "http://" + host + uri + "/";
 			if (!query.empty()) location += "?" + query;
-			IResponse * response = new BufferResponse(request.getSocket());	
+			IResponse * response = new BufferResponse(request.getSocket());
 			response->setStatusCode(301)
 				.setHeader("Content-Length", "0")
 				.setHeader("Location", location);
@@ -252,7 +256,7 @@ Result  			Route::handleRequestToCgi(Request& request)
 	
 	if ( ::access(path.c_str(), R_OK | X_OK) == -1 )
 		return (Result(error_pages.build(request, 500)));
-	
+
 	if (isUpload(request)) {
 		if ( ::access(uploadPath.c_str(), F_OK | W_OK) == -1)
 			return (Result(error_pages.build(request, 403)));
@@ -285,9 +289,20 @@ bool	Route::isUpload(const Request& request)
 bool				Route::isRequestToCgi(const std::string & aUri)
 {
 	if (CGIExtensions.empty()) return false;
-	
+
 	std::string extension = '.' + utils::getExtension(getAbsolutePath(aUri));
 	if (std::find(CGIExtensions.begin(), CGIExtensions.end(), extension) != CGIExtensions.end())
 		return true;
 	return false;
+}
+
+void			Route::printMethods() 
+{
+	std::vector<std::string>::iterator it = allowedMethods.begin();
+	std::cout << "Allowed Methods :: ";
+	while (it != allowedMethods.end()){
+		std::cout << *it << ", ";
+		++it;
+	}
+	std::cout << std::endl;
 }

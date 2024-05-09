@@ -25,6 +25,7 @@
 
 #include "src/Server/Cluster.hpp"
 #include "src/Multiplexer/SelectMultiplexer.hpp"
+#include "src/Multiplexer/KqueueMultiplexer.hpp"
 #include "src/Client/Client.hpp"
 #include "src/Request/Request.hpp"
 #include "src/Request/BufferRequest.hpp"

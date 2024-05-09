@@ -35,7 +35,7 @@ void	ErrorPages::setErrorPages(const std::vector<Config *>& error_pages_config, 
 {
 	if (error_pages_config.empty())
 		return ;
-	
+
 	std::vector<Config *>::const_iterator it = error_pages_config.begin();
 	while (it != error_pages_config.end())
 	{

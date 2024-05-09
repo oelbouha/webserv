@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/26 18:12:47 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/04/30 14:38:28 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,19 +33,21 @@ Server::Server(Config& serverConfig, ErrorPages& pages) :
 	}
 
 	is_default = serverConfig.getInlineConfigIfExist("default") == "yes";
-	
-	names = serverConfig.getListConfigIfExist("names");
+	names = serverConfig.getListConfigIfExist("names");	
 
-	host = serverConfig.getInlineConfigOr("host", "0.0.0.0");//localhost, 12.hello.123.3
-
-	ip = utils::hostname_to_ip_v4(host);
-	if (ip == (unsigned int)-1)
-		ip = utils::ip(host);
-	
-	host = utils::ip(ip);
+	try
+	{
+		host = serverConfig.getInlineConfigOr("host", "0.0.0.0"); // localhost, 12.hello.123.3
+		ip = utils::hostname_to_ip_v4(host);
+		if (ip == (unsigned int)-1)
+			ip = utils::ip(host);
+		host = utils::ip(ip);
+	}
+	catch (std::exception& e) {
+		// std::cout << "Host :: " << host << std::endl;
+	}
 
 	root = serverConfig.getInlineConfigIfExist("root");
-	
 	error_pages.setErrorPages(serverConfig.getBlockConfigIfExist("error_page"), root);
 
 	std::vector<Config*> routeBlockConfig = serverConfig.getBlockConfig("route");
@@ -65,7 +67,6 @@ Server::Server(Config& serverConfig, ErrorPages& pages) :
 
 		Route *route = new Route(routeConfig, error_pages);
 		routes.push_back(route);
-
 		++it;
 	}
 }
@@ -122,6 +123,41 @@ Route*	Server::getMatchedRoute(const Request& req)
     return (ret);
 }
 
+bool	Server::isRequestProperlyStructured(const Request &req)
+{
+    const string& transfer_encoding  = req.getHeader("transfer-encoding");
+    if (!transfer_encoding.empty() && transfer_encoding != "chunked")
+    {
+        Logger::debug ("request not well formed").flush();
+        statusCode = 501;
+        return false;
+    }
+    if (containsValidCharacters(req.getURI()) == false) {
+        Logger::debug ("contains not valid characters").flush();
+		statusCode = 400;
+		return false;
+    }
+    else if (req.getURI().length() > MAX_URI_LENGTH) {
+        statusCode = 414;
+		return false;
+    }
+	return true;
+}
+
+bool	Server::containsValidCharacters(string uri)
+{
+    const string& validCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij\
+        klmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
+
+    for (size_t i = 0; i < uri.length(); ++i)
+    {
+        if (validCharacters.find(uri[i]) == std::string::npos)
+            return false;
+    }
+	return true;
+}
+
+
 Result  Server::handle(Request& request)
 {
 	try {
@@ -136,38 +172,4 @@ Result  Server::handle(Request& request)
 	} catch ( const RequestException& e ) {
 		return Result(error_pages.build(request, e.error));
 	}
-}
-
-bool	Server::isRequestProperlyStructured(const Request &req)
-{
-    const string& transfer_encoding  = req.getHeader("transfer-encoding");
-    if (!transfer_encoding.empty() && transfer_encoding != "chunked")
-    {
-        Logger::debug ("request not well formed").flush();
-        statusCode = 501;
-        return false;
-    }
-    if (containsValidCharacters(req.getURI()) == false) {
-        Logger::debug ("contains not valid characters").flush();
-        statusCode = 400;
-        return false;
-    }
-    else if (req.getURI().length() > MAX_URI_LENGTH) {
-        statusCode = 414;
-        return false;
-    }
-    return true;
-}
-
-bool	Server::containsValidCharacters(string uri)
-{
-    const string& validCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij\
-        klmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
-
-    for (size_t i = 0; i < uri.length(); ++i)
-    {
-        if (validCharacters.find(uri[i]) == std::string::npos)
-            return false;
-    }
-	return true;
 }

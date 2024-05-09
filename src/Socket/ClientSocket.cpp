@@ -121,8 +121,11 @@ std::string ClientSocket::readAll()
 
     mBuffer.clear();
 
-    while ((r = ::read(mID, buffer, bufferSize)) > 0)
+    while ((r = ::read(mID, buffer, bufferSize)) > 0) {
         ret += std::string(buffer, r);
+        Logger::info("read ret: ")(r).flush();
+    }
+    Logger::info("read ret out: ")(r).flush();
 
     if (r != -1)
         mRead = r;

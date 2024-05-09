@@ -24,7 +24,7 @@ class IMultiplexer {
 public:
   typedef enum {
     READ,
-    WRITE
+    WRITE,
   } mod_t;
 
 public:

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Route.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/28 22:40:25 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/04/30 10:57:26 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ private:
 	bool		isUpload(const Request&);
 	std::string	getAllowedMethods() const;
 	std::vector<DirLisingItem> 	readDirectory(const std::string& path);
+	void		printMethods();
 };
 
 #define DIR_LISTING_START "\

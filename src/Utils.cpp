@@ -227,7 +227,7 @@ namespace utils
 		freeaddrinfo(result);
 		return ret;
 	}
-	
+
 	//	Other
 	int		get_exit_status(pid_t pid)
 	{
@@ -260,7 +260,7 @@ namespace utils
 		int pos = line.rfind('.');
 		if (pos > 0)
 			extension = line.substr(pos + 1, line.length());
-		return (extension);	
+		return (extension);
 	}
 
 	bool	is_valid_number(std::string line)
@@ -293,8 +293,6 @@ namespace utils
 	{
 		return (a < b) ? a : b;
 	}
-
-	
 }
 
 

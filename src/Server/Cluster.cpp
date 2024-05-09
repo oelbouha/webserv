@@ -40,8 +40,7 @@ Cluster::Cluster(Config* cluster)
     }
 }
 
-Cluster::~Cluster()
-{
+Cluster::~Cluster() {
     for(size_t i = 0; i < servers.size(); ++i)
         delete servers[i];
 }
@@ -106,6 +105,7 @@ Server*	Cluster::getMatchedServer(Request &req)
                 return (server);
         }
         
+        // look for default server
         for (unsigned int i = 0; i < matchedServers.size(); ++i)
             if (matchedServers[i]->isDefault())
                 return (matchedServers[i]);
@@ -116,7 +116,8 @@ Server*	Cluster::getMatchedServer(Request &req)
 
 Result  Cluster::handle(Request& request)
 {
-    try {
+    try
+    {
         Server* server = getMatchedServer(request);
         return (server->handle(request));
     }

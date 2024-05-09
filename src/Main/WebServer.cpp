@@ -51,7 +51,8 @@ WebServer::WebServer(Config *aConfig) : mConfig(aConfig)
     { throw ConfigException("Config error", "keep_alive/keep_alive_timeout", e.what()); }
 
 
-    mMux = new SelectMultiplexer();
+    // mMux = new SelectMultiplexer();
+    mMux = new KqueueMultiplexer();
     mCluster = new Cluster( clusterConfig );
 
     std::set<std::pair<uint, uint> > ip_port_pairs = mCluster->getServersIPPortPairs();
@@ -123,6 +124,7 @@ void WebServer::loop()
 void WebServer::acceptNewClients()
 {
     std::queue<IServerSocket *> qs = mMux->getReadyServerSockets();
+
     while (qs.size())
     {
         const IServerSocket&    sock = *(qs.front());
@@ -134,6 +136,8 @@ void WebServer::acceptNewClients()
         mClients.push_back(client);
         mMux->add(client);
         qs.pop();
+
+        Logger::info("client accepted ")(client->getSocketFd()).flush();
     }
 }
 
@@ -153,6 +157,7 @@ void WebServer::handleClientRequest(Client* client, Request* request)
 {
     Result result = mCluster->handle(*request);
 
+    Logger::info("removing client from Mux ")(client->getSocketFd()).flush();
     mMux->remove(client);
 
     client->setKeepAlive(request->getHeader("connection"));
@@ -217,6 +222,10 @@ void WebServer::handleClientRequest(Client* client, Request* request)
 void WebServer::takeAndHandleRequests()
 {
     std::queue<IClient *> qc = mMux->getReadyClients();
+    Logger::info("size of active clients: ")(qc.size())(" -> ");
+    if (qc.empty()) Logger::info.flush();
+    else Logger::info(qc.front()->getSocketFd()).flush();
+
     while (qc.size())
     {
         Client *client = static_cast<Client *>(qc.front());
@@ -412,6 +421,8 @@ void WebServer::readFromReadyProxyResponses()
 void WebServer::sendReadyProxyResponses()
 {
     std::queue<IProxyResponse *> qpres = mMux->getReadyForWritingProxyResponses();
+
+    // std::cout << "Qpres :: " << qpres.size() << std::endl;
     
     while (qpres.size())
     {
@@ -449,6 +460,7 @@ void WebServer::sendReadyProxyResponses()
 
 void WebServer::disconnectClient(Client &client)
 {
+    Logger::info("disconnecting client")(client.getSocketFd()).flush();
     if (client.activeResponse)
     {
         mMux->remove(client.activeResponse);
