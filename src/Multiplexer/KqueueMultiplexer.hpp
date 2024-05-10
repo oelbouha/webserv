@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 14:52:03 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/09 16:22:26 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/10 15:26:52 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,20 +40,20 @@ struct mybitset {
 
 class KqueueMultiplexer : public IMultiplexer
 {
-	std::list<IServerSocket *> 			Servers;
-	std::list<IClient *> 				Clients;
-	std::list<IResponse *> 				Responses;
-	std::list<IProxyRequest *> 			ProxyRequests;
-	std::list<IProxyResponse *>			ProxyResponses;
-	std::list<IUpload *>				Uploads;
+	std::map<int , IServerSocket *> 			Servers;
+	std::map<int , IClient *> 					Clients;
+	std::map<int , IResponse *> 				Responses;
+	std::map<int , IProxyRequest *> 			ProxyRequests;
+	std::map<int , IProxyResponse *>			ProxyResponses;
+	std::map<int , IUpload *>					Uploads;
 
-	std::vector<mybitset>					set;
+	std::vector<mybitset>						set;
 
 public:
 	KqueueMultiplexer();
 	~KqueueMultiplexer();
 
-	std::queue<IServerSocket *>		getReadyServerSockets() const;
+	std::queue<IServerSocket *>	 	getReadyServerSockets() const;
 	std::queue<IClient *>			getReadyClients() const;
 	std::queue<IResponse *>			getReadyResponses() const;
 	std::queue<IUpload *>			getReadyUploads() const;
@@ -84,16 +84,13 @@ public:
 	bool		IsEventSet(unsigned int socketFd, short filter) const ;
 	void		AddOrDeleteEvent(unsigned int socketFd, short filter, short flag);
 	bool 		IsSet(unsigned int socketFd, short filter) const ;
-	void		setupReadAndWriteSets();
+	void		deleteEvent(unsigned int fd, short filter);
 	
 private:
-	struct kevent event;
+	
 	std::vector<struct kevent> 		Events;
 	std::map<int, struct kevent>	readyEventsMap;
-	std::bitset<4096> 				readSet;
-	std::bitset<4096> 				writeSet;
 	int 							ReadyEvents;
-	// uint 							count;
 	int								Kq;
 };
 
