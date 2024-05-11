@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 15:10:02 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/10 15:41:18 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/11 12:21:38 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,11 @@ KqueueMultiplexer::~KqueueMultiplexer(){
 	close (Kq);
 }
 
-KqueueMultiplexer::KqueueMultiplexer() : set(4094)
+KqueueMultiplexer::KqueueMultiplexer()
 {
     Kq = kqueue();
 	if (Kq < 0)
-	{
-		perror("Kqueue");
-		// exit (EXIT_FAILURE);
-	}
+		throw MultiplexerException("Failed To Create Kqueue");
 }
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -148,8 +145,6 @@ std::queue<IResponse *> KqueueMultiplexer::getReadyResponses() const
 
 void  KqueueMultiplexer::add(IProxyRequest*  request, IMultiplexer::mod_t mod)
 {
-	// std::cout << "Adding proxy request :: " << request->getOutputFd() << " | " << request->getSocketFd() << std::endl;
-
 	ProxyRequests[request->getOutputFd()] = request;
 	if (mod == IMultiplexer::WRITE)
 	{
@@ -173,35 +168,25 @@ void  KqueueMultiplexer::remove(IProxyRequest*  request, IMultiplexer::mod_t mod
 			AddOrDeleteEvent(request->getSocketFd(), EVFILT_READ, EV_DELETE);
 		
 		if ( ! IsSet(request->getOutputFd(), EVFILT_WRITE) )
-		{
-			// std::cout << "Removing Request Object fd -> " << request->getSocketFd() << " | " << request->getOutputFd() << std::endl;
 			ProxyRequests.erase(pos);
-		}
 		return ;
 	}
 
 	AddOrDeleteEvent(request->getOutputFd(), EVFILT_WRITE, EV_DELETE);	
 	if (request->getSocketFd() != -1 || ! IsSet(request->getSocketFd(), EVFILT_READ))
-	{
-		// std::cout << "Removing Request Object fd -> " << request->getSocketFd() << " | " << request->getOutputFd() << std::endl;
 		ProxyRequests.erase(pos);
-	}
 }
 
 /*****************************      Proxy Response   *******************************/
 
 void  KqueueMultiplexer::add(IProxyResponse* res, IMultiplexer::mod_t mod)
 {
-	// std::cout << "Adding proxy response :: " << res->getInputFd() << " | " << res->getSocketFd() << std::endl;
-
 	ProxyResponses[res->getSocketFd()] = res;
 	if (mod == IMultiplexer::READ)
 	{
-		// std::cout << "Adding Proxy Reponse Sock For Read :: " <<  res->getInputFd() << std::endl;
 		AddOrDeleteEvent(res->getInputFd(), EVFILT_READ, EV_ADD);
 		return ;
 	}
-	// std::cout << "Adding Proxy Reponse Sock For Write :: " <<  res->getSocketFd() << std::endl;
 	AddOrDeleteEvent(res->getSocketFd(), EVFILT_WRITE, EV_ADD);
 }
 
@@ -359,11 +344,7 @@ void	KqueueMultiplexer::wait(unsigned long int time)
   	timeout.tv_nsec = static_cast<long>(time % 1000000);
 
 	ReadyEvents = kevent(Kq, NULL, 0, Events.data(), Events.size(), &timeout);
-	if (ReadyEvents < 0)
-	{
-		perror("Multiplexer Failed :");
-		exit(EXIT_FAILURE);
-	}
+	if (ReadyEvents < 0) throw MultiplexerException("Kevent Failed To Watch Events");
 	if (ReadyEvents == 0) return ;
 	
 	readyEventsMap.clear();
@@ -419,12 +400,8 @@ void	KqueueMultiplexer::AddOrDeleteEvent(unsigned int fd, short filter, short fl
 	struct kevent event;
 
 	EV_SET(&event, fd, filter, flag, 0, 0, NULL);
-	if (kevent(Kq, &event, 1, NULL, 0, NULL) == -1)
-	{
-		std::cout << "Failed To Remove Sock :: " << fd << std::endl;
-		perror("kevent: Failed ");
-		exit(EXIT_FAILURE);
-	}
+	if (kevent(Kq, &event, 1, NULL, 0, NULL) < 0)
+		throw MultiplexerException("Kevent Failed To set The Event");
 	if (flag == EV_DELETE)
 		deleteEvent(fd, filter);
 	else if (flag == EV_ADD)

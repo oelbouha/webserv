@@ -96,7 +96,6 @@ void WebServer::start()
     }
 
     if (mSockets.empty()) {
-        Logger::fatal ("No active listening Socket").flush();
         std::exit(EXIT_FAILURE);
     }
 }
@@ -157,7 +156,6 @@ void WebServer::handleClientRequest(Client* client, Request* request)
 {
     Result result = mCluster->handle(*request);
 
-    Logger::info("removing client from Mux ")(client->getSocketFd()).flush();
     mMux->remove(client);
 
     client->setKeepAlive(request->getHeader("connection"));
@@ -222,9 +220,9 @@ void WebServer::handleClientRequest(Client* client, Request* request)
 void WebServer::takeAndHandleRequests()
 {
     std::queue<IClient *> qc = mMux->getReadyClients();
-    Logger::info("size of active clients: ")(qc.size())(" -> ");
-    if (qc.empty()) Logger::info.flush();
-    else Logger::info(qc.front()->getSocketFd()).flush();
+
+    // if (qc.empty()) Logger::info.flush();
+    // else Logger::info(qc.front()->getSocketFd()).flush();
 
     while (qc.size())
     {
@@ -421,8 +419,6 @@ void WebServer::readFromReadyProxyResponses()
 void WebServer::sendReadyProxyResponses()
 {
     std::queue<IProxyResponse *> qpres = mMux->getReadyForWritingProxyResponses();
-
-    // std::cout << "Qpres :: " << qpres.size() << std::endl;
     
     while (qpres.size())
     {
@@ -460,7 +456,6 @@ void WebServer::sendReadyProxyResponses()
 
 void WebServer::disconnectClient(Client &client)
 {
-    Logger::info("disconnecting client")(client.getSocketFd()).flush();
     if (client.activeResponse)
     {
         mMux->remove(client.activeResponse);

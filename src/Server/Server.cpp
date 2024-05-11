@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/04/30 14:38:28 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/11 11:54:53 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,17 +35,11 @@ Server::Server(Config& serverConfig, ErrorPages& pages) :
 	is_default = serverConfig.getInlineConfigIfExist("default") == "yes";
 	names = serverConfig.getListConfigIfExist("names");	
 
-	try
-	{
-		host = serverConfig.getInlineConfigOr("host", "0.0.0.0"); // localhost, 12.hello.123.3
-		ip = utils::hostname_to_ip_v4(host);
-		if (ip == (unsigned int)-1)
-			ip = utils::ip(host);
-		host = utils::ip(ip);
-	}
-	catch (std::exception& e) {
-		// std::cout << "Host :: " << host << std::endl;
-	}
+	host = serverConfig.getInlineConfigOr("host", "0.0.0.0"); // localhost, 12.hello.123.3
+	ip = utils::hostname_to_ip_v4(host);
+	if (ip == (unsigned int)-1)
+		ip = utils::ip(host);
+	host = utils::ip(ip);
 
 	root = serverConfig.getInlineConfigIfExist("root");
 	error_pages.setErrorPages(serverConfig.getBlockConfigIfExist("error_page"), root);
@@ -97,8 +91,6 @@ Server&	Server::operator=( const Server& s )
 
 bool	Server::findBestMatch(const string& reqURI, string routeURI)
 {
-	// if (reqURI == routeURI)
-	// 	return true;
 	if (strncmp(routeURI.c_str(), reqURI.c_str(), routeURI.length()) == 0)
 		if (reqURI[routeURI.length()] == '/' || reqURI.length() == routeURI.length())
 			return true;

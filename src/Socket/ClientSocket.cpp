@@ -125,7 +125,6 @@ std::string ClientSocket::readAll()
         ret += std::string(buffer, r);
         Logger::info("read ret: ")(r).flush();
     }
-    Logger::info("read ret out: ")(r).flush();
 
     if (r != -1)
         mRead = r;

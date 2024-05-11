@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 14:52:03 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/10 15:26:52 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/11 12:15:38 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,9 @@
 
 #include "../Route/Upload.hpp"
 #include "IMultiplexer.hpp"
+#include "MultiplexerException.hpp"
 
 #include "Logger.hpp"
-
-struct mybitset {
-	bool read:1;
-	bool write:1;
-
-	mybitset():read(0),write(0){}
-};
-
 
 class KqueueMultiplexer : public IMultiplexer
 {
@@ -46,8 +39,6 @@ class KqueueMultiplexer : public IMultiplexer
 	std::map<int , IProxyRequest *> 			ProxyRequests;
 	std::map<int , IProxyResponse *>			ProxyResponses;
 	std::map<int , IUpload *>					Uploads;
-
-	std::vector<mybitset>						set;
 
 public:
 	KqueueMultiplexer();
