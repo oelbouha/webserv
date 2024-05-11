@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 15:10:02 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/11 12:21:38 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/11 14:05:33 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -344,8 +344,8 @@ void	KqueueMultiplexer::wait(unsigned long int time)
   	timeout.tv_nsec = static_cast<long>(time % 1000000);
 
 	ReadyEvents = kevent(Kq, NULL, 0, Events.data(), Events.size(), &timeout);
-	if (ReadyEvents < 0) throw MultiplexerException("Kevent Failed To Watch Events");
 	if (ReadyEvents == 0) return ;
+	if (ReadyEvents < 0) throw MultiplexerException("Kevent Failed To Watch Events");
 	
 	readyEventsMap.clear();
 	for (int i = 0; i < ReadyEvents; ++i)
