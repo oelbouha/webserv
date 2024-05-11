@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 15:10:02 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/11 14:05:33 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/11 15:38:41 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,10 @@ KqueueMultiplexer::KqueueMultiplexer()
 {
     Kq = kqueue();
 	if (Kq < 0)
-		throw MultiplexerException("Failed To Create Kqueue");
+	{
+		Logger::error("Kevent Failed To Watch Events").flush();
+		std::exit (1);
+	}
 }
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -345,7 +348,10 @@ void	KqueueMultiplexer::wait(unsigned long int time)
 
 	ReadyEvents = kevent(Kq, NULL, 0, Events.data(), Events.size(), &timeout);
 	if (ReadyEvents == 0) return ;
-	if (ReadyEvents < 0) throw MultiplexerException("Kevent Failed To Watch Events");
+	if (ReadyEvents < 0) {
+		Logger::error("Kevent Failed To Watch Events").flush();
+		std::exit (1);
+	}
 	
 	readyEventsMap.clear();
 	for (int i = 0; i < ReadyEvents; ++i)
@@ -401,7 +407,10 @@ void	KqueueMultiplexer::AddOrDeleteEvent(unsigned int fd, short filter, short fl
 
 	EV_SET(&event, fd, filter, flag, 0, 0, NULL);
 	if (kevent(Kq, &event, 1, NULL, 0, NULL) < 0)
-		throw MultiplexerException("Kevent Failed To set The Event");
+	{
+		Logger::error("Kevent Failed To set The Event").flush();
+		std::exit (1);
+	}
 	if (flag == EV_DELETE)
 		deleteEvent(fd, filter);
 	else if (flag == EV_ADD)

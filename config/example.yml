@@ -26,6 +26,7 @@ cluster:
       - 8000
     cgi:
       - .py
+      - .cpp
       - .php
     error_page:
       file: /50x.html

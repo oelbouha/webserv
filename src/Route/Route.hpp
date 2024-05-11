@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/04/30 10:57:26 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/11 14:42:44 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,11 @@ class Route {
 	std::vector<string> 	CGIExtensions;
 	std::vector<Config*> 	redirect;
 	ErrorPages&				error_pages;
-	bool					autoindex;
+	bool					autoIndex;
 	string					uri;
 	string					location;
 	string					root;
-	string					indexfile;
+	string					indexFile;
 	string  				uploadPath;
 	unsigned int			code;
 	unsigned int			max_body_size;
@@ -60,24 +60,30 @@ public:
 	Route&	operator=( const Route& s );
 	~Route();
 	
-	const string&		getURI() const;
-	std::string 		getAbsolutePath(std::string requri);
-	bool				isMethodAllowed(const std::string& method);
+	const string&				getURI() const;
+	std::string 				getAbsolutePath(std::string requri);
+	bool						isMethodAllowed(const std::string& method);
 
-	Result  			handle(Request&);
+	Result  					handle(Request&);
 
 private:
-	IResponse* 	makeFileResponseFromPath(const Request& request, const std::string& path);
-	IResponse*	handleRequestToFile(const Request&);
-	Result		handleRequestToCgi(Request&);
-	IResponse*	makeDirectoryListingResponse(const Request& request, const std::string& path);
-	bool		isRequestToCgi(const std::string & );
-	bool		isMethodImplemented(const std::string& );
-	bool		isUpload(const Request&);
-	std::string	getAllowedMethods() const;
-	std::vector<DirLisingItem> 	readDirectory(const std::string& path);
-	void		printMethods();
+	IResponse* 					makeFileResponseFromPath(const Request&, const std::string& );
+	IResponse*					handleRequestToFile(const Request&);
+	Result						handleRequestToCgi(Request&);
+	IResponse*					makeDirectoryListingResponse(const Request&, const std::string&);
+	bool						isRequestToCgi(const std::string & );
+	bool						isMethodImplemented(const std::string& );
+	bool						isUpload(const Request&);
+	std::string					getAllowedMethods() const;
+	void						printMethods();
+	std::vector<DirLisingItem> 	readDirectory(const std::string&);
 };
+
+
+
+
+
+
 
 #define DIR_LISTING_START "\
 <!Doctype html>\

@@ -67,7 +67,7 @@ void    Client::makeRequest()
 {
     try
     {
-        Logger::info("client making request").flush();
+        // Logger::info("client making request").flush();
         mRequest = new Request(*mSocket, mIncomingIP, mIncomingPort);
         mRequest->readHeader();
     }

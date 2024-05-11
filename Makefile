@@ -73,7 +73,8 @@ CGI_COMPONENT	:= CGI/CGIHandler.cpp \
 	CGI/DefaultWriter.cpp \
 	CGI/ChunkedWriter.cpp
 
-MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp Multiplexer/KqueueMultiplexer.cpp Multiplexer/MultiplexerException.cpp
+MULTIPLEXER_COMPONENT := Multiplexer/SelectMultiplexer.cpp \
+						 Multiplexer/KqueueMultiplexer.cpp
 
 SERVER_COMPONENT := Server/Result.cpp \
 	Server/Cluster.cpp \

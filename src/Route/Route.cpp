@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/07 16:46:16 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/11 14:43:50 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,7 @@ Route::Route(Config* config, ErrorPages& pages) :
 			config->getInlineConfig("max_body_size"));
 	}
 	
-	autoindex = config->getInlineConfigOr("autoindex", "no") == "yes";
-	
+	autoIndex = config->getInlineConfigOr("autoindex", "no") == "yes";
 	uri = config->getInlineConfigIfExist("uri");
 	if (uri[uri.length() - 1] == '/') uri.erase(uri.length() - 1);
 
@@ -59,7 +58,7 @@ Route::Route(Config* config, ErrorPages& pages) :
 	if (root[root.length() - 1] == '/') root.pop_back();
 	
 	uploadPath = config->getInlineConfigIfExist("upload");
-	indexfile = config->getInlineConfigIfExist("index");
+	indexFile = config->getInlineConfigIfExist("index");
 	allowedMethods = config->getListConfigIfExist("allowed_methods");
 	CGIExtensions =  config->getListConfigIfExist("cgi");
 }
@@ -129,8 +128,8 @@ std::string 		Route::getAbsolutePath(std::string req_uri)
 
 	bool trailing_slash = path[path.length() - 1] == '/';
 
-	if (utils::is_directory(path) && uri_tmp == uri && trailing_slash && !indexfile.empty())
-		path += indexfile;
+	if (utils::is_directory(path) && uri_tmp == uri && trailing_slash && !indexFile.empty())
+		path += indexFile;
 	return (path);
 }
 
@@ -235,7 +234,7 @@ IResponse*  		Route::handleRequestToFile(const Request& request)
 				.setHeader("Location", location);
 			return (response);
 		}
-		else if (autoindex)
+		else if (autoIndex)
 		{
 			try { return makeDirectoryListingResponse(request, path); }
 			catch(...){
