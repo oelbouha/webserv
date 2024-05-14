@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 15:10:02 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/11 15:38:41 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/14 12:21:43 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ KqueueMultiplexer::KqueueMultiplexer()
 void	KqueueMultiplexer::add(IServerSocket* server)
 {
 	Servers[server->getSocketFd()] = server;
-	AddOrDeleteEvent(server->getSocketFd(), EVFILT_READ, EV_ADD);
+	addEventToQueue(server->getSocketFd(), EVFILT_READ);
 }
 
 void	KqueueMultiplexer::remove(IServerSocket* server)
@@ -43,7 +43,7 @@ void	KqueueMultiplexer::remove(IServerSocket* server)
 
 	if (pos != Servers.end())
 	{
-		AddOrDeleteEvent(server->getSocketFd(), EVFILT_READ, EV_DELETE);
+		deleteEventFromQueue(server->getSocketFd(), EVFILT_READ);
 		Servers.erase(pos);
 	}
 }
@@ -72,7 +72,7 @@ std::queue<IServerSocket *> KqueueMultiplexer::getReadyServerSockets() const
 void	KqueueMultiplexer::add(IClient* client)
 {
 	Clients[client->getSocketFd()] = client;
-	AddOrDeleteEvent(client->getSocketFd(), EVFILT_READ, EV_ADD);
+	addEventToQueue(client->getSocketFd(), EVFILT_READ);
 }
 
 void	KqueueMultiplexer::remove(IClient* client)
@@ -82,7 +82,7 @@ void	KqueueMultiplexer::remove(IClient* client)
 	if (pos != Clients.end())
 	{
 		Clients.erase(pos);
-		AddOrDeleteEvent(client->getSocketFd(), EVFILT_READ, EV_DELETE);
+		deleteEventFromQueue(client->getSocketFd(), EVFILT_READ);
 	}
 }
 
@@ -110,7 +110,7 @@ std::queue<IClient *> KqueueMultiplexer::getReadyClients() const
 void	KqueueMultiplexer::add(IResponse* res)
 {
 	Responses[res->getSocketFd()] = res;
-	AddOrDeleteEvent(res->getSocketFd(), EVFILT_WRITE, EV_ADD);
+	addEventToQueue(res->getSocketFd(), EVFILT_WRITE);
 }
 
 void	KqueueMultiplexer::remove(IResponse* res)
@@ -120,7 +120,7 @@ void	KqueueMultiplexer::remove(IResponse* res)
 	if (pos != Responses.end())
 	{
 		Responses.erase(pos);
-		AddOrDeleteEvent(res->getSocketFd(), EVFILT_WRITE, EV_DELETE);
+		deleteEventFromQueue(res->getSocketFd(), EVFILT_WRITE);
 	}
 }
 
@@ -142,20 +142,19 @@ std::queue<IResponse *> KqueueMultiplexer::getReadyResponses() const
 }
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-			CGI
+			ADD Or Remove Proxyrequest
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
-
 
 void  KqueueMultiplexer::add(IProxyRequest*  request, IMultiplexer::mod_t mod)
 {
 	ProxyRequests[request->getOutputFd()] = request;
 	if (mod == IMultiplexer::WRITE)
 	{
-		AddOrDeleteEvent(request->getOutputFd(), EVFILT_WRITE, EV_ADD);
+		addEventToQueue(request->getOutputFd(), EVFILT_WRITE);
 		return ;
 	}
 	if ( request->getSocketFd() != -1 )
-		AddOrDeleteEvent(request->getSocketFd(), EVFILT_READ, EV_ADD);
+		addEventToQueue(request->getSocketFd(), EVFILT_READ);
 }
 
 void  KqueueMultiplexer::remove(IProxyRequest*  request, IMultiplexer::mod_t mod)
@@ -168,29 +167,32 @@ void  KqueueMultiplexer::remove(IProxyRequest*  request, IMultiplexer::mod_t mod
 	if (mod == IMultiplexer::READ)
 	{
 		if (request->getSocketFd() != -1)
-			AddOrDeleteEvent(request->getSocketFd(), EVFILT_READ, EV_DELETE);
+			deleteEventFromQueue(request->getSocketFd(), EVFILT_READ);
 		
-		if ( ! IsSet(request->getOutputFd(), EVFILT_WRITE) )
+		if (! isEventExists(request->getOutputFd(), EVFILT_WRITE))
 			ProxyRequests.erase(pos);
 		return ;
 	}
 
-	AddOrDeleteEvent(request->getOutputFd(), EVFILT_WRITE, EV_DELETE);	
-	if (request->getSocketFd() != -1 || ! IsSet(request->getSocketFd(), EVFILT_READ))
+	deleteEventFromQueue(request->getOutputFd(), EVFILT_WRITE);	
+	if (! isEventExists(request->getSocketFd(), EVFILT_READ))
 		ProxyRequests.erase(pos);
 }
 
-/*****************************      Proxy Response   *******************************/
+
+/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+			ADD Or Remove ProxyResponse
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 
 void  KqueueMultiplexer::add(IProxyResponse* res, IMultiplexer::mod_t mod)
 {
 	ProxyResponses[res->getSocketFd()] = res;
 	if (mod == IMultiplexer::READ)
 	{
-		AddOrDeleteEvent(res->getInputFd(), EVFILT_READ, EV_ADD);
+		addEventToQueue(res->getInputFd(), EVFILT_READ);
 		return ;
 	}
-	AddOrDeleteEvent(res->getSocketFd(), EVFILT_WRITE, EV_ADD);
+	addEventToQueue(res->getSocketFd(), EVFILT_WRITE);
 }
 
 void  		KqueueMultiplexer::remove(IProxyResponse* response, IMultiplexer::mod_t mod)
@@ -202,31 +204,19 @@ void  		KqueueMultiplexer::remove(IProxyResponse* response, IMultiplexer::mod_t 
 
 	if (mod == IMultiplexer::READ)
 	{
-		AddOrDeleteEvent(response->getInputFd(), EVFILT_READ, EV_DELETE);
-		// Logger::info("Removing Response Object fd  (read) -> ")(response->getSocketFd())(" , ")(response->getInputFd()).flush();
-
-		if (! IsSet(response->getSocketFd(), EVFILT_WRITE) )
-		{
-			// std::cout << "Removing Response Object fd -> " << response->getSocketFd() << response->getInputFd() <<  std::endl;
+		deleteEventFromQueue(response->getInputFd(), EVFILT_READ);
+		if (! isEventExists(response->getSocketFd(), EVFILT_WRITE) )
 			ProxyResponses.erase(pos);
-			// Logger::info("proxy responses size: ")(ProxyResponses.size()).flush();
-		}
 		return ;
 	}
-	
-	AddOrDeleteEvent(response->getSocketFd(), EVFILT_WRITE, EV_DELETE);
-	// Logger::info("Removing Response Object fd  (write) -> ")(response->getSocketFd())(" , ")(response->getInputFd()).flush();
-	
-	if (! IsSet(response->getInputFd(), EVFILT_READ) )
-	{
-		// std::cout << "Removing Response Object fd -> " << response->getInputFd() << " | " << response->getSocketFd() << std::endl;
+	deleteEventFromQueue(response->getSocketFd(), EVFILT_WRITE);
+	if (! isEventExists(response->getInputFd(), EVFILT_READ) )
 		ProxyResponses.erase(pos);
-		// Logger::info("proxy responses size: ")(ProxyResponses.size()).flush();
-	}
 }
 
-
-/*****************************      Get Ready Proxy Requests   *******************************/
+/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+			Get Ready Proxy Requests
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 
 std::queue<IProxyRequest* >  		KqueueMultiplexer::getReadyForReadingProxyRequests() const
 {
@@ -262,8 +252,9 @@ std::queue<IProxyRequest* >  KqueueMultiplexer::getReadyForWritingProxyRequests(
 	return ret;
 }
 
-
-/*****************************      Get Ready Proxy Responses    *******************************/
+/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+			Get Ready Proxy Responses
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 
 std::queue<IProxyResponse* >  KqueueMultiplexer::getReadyForReadingProxyResponses() const 
 {
@@ -306,7 +297,7 @@ std::queue<IProxyResponse* >  KqueueMultiplexer::getReadyForWritingProxyResponse
 void KqueueMultiplexer::add(IUpload *upload)
 {
 	Uploads[upload->getSocketFd()] = upload;
-	AddOrDeleteEvent(upload->getSocketFd(), EVFILT_READ, EV_ADD);
+	addEventToQueue(upload->getSocketFd(), EVFILT_READ);
 }
 
 void KqueueMultiplexer::remove(IUpload *upload)
@@ -316,7 +307,7 @@ void KqueueMultiplexer::remove(IUpload *upload)
 	if (pos != Uploads.end())
 	{
 		Uploads.erase(pos);
-		AddOrDeleteEvent(upload->getSocketFd(), EVFILT_READ, EV_DELETE);
+		deleteEventFromQueue(upload->getSocketFd(), EVFILT_READ);
 	}
 }
 
@@ -348,11 +339,12 @@ void	KqueueMultiplexer::wait(unsigned long int time)
 
 	ReadyEvents = kevent(Kq, NULL, 0, Events.data(), Events.size(), &timeout);
 	if (ReadyEvents == 0) return ;
+
 	if (ReadyEvents < 0) {
 		Logger::error("Kevent Failed To Watch Events").flush();
 		std::exit (1);
 	}
-	
+
 	readyEventsMap.clear();
 	for (int i = 0; i < ReadyEvents; ++i)
 	{
@@ -361,7 +353,6 @@ void	KqueueMultiplexer::wait(unsigned long int time)
 	}
 }
 
- bool KqueueMultiplexer::ready() const { return ReadyEvents > 0; }
 
 bool	KqueueMultiplexer::IsEventSet(unsigned int fd, short filter) const
 {
@@ -374,7 +365,7 @@ bool	KqueueMultiplexer::IsEventSet(unsigned int fd, short filter) const
 	return false;
 }
 
-bool 	KqueueMultiplexer::IsSet(unsigned int fd, short filter) const
+bool 	KqueueMultiplexer::isEventExists(unsigned int fd, short filter) const
 {
 	std::vector<struct kevent>::const_iterator it = Events.begin();
 
@@ -387,7 +378,7 @@ bool 	KqueueMultiplexer::IsSet(unsigned int fd, short filter) const
 	return false;
 }
 
-void	KqueueMultiplexer::deleteEvent(unsigned int fd, short filter)
+void	KqueueMultiplexer::removeEventFromEventsSet(unsigned int fd, short filter)
 {
 	std::vector<struct kevent>::iterator it = Events.begin();
 	while  ( it != Events.end() )
@@ -401,24 +392,38 @@ void	KqueueMultiplexer::deleteEvent(unsigned int fd, short filter)
 	}
 }
 
-void	KqueueMultiplexer::AddOrDeleteEvent(unsigned int fd, short filter, short flag)
+void	KqueueMultiplexer::addEventToQueue(unsigned int fd, short filter)
 {
 	struct kevent event;
 
-	EV_SET(&event, fd, filter, flag, 0, 0, NULL);
+	Events.push_back(event);
+	
+	EV_SET(&event, fd, filter, EV_ADD, 0, 0, NULL);
 	if (kevent(Kq, &event, 1, NULL, 0, NULL) < 0)
 	{
 		Logger::error("Kevent Failed To set The Event").flush();
 		std::exit (1);
 	}
-	if (flag == EV_DELETE)
-		deleteEvent(fd, filter);
-	else if (flag == EV_ADD)
+}
+
+void	KqueueMultiplexer::deleteEventFromQueue(unsigned int fd, short filter)
+{
+	struct kevent event;
+
+	if (! isEventExists(fd, filter))
+		return ;
+
+	removeEventFromEventsSet(fd, filter);
+
+	EV_SET(&event, fd, filter, EV_DELETE, 0, 0, NULL);
+	if (kevent(Kq, &event, 1, NULL, 0, NULL) < 0)
 	{
-		if (IsSet(fd, filter))
-			deleteEvent(fd, filter);
-		Events.push_back(event);
+		Logger::error("Kevent Failed To set The Event").flush();
+		std::exit (1);
 	}
 }
 
+bool KqueueMultiplexer::ready() const {
+	return ReadyEvents > 0;
+}
 

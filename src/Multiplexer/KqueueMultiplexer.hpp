@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 14:52:03 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/11 15:38:31 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/14 12:16:37 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,13 +72,15 @@ public:
 
 	bool		ready() const ;
 	void 		wait(unsigned long int timeout) ;
-	bool		IsEventSet(unsigned int socketFd, short filter) const ;
-	void		AddOrDeleteEvent(unsigned int socketFd, short filter, short flag);
-	bool 		IsSet(unsigned int socketFd, short filter) const ;
-	void		deleteEvent(unsigned int fd, short filter);
 	
 private:
+	bool		IsEventSet(unsigned int socketFd, short filter) const ;
+	bool 		isEventExists(unsigned int socketFd, short filter) const ;
+	void		removeEventFromEventsSet(unsigned int fd, short filter);
+	void		deleteEventFromQueue(unsigned int fd, short filter);
+	void		addEventToQueue(unsigned int fd, short filter);
 	
+private:
 	std::vector<struct kevent> 		Events;
 	std::map<int, struct kevent>	readyEventsMap;
 	int 							ReadyEvents;

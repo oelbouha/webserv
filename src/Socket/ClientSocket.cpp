@@ -123,7 +123,6 @@ std::string ClientSocket::readAll()
 
     while ((r = ::read(mID, buffer, bufferSize)) > 0) {
         ret += std::string(buffer, r);
-        Logger::info("read ret: ")(r).flush();
     }
 
     if (r != -1)

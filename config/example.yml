@@ -18,7 +18,7 @@ cluster:
       - 416
   server:
     root: /Users/oelbouha/Desktop/webserv/pages
-    upload: /Users/oelbouha/Desktop/webserv/upload
+    upload: /Users/oelbouha/Desktop/web/upload
     host: localhost
     names: 
       - localhost
@@ -43,7 +43,7 @@ cluster:
         - GET
   server:
     root: /Users/oelbouha/Desktop/webserv
-    upload: /Users/oelbouha/Desktop/webserv/upload
+    upload: /Users/oelbouha/Desktop/web/upload
     host: 0.0.0.0
     ports:
       - 8000
