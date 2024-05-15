@@ -170,8 +170,8 @@ void  SelectMultiplexer::remove(IUpload *upload)
   if (it != uploads.end())
   {
     uploads.erase(it);
-    FD_CLR(upload->getSocketFd(), &mWritefds);
-    FD_CLR(upload->getSocketFd(), &mWritefdsTmp);
+    FD_CLR(upload->getSocketFd(), &mReadfds);
+    FD_CLR(upload->getSocketFd(), &mReadfdsTmp);
 
      if (upload->getSocketFd() == mMaxfd - 1)
       updateMaxFd();

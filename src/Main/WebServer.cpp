@@ -51,8 +51,8 @@ WebServer::WebServer(Config *aConfig) : mConfig(aConfig)
     { throw ConfigException("Config error", "keep_alive/keep_alive_timeout", e.what()); }
 
 
-    // mMux = new SelectMultiplexer();
-    mMux = new KqueueMultiplexer();
+    mMux = new SelectMultiplexer();
+    // mMux = new KqueueMultiplexer();
     mCluster = new Cluster( clusterConfig );
 
     std::set<std::pair<uint, uint> > ip_port_pairs = mCluster->getServersIPPortPairs();
@@ -136,7 +136,7 @@ void WebServer::acceptNewClients()
         mMux->add(client);
         qs.pop();
 
-        Logger::info("client accepted ")(client->getSocketFd()).flush();
+        Logger::debug("client accepted ")(client->getSocketFd()).flush();
     }
 }
 

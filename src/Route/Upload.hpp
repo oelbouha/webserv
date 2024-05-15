@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Upload.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:19 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/14 22:23:21 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/15 14:17:16 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ private:
 	
 	void			createTmpFile();
 	void			buildUploadRequest();
-	void			copyRequestBodyToFile();
 	std::string 	getFieldName(const std::string& name, const std::string& del);
 	std::string 	getNextTmpName();
 };

@@ -168,8 +168,8 @@ void	CGIResponse::build()
 			it = mResponseHeaders.find("status");
 
 			if (it == end) { // redirect without a body
-				Logger::debug ("redir without body:").flush();
-				Logger::debug ("\theaders size: ")(mResponseHeaders.size()).flush();
+				Logger::debug ("hout body:").flush();
+				Logger::debug ("\theadersredir wit size: ")(mResponseHeaders.size()).flush();
 				Logger::debug ("\tmBody: *")(mBody)("*").flush();
 				if ( mResponseHeaders.size() > 1 || ! mBody.empty() ) { mError = true; return; }
 				mHeader = "HTTP/1.1 302 Found\r\nContent-Length: 0\r\n";
@@ -178,7 +178,7 @@ void	CGIResponse::build()
 					mHeader += it->first + ": " + it->second + "\r\n";
 			}
 			else { // redirect with body
-				if ( it == end || it->second[0] != '3' ) { mError = true; return; }
+				if ( it->second[0] != '3' ) { mError = true; return; }
 				if ( mResponseHeaders.find("content-type") == end ) { mError = true; return; }
 
 				std::string& status = it->second;

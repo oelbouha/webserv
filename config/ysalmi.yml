@@ -1,12 +1,9 @@
-#comment;
-error_log_file  : /Users/ysalmi/webserv.error.log
-error_log_level : warn
-
 cluster:
   default_mime: text/plain
   mime_types:
     jpg: image/jpeg
     jpeg: image/jpeg
+    mp4: video/mp4
   keep_alive:	5
   keep_alive_timeout: 60
   server_props: no
@@ -19,11 +16,11 @@ cluster:
       - 416
 
   server:
-    root: /Users/ysalmi/code/in_progress/webserv/pages
-    upload: /Users/ysalmi/code/in_progress/webserv/upload
+    root: /Users/ysalmi/code/ws/pages
+    upload: /goinfre/ysalmi
     host: 0.0.0.0
     ports:
-      - 8000
+      - 9000
     names:
       - localhost
     error_page:
@@ -37,18 +34,19 @@ cluster:
     max_body_size: 0
     route:
       uri: /redir_test
-      root: /Users/ysalmi/code/in_progress/webserv/pages
+      root: /Users/ysalmi/code/ws/pages
       redirect:
         code: 301
         location: /
       allowed_methods:
+        - GET
         - POST
         - DELETE
     route:
       uri: /
       cgi:
         - .py
-      root: /Users/ysalmi/code/in_progress/webserv/pages
+      root: /Users/ysalmi/code/ws/pages
       autoindex: yes
       index: index.html
       allowed_methods:
@@ -58,18 +56,18 @@ cluster:
     route:
       uri: /cgi tests/
       index: home.py
-      root: /Users/ysalmi/code/in_progress/webserv/pages/cgi tests
+      root: /Users/ysalmi/code/ws/pages/cgi tests
       allowed_methods:
         - POST
         - DELETE
         - GET
 
   server:
-    root: /Users/ysalmi/code/in_progress/webserv/pages
-    upload: /Users/ysalmi/code/in_progress/webserv/upload
+    root: /Users/ysalmi/code/ws/pages
+    upload: /goinfre/ysalmi
     host: 0.0.0.0
     ports:
-      - 8000
+      - 9000
     names:
       - 127.0.0.1
     error_page:
@@ -85,7 +83,7 @@ cluster:
         - 400
     route:
       uri: /
-      root: /Users/ysalmi/code/in_progress/webserv/pages
+      root: /Users/ysalmi/code/ws/pages
       autoindex: yes
       allowed_methods:
         - POST
@@ -95,8 +93,8 @@ cluster:
   # server:
   #   host: 10.30.252.176
   #   index: index.html
-  #   root: /Users/ysalmi/code/in_progress/webserv/pages
-  #   upload: /Users/ysalmi/code/in_progress/webserv/upload
+  #   root: /Users/ysalmi/code/w/pages
+  #   upload: /Users/ysalmi/code/w/upload
   #   ports:
   #     - 8001
   #   error_page:

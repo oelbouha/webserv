@@ -61,9 +61,9 @@ def home_post():
         data["name"] = user_session.get("name")
         response.setHeader("Set-Cookie", session_cookie)
 
-    response.setHeader("Status", "200 Ok")
+    response.setHeader("Status", "302 Found")
+    response.setHeader("location", "http://%s%s"%(os.getenv("SERVER_NAME"),os.getenv("REQUEST_URI")))
     response.setHeader("Content-Type", "text/html")
-    response.setBody(template(data=data))
     user_session.save()
     response.send()
         

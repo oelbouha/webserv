@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/14 22:27:19 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/15 11:51:57 by ysalmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,10 +94,7 @@ Result  			Route::handle(Request& request)
 	}
 	
 	if ( isRequestToCgi(request.getURI()) )
-	{
-		std::cout << "Requested To CGI !!" << std::endl;
 		return handleRequestToCgi(request);
-	}
 		
 	if ( request.getMethod() == "GET" ) {
 		IResponse *res = handleRequestToFile(request);
@@ -249,11 +246,13 @@ Result  			Route::handleRequestToCgi(Request& request)
 {
 	std::string path = getAbsolutePath(request.getURI());
 	
-	if ( ::access(path.c_str(), F_OK) == -1)
+	if ( ::access(path.c_str(), F_OK) == -1) {
+		Logger::info(path)(" - file not found").flush();
 		return (Result(error_pages.build(request, 404)));
+	}
 	
 	if ( ::access(path.c_str(), R_OK | X_OK) == -1 )
-		return (Result(error_pages.build(request, 500)));
+		return (Result(error_pages.build(request, 502)));
 
 	if (isUpload(request)) {
 		if ( ::access(uploadPath.c_str(), F_OK | W_OK) == -1)

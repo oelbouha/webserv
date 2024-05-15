@@ -36,13 +36,11 @@ int ClientSocket::write( const std::string& aBuffer ) const
     int r = ::write(mID, aBuffer.data(), aBuffer.length());
 
     if (r < 0){
-        perror("socket write");
         throw SocketException(
             std::string("Couldn't write to socket: ") + strerror(errno),
             SocketException::CANT_WRITE_TO_SOCKET
         );
     }
-
     return (r);
 }
 
