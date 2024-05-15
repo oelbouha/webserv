@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:25 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/11 14:43:50 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/14 22:27:19 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,6 @@ const std::string&	Route::getURI() const{ return uri; }
 
 Result  			Route::handle(Request& request)
 {
-	// std::cout << "req uri :: " << request.getURI() << std::endl; 
 	request.setMaxBodySize(max_body_size);
 	
 	if (! isMethodImplemented(request.getMethod()))
@@ -293,15 +292,4 @@ bool				Route::isRequestToCgi(const std::string & aUri)
 	if (std::find(CGIExtensions.begin(), CGIExtensions.end(), extension) != CGIExtensions.end())
 		return true;
 	return false;
-}
-
-void			Route::printMethods() 
-{
-	std::vector<std::string>::iterator it = allowedMethods.begin();
-	std::cout << "Allowed Methods :: ";
-	while (it != allowedMethods.end()){
-		std::cout << *it << ", ";
-		++it;
-	}
-	std::cout << std::endl;
 }

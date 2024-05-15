@@ -17,9 +17,11 @@ cluster:
       - 404
       - 416
   server:
-    root: /Users/oelbouha/Desktop/webserv/pages
+    root: /Users/oelbouha/Desktop/web/pages
     upload: /Users/oelbouha/Desktop/web/upload
-    host: localhost
+    host: 0.0.0.0
+    ports:
+      - 8000
     names: 
       - localhost
     ports:
@@ -35,14 +37,14 @@ cluster:
         - 501
     route:
       uri: /
-      root: /Users/oelbouha/Desktop/webserv/pages
+      root: /Users/oelbouha/Desktop/web/pages
       autoindex: yes
       allowed_methods:
         - POST
         - DELETE
         - GET
   server:
-    root: /Users/oelbouha/Desktop/webserv
+    root: /Users/oelbouha/Desktop/web
     upload: /Users/oelbouha/Desktop/web/upload
     host: 0.0.0.0
     ports:
@@ -62,7 +64,7 @@ cluster:
       - .h
     route:
       uri: /
-      root: /Users/oelbouha/Desktop/webserv
+      root: /Users/oelbouha/Desktop/web
       autoindex: yes
       allowed_methods:
         - POST

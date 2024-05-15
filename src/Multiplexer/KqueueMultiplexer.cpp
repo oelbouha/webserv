@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 15:10:02 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/14 12:21:43 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/14 14:39:05 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -352,7 +352,6 @@ void	KqueueMultiplexer::wait(unsigned long int time)
 		readyEventsMap[fd] = Events[i];
 	}
 }
-
 
 bool	KqueueMultiplexer::IsEventSet(unsigned int fd, short filter) const
 {

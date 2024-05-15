@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:46:33 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/11 14:42:44 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/14 22:27:28 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,6 @@ private:
 	bool						isMethodImplemented(const std::string& );
 	bool						isUpload(const Request&);
 	std::string					getAllowedMethods() const;
-	void						printMethods();
 	std::vector<DirLisingItem> 	readDirectory(const std::string&);
 };
 
