@@ -35,7 +35,8 @@ cluster:
     route:
       uri: /
       root: /Users/oelbouha/Desktop/web/pages
-      autoindex: yes
+      # autoindex: yes
+      index: index.html
       allowed_methods:
         - POST
         - DELETE
