@@ -52,8 +52,8 @@ ProxyPair    CGIHandler::handle(Request* request, const std::string& path)
             utils::vector_to_cstring_array(args),
             utils::vector_to_cstring_array(env)
         );
-        perror("cgi");
-        exit(1);
+        std::perror("cgi");
+        std::exit(1);
     }
 
     close(input[0]);

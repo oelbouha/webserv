@@ -98,6 +98,15 @@
             </div>
             <div class="form">
                 <label>1 File upload</label>
+                <form action="/cgi tests/upload.py" method="post" enctype="multipart/form-data">                
+                    <label for="file">File 2:</label>
+                    <input type="file" name="file" id="file">
+                
+                    <input type="submit" value="Upload">
+                </form>
+            </div>
+            <div class="form">
+                <label>1 File upload</label>
                 <form action="/main.py" method="post" enctype="multipart/form-data">
                     <label for="name">Name:</label>
                     <input type="text" name="name" id="name">

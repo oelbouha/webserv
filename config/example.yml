@@ -19,12 +19,9 @@ cluster:
   server:
     root: /Users/oelbouha/Desktop/web/pages
     upload: /Users/oelbouha/Desktop/web/upload
-    host: 0.0.0.0
+    host: localhost
     ports:
       - 8000
-    names: 
-      - localhost
-    ports:
       - 8000
     cgi:
       - .py
@@ -43,30 +40,30 @@ cluster:
         - POST
         - DELETE
         - GET
-  server:
-    root: /Users/oelbouha/Desktop/web
-    upload: /Users/oelbouha/Desktop/web/upload
-    host: 0.0.0.0
-    ports:
-      - 8000
-    error_page:
-      file: /50x.html
-      codes:
-        - 500
-        - 501
-    error_page:
-      file: /4xx.html
-      codes:
-        - 418
-        - 404
-        - 400
-    cgi:
-      - .h
-    route:
-      uri: /
-      root: /Users/oelbouha/Desktop/web
-      autoindex: yes
-      allowed_methods:
-        - POST
-        - DELETE
-        - GET
+  # server:
+  #   root: /Users/oelbouha/Desktop/web
+  #   upload: /Users/oelbouha/Desktop/web/upload
+  #   host: localhost
+  #   ports:
+  #     - 9000
+  #   error_page:
+  #     file: /50x.html
+  #     codes:
+  #       - 500
+  #       - 501
+  #   error_page:
+  #     file: /4xx.html
+  #     codes:
+  #       - 418
+  #       - 404
+  #       - 400
+  #   cgi:
+  #     - .h
+  #   route:
+  #     uri: /
+  #     root: /Users/oelbouha/Desktop/web
+  #     autoindex: yes
+  #     allowed_methods:
+  #       - POST
+  #       - DELETE
+  #       - GET

@@ -104,7 +104,7 @@ void WebServer::loop()
 {
     while (true)
     {
-        mMux->wait(1 * 1000000);
+        mMux->wait(500000);
         if (mMux->ready())
         {
             acceptNewClients();

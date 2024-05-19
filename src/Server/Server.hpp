@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ysalmi <ysalmi@student.42.fr>              +#+  +:+       +#+        */
+/*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 21:59:54 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/03/27 17:42:54 by ysalmi           ###   ########.fr       */
+/*   Updated: 2024/05/18 13:17:57 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#define MAX_URI_LENGTH 48
+#define MAX_URI_LENGTH 480
 
 #include <iostream>
 #include <dirent.h>

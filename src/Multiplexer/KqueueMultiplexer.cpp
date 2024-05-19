@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 15:10:02 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/14 14:39:05 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/15 21:52:21 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ KqueueMultiplexer::KqueueMultiplexer()
 	if (Kq < 0)
 	{
 		Logger::error("Kevent Failed To Watch Events").flush();
+		std::perror("kq");
 		std::exit (1);
 	}
 }
@@ -401,6 +402,7 @@ void	KqueueMultiplexer::addEventToQueue(unsigned int fd, short filter)
 	if (kevent(Kq, &event, 1, NULL, 0, NULL) < 0)
 	{
 		Logger::error("Kevent Failed To set The Event").flush();
+		std::perror("kevent");
 		std::exit (1);
 	}
 }
@@ -418,6 +420,7 @@ void	KqueueMultiplexer::deleteEventFromQueue(unsigned int fd, short filter)
 	if (kevent(Kq, &event, 1, NULL, 0, NULL) < 0)
 	{
 		Logger::error("Kevent Failed To set The Event").flush();
+		std::perror("kevent");
 		std::exit (1);
 	}
 }

@@ -47,7 +47,7 @@ void    ProxyPair::setChildFree()
     
     int ret = ::waitpid(mPID, NULL, WNOHANG);
     if (ret == -1)
-        perror("proxy pair");
+        std::perror("proxy pair");
     if (ret == 0)
     {
         kill(mPID, SIGKILL);

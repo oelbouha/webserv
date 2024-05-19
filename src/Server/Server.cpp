@@ -6,7 +6,7 @@
 /*   By: oelbouha <oelbouha@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 18:45:58 by oelbouha          #+#    #+#             */
-/*   Updated: 2024/05/11 11:54:53 by oelbouha         ###   ########.fr       */
+/*   Updated: 2024/05/17 15:27:07 by oelbouha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ Server::Server(Config& serverConfig, ErrorPages& pages) :
 	names = serverConfig.getListConfigIfExist("names");	
 
 	host = serverConfig.getInlineConfigOr("host", "0.0.0.0"); // localhost, 12.hello.123.3
+	
 	ip = utils::hostname_to_ip_v4(host);
 	if (ip == (unsigned int)-1)
 		ip = utils::ip(host);

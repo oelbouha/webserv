@@ -92,6 +92,8 @@ IClientSocket *ServerSocket::accept() const
     unsigned int  addr_len = sizeof(addr);
 
     int id = ::accept(mID, (struct sockaddr *)&addr, (socklen_t *)&addr_len);
+    if (id < 1)
+        Logger::warn("connection fd: ")(id).flush();
 
     Logger::info ("Accepted: ")( utils::ip(ntohl(addr.sin_addr.s_addr)) )
         (":")( ntohs(addr.sin_port) )(" on ")( utils::ip(ntohl(mIP)) ).flush();

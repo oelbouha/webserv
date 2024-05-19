@@ -15,21 +15,6 @@
 
 ErrorPages::ErrorPages(){}
 
-/*
-	bool	ErrorPages::contains(unsigned int code) const
-	{
-		string_string_map::const_iterator	it = error_pages.find(utils::to_string(code));
-		if (it == error_pages.end()) return false;
-		return true;
-	}
-
-	bool	ErrorPages::contains(std::string code) const
-	{
-		string_string_map::const_iterator	it = error_pages.find(code);
-		if (it == error_pages.end()) return false;
-		return true;
-	}
-*/
 
 void	ErrorPages::setErrorPages(const std::vector<Config *>& error_pages_config, const std::string& root)
 {
